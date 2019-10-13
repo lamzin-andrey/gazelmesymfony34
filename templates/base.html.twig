@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{#<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
@@ -10,3 +10,119 @@
         {% block javascripts %}{% endblock %}
     </body>
 </html>
+#}<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" 
+			content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta charset="UTF-8">
+		<title>{{ title }}</title>
+		<link href="/m.css?{{assetsVersion}}" media="all" rel="stylesheet" type="text/css" />
+		{{ additionalCss }}
+	</head>
+	<body>
+		<img src="/images/gazel.jpg" class="hide"/>
+		<img src="/images/gpasy.jpeg" class="hide"/>
+		<img src="/images/term.jpg" class="hide"/>
+		<img src="/images/up.png" class="upb hide" id="uppb" />
+		<img src="/images/l-w.gif" class="hide" />
+		<img src="/images/lw.gif" class="hide" />
+	
+	<input type="hidden" id="selectedregionid" value="{{regionId}}" />
+	<input type="hidden" id="selectedcityid" value="{{ cityId }}" />
+	
+		<header class="mainhead">
+			<div id="logoplace">
+				<div id="logo-out">
+					<div id="logo-in">
+						<a href="/">
+							<img src="/images/gazeli.png"/>
+						</a>
+					</div>				
+				</div>
+				<div class="slogan">
+				</div>
+			</div>
+			<div id="banner-out">
+				<h1 id="banner-in">{{ h1 }}</h1>
+			</div>
+		</header>
+		{# php include TPLS . '/p100banner.php'; #}
+		{% block banner %}{% endblock %}
+		<div id="content">
+			
+			{# if ($_SERVER['REQUEST_URI'] != '/agreement'): #}
+			{% if isAgreementPage %}
+			<div class="seo" style="margin:10px 10px">
+    			<a href="/agreement" ><span class="red">Важно!</span> Пользовательское соглашение.</a>
+			</div>
+			{% endif %}
+			<div class="maincontent">
+				{# include $GLOBALS['inner'] #}
+				{% block content %}{% endblock %}
+			</div>
+			<div style="clear:both"> </div>
+		</div>
+		<div id="footer">
+				<div id="counter-out">
+					<div id="counter-in">
+						<!--LiveInternet counter--><script type="text/javascript"><!--
+document.write("<a href='http://www.liveinternet.ru/click' "+
+"target=_blank><img src='//counter.yadro.ru/hit?t44.10;r"+
+escape(document.referrer)+((typeof(screen)=="undefined")?"":
+";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+";"+Math.random()+
+"' alt='' title='LiveInternet' "+
+"border='0' width='31' height='31'><\/a>")
+//--></script><!--/LiveInternet-->
+					</div>
+				</div>
+				
+				<div style="color: #b8b8b8;font-size: 10px;position: relative;">
+					<div style="position: absolute;bottom: -22px;right: 115px;" id="hRand">45 16</div>
+					<script>
+						function rand(min, max) {
+							var n = 0, k;
+							while (n == 0) n = Math.round(Math.random()*(max-min))+min;
+							k = Math.random();
+							if (k > 0.5) {
+								if (k > 0.75 && n == max - 1) {
+									n++;
+								} else if( n == min + 1){
+									n--;
+								}
+							}
+							return n;
+						}
+						hRand.innerHTML = rand(10, 99) + ' ' + rand(10, 99);
+						hRand.onclick = function() {
+							alert('Если вам 40+ перемножьте эти два числа (' + hRand.innerHTML +') в уме. Отличная зарядка для мозга!');
+						}
+					</script>
+				</div>
+		<div class="flink right">
+			<a href="{{politicDoc}}">Политика конфидециальности</a>
+		</div>
+		<div class="clear"></div>
+		</div>
+		<script type="text/javascript" src="/js/mootools1.4.5.js"></script>
+		{{ additionalJs }}
+		<script type="text/javascript" src="/js/lib.js?{{assetsVersion}}"></script>
+		<script type="text/javascript" src="/js/app.js?{{assetsVersion}}"></script>
+		<script type="text/javascript">
+			var token = '{{ csrf }}';
+			var uid   = '{{ uid }}';
+		</script>
+		<script type="text/javascript" src="//yastatic.net/es5-shims/0.0.2/es5-shims.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="//yastatic.net/share2/share.js" charset="utf-8"></script>
+							
+		{# if ($_SERVER['HTTP_HOST'] == 'gz.loc'): #}
+		{% if isLocalhost %}
+			<script type="text/javascript" src="/js/test.js?a=0"></script>
+		{% endif %}
+	</body>
+</html>
+ 
+
