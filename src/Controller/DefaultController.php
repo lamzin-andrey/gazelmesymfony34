@@ -9,7 +9,7 @@ class DefaultController extends Controller
 {
 	/**
 	  *  TODO тут скорее всего /{slug}/{slug}/{slug} - для oblast/moskva/perevezu
-	  * Короче, надо будет думать.
+	  * Короче, надо будет думать. потому что иногда два slug
       * @Route("/")
     */
     public function indexAction()
@@ -27,9 +27,9 @@ class DefaultController extends Controller
 			'politicDoc' => '/d/poli.doc',
 			'isLocalhost' => true,
 			'isAgreementPage' => false,
+			/*'' => '',
 			'' => '',
-			'' => '',
-			'' => '',
+			'' => '',*/
 
 		]);
     }
