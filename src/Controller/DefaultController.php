@@ -16,16 +16,17 @@ class DefaultController extends Controller
     */
     public function index(Request $request)
     {
+		//adverts data
 		$adverts = $this->_loadAdvList();
-		//$a = explode('?', $_SERVER["REQUEST_URI"]);
+
+		//for links
 		$s = $request->server->get('REQUEST_URI');
-		var_dump($s);
-		var_dump($request);
-		die;
+		$a = explode('?', $s);
+		$currentTail =  ($a[1] ?? '');
 
-		$currentTail =  @$a[1] ? '' . '?' . $a[1] : '';
+		$siteName = $limit = $this->getParameter('app.site_name', 10);
 
-        return $this->render('base.html.twig', [
+        return $this->render('list/mainlist.html.twig', [
 			'title' => 'Go away!',
 			'assetsVersion' => 0,
 			'additionalCss' => '',
@@ -41,6 +42,9 @@ class DefaultController extends Controller
 			'list' => $adverts,
 			'nCountAdverts' => count($adverts),
 			'currentTail' => $currentTail,
+			'siteName' => $siteName,
+			'link' => '/', //TODO @see old controller, how ot create? Iyt must be item.link
+			't' =>  $this->get('translator')
 			/*'' => '',
 			'' => '',*/
 		]);

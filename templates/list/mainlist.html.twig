@@ -3,12 +3,6 @@
 {# block title %}My cool blog posts{% endblock #}
 
 {% block content %}
-    {% for entry in blog_entries %}
-        <h2>{{ entry.title }}</h2>
-        <p>{{ entry.body }}</p>
-    {% endfor %}
-{% endblock %}
-
 
 {#TODO use flash
 <?php if (@$_SESSION["ok_msg"] && @$_GET["status"] === '0') {
@@ -23,12 +17,19 @@
 } ?>
 #}
 
-{% if (countAdverts) %}
+{% if (nCountAdverts) %}
 	<ul class="lstnone mlist" id="strip">
-		<? foreach($list->rows as $n) {?>
-		<?php include DR . "/tpl/mainpagelist_item.tpl.php"?>
-		<? }?>
+		{% for item in list %}
+		{{ include('list/mainpagelist_item.html.twig', {'item' : item, 'link' : link}) }}
+		{% endfor %}
 	</ul>
-{%} else %}
-<div id="mainsfrormsuccess" class="vis"><noindex><p>Извините, для этого населенного пункта пока ничего нет. <br/>Станьте первым, предложившим здесь услуги по перевозке на Газели!</noindex></div>
+{% else %}
+<div id="mainsfrormsuccess" class="vis">
+<noindex>
+	<p>Извините, для этого населенного пункта пока ничего нет. <br/>
+	Станьте первым, предложившим здесь услуги по перевозке на Газели!
+</noindex>
+</div>
 {% endif %}
+{% endblock %}
+

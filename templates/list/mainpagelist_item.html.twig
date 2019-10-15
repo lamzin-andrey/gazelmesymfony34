@@ -1,0 +1,32 @@
+<li>
+	<img src="{{ item.image }}" class="ii" title="{{ item.addtext }}" />
+	<div class="shortitemtext left">
+		<header><a href='{{ link }}' title="{{ item.addtext }}"> {{ item.title }}</a></header>
+		<div class="text">
+			
+			<div class="vprice b"><span class="name">Цена:</span> {#?=Shared::price($n['price'])#} {{ item.price|rouble(t.trans('Roubles')) }}</div>
+			
+			<div class="name">{{ item.regionObject.regionName }}  {{ item.cityObject.cityName }}</div>
+			<div class="name">{{ item.name }}</div>
+			<div class="name"> item.typeTODO </div>
+			<div class="phone">
+				Телефон: <a href="#" data-id="{{ item.id }}" class="dashed gn">Показать</a>
+			</div>
+		</div>
+	</div>
+	<div class="both"></div>
+	<div class="b please hide">
+		<div class="please_in">
+			<img src="/images/l-w.gif" width="16" class="ldr">
+			<span >Пожалуйста, скажите, что вы звоните по объявлению на сайте {{ siteName }}</span>
+			<img src="/images/blank.png" class="result hide"/>
+			
+			<div>
+				<span >Нашли перевозчика? Расскажите о нем и о нас своим друзьям!</span>
+			</div>
+			<div class="slogan socbut">
+					<div class="ya-share2" data-services="vkontakte,facebook,odnoklassniki,moimir,gplus,twitter,linkedin,viber,whatsapp"></div>
+			</div>
+		</div>
+	</div>
+</li>

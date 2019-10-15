@@ -483,7 +483,7 @@ class Main
 		return $this->regionObject;
 	}
 
-	public function getCityObject(): Regions
+	public function getCityObject(): Cities
 	{
 		return $this->cityObject;
 	}

@@ -19,6 +19,10 @@ parameters:
   # Приложение будет обрабатывать этот main.city так, как раньше обрабатывало 0
   # В базе на продакшене значение может быть иным.
   app.city_zero_id: 6326
+
+  # Site Display Name
+  app.site_name: 'Gazel Symfony 3.4 Demo'
+
 services:
     # default configuration for services in *this* file
     _defaults:
