@@ -4,7 +4,21 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+  #Adverts per page
+  app.records_per_page: 20
 
+  # Каждое объявление относится к какому-то населенному пункту. Населенный пункт обычно задается id города,
+  #  а город имеет id региона в таблце cities.
+  # Однако, в таблице regions существуют особые регионы, которые не регионы, а крупные города.
+  # (Это сделано для более простого их показа в списке регионов и выбора из этого списка)
+  # Для таких объявлений main.city был 0
+  # Symfony требует установку отношений oneToMany, manyToOne 
+  # Однако обновить схему базы данных невозможно, если существуют в main записи с city = 0
+  # Для этого добавлен специальный город Скрытенбург, его id в базе разработчика 6362
+  # Все main.city == 0 заменены на 6326
+  # Приложение будет обрабатывать этот main.city так, как раньше обрабатывало 0
+  # В базе на продакшене значение может быть иным.
+  app.city_zero_id: 6326
 services:
     # default configuration for services in *this* file
     _defaults:

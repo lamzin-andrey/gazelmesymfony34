@@ -18,7 +18,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta charset="UTF-8">
 		<title>{{ title }}</title>
-		<link href="/m.css?{{assetsVersion}}" media="all" rel="stylesheet" type="text/css" />
+		<link href="{{ asset('m.css')}}" media="all" rel="stylesheet" type="text/css" />
 		{{ additionalCss }}
 	</head>
 	<body>
@@ -53,7 +53,7 @@
 		<div id="content">
 			
 			{# if ($_SERVER['REQUEST_URI'] != '/agreement'): #}
-			{% if isAgreementPage %}
+			{% if isAgreementPage  != 1 %}
 			<div class="seo" style="margin:10px 10px">
     			<a href="/agreement" ><span class="red">Важно!</span> Пользовательское соглашение.</a>
 			</div>

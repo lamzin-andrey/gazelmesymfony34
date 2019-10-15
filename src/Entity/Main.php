@@ -21,19 +21,34 @@ class Main
      */
     private $id;
 
+	
     /**
      * @var int|null
      *
      * @ORM\Column(name="region", type="integer", nullable=true, options={"comment"="Номер региона"})
      */
-    private $region;
+	private $region;
+	
+	/**
+	 * @var Regions
+	 * @ORM\ManyToOne(targetEntity="Regions", inversedBy="advertsByRegion")
+     * @ORM\JoinColumn(name="region", referencedColumnName="id")
+	*/
+	private $regionObject;
 
     /**
      * @var int|null
      *
      * @ORM\Column(name="city", type="integer", nullable=true, options={"comment"="Номер города"})
      */
-    private $city;
+	private $city;
+	
+	/**
+	 * @var Cities
+	 * @ORM\ManyToOne(targetEntity="Cities", inversedBy="advertsByCity")
+     * @ORM\JoinColumn(name="city", referencedColumnName="id")
+	*/
+	private $cityObject;
 
     /**
      * @var int|null
@@ -463,5 +478,14 @@ class Main
         return $this;
     }
 
+	public function getRegionObject(): Regions
+	{
+		return $this->regionObject;
+	}
+
+	public function getCityObject(): Regions
+	{
+		return $this->cityObject;
+	}
 
 }

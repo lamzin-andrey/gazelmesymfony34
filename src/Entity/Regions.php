@@ -68,7 +68,13 @@ class Regions
      *
      * @ORM\Column(name="codename", type="string", length=128, nullable=true)
      */
-    private $codename;
+	private $codename;
+	
+	/**
+	 * @var array
+	 * @ORM\OneToMany(targetEntity="Main", mappedBy="regionObject")
+	*/
+	private $regions;
 
     /**
      * @var int|null
