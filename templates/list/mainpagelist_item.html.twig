@@ -1,10 +1,10 @@
 <li>
 	<img src="{{ item.image }}" class="ii" title="{{ item.addtext }}" />
 	<div class="shortitemtext left">
-		<header><a href='{{ link }}' title="{{ item.addtext }}"> {{ item.title }}</a></header>
+		<header><a href='{{ item.id|advlink(item.cityObject.cityName, item.regionObject.regionName) }}' title="{{ item.addtext }}"> {{ item.title }}</a></header>
 		<div class="text">
 			
-			<div class="vprice b"><span class="name">Цена:</span> {#?=Shared::price($n['price'])#} {{ item.price|rouble(t.trans('Roubles')) }}</div>
+			<div class="vprice b"><span class="name">Цена:</span> {{ item.price|rouble(t.trans('Roubles')) }}</div>
 			
 			<div class="name">{{ item.regionObject.regionName }}  {{ item.cityObject.cityName }}</div>
 			<div class="name">{{ item.name }}</div>
