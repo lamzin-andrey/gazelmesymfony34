@@ -2,3 +2,6 @@ twig:
     default_path: '%kernel.project_dir%/templates'
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
+    # Это один из вариантов сделать видимым в twig шаблоне значение из конфига (app.city_zero_id) определена в services.yaml
+    #globals:
+      #city_zero_id: "%app.city_zero_id%"

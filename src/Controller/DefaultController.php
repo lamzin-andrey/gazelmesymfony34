@@ -44,7 +44,6 @@ class DefaultController extends Controller
 			'currentTail' => $currentTail,
 			'siteName' => $siteName,
 			'link' => '/', //TODO @see old controller, how ot create? Iyt must be item.link
-			't' =>  $this->get('translator')
 			/*'' => '',
 			'' => '',*/
 		]);
