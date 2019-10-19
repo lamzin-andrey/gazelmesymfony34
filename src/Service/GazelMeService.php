@@ -3,7 +3,8 @@ namespace App\Service;
 
 use App\Entity\Main;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
-//use Priler\Text2Image\Magic;
+use \LamzinforkPriler\Text2Image\Magic AS Text2Image;
+
 
 class GazelMeService
 {
@@ -45,9 +46,8 @@ class GazelMeService
 			$sPhone = ($aPhone['phone'] ?? $sPhone);
 			$sPhone = $this->formatPhone($sPhone);
 		}
-		$oT2i = new \Magic($sPhone);
+		$oT2i = new Text2Image($sPhone);
 		$oT2i->width = 261;
-		//$oT2i->height = 44;
 		$oT2i->output();
 	}
 	/**
