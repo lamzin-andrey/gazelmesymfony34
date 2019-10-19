@@ -123,6 +123,9 @@
     "phpdocumentor/type-resolver": {
         "version": "1.0.1"
     },
+    "priler/text2image": {
+        "version": "dev-master"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },

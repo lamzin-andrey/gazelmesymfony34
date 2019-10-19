@@ -6,6 +6,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "landlib/treealgorithms": "dev-master",
+        "priler/text2image": "dev-master",
         "sensio/framework-extra-bundle": "^5.1",
         "symfony/asset": "3.4.*",
         "symfony/console": "3.4.*",
