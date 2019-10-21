@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d44c658166d4859896a197df02ebb82",
+    "content-hash": "b4439b3161dd7e8bb5026e9ced548dad",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1369,37 +1369,6 @@
                 "sql"
             ],
             "time": "2014-01-12T16:20:24+00:00"
-        },
-        {
-            "name": "lamzinforkpriler/text2image",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/lamzin-andrey/lamzinforkpilertext2image.git",
-                "reference": "7ccc55fc50803a052302181c8cca86a43e279b8f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/lamzin-andrey/lamzinforkpilertext2image/zipball/7ccc55fc50803a052302181c8cca86a43e279b8f",
-                "reference": "7ccc55fc50803a052302181c8cca86a43e279b8f",
-                "shasum": ""
-            },
-            "require": {
-                "ext-gd": "*",
-                "php": ">=5.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "LamzinforkPriler\\Text2Image\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "This is fork https://github.com/Priler/Text2Image with purpose fix autoload psr-4 in the application version Symfony 3.4, created with Symfony-CLI 4.7.3, and Priler/Text2Image was installed with composer version 1.9.0. This fork fixed autoload psr-4.",
-            "time": "2019-10-19T14:45:29+00:00"
         },
         {
             "name": "landlib/text2png",
@@ -6105,7 +6074,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "lamzinforkpriler/text2image": 20,
         "landlib/text2png": 20,
         "landlib/treealgorithms": 20
     },
