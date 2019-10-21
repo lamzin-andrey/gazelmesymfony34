@@ -1,0 +1,29 @@
+{
+	"private": true,
+	"scripts": {
+		"dev": "npm run development",
+		"development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+		"watch": "npm run development -- --watch",
+		"watch-poll": "npm run watch -- --watch-poll",
+		"prod": "npm run production",
+		"production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+		"test": "echo 'none'"
+	},
+	"devDependencies": {
+		"jquery": "^3.4.1",
+		"cross-env": "^5.2.0",
+		"laravel-mix": "^2.1.11",
+		"laravel-slug": "^1.0.0",
+		"vue": "^2.5.17",
+		"vue-i18n": "^7.0.0",
+		"vue-router": "^3.0.1"
+	},
+	"dependencies": {
+		"@johmun/vue-tags-input": "^2.1.0",
+		"datatables.net-bs4": "^1.10.19",
+		"datatables.net-rowreorder-bs4": "^1.2.5",
+		"popper": "^1.0.1",
+		"popper.js": "^1.15.0",
+		"vue-context-menu": "^2.0.6"
+	}
+}

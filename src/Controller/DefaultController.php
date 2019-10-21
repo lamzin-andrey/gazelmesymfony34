@@ -44,7 +44,6 @@ class DefaultController extends Controller
 			'nCountAdverts' => count($adverts),
 			'currentTail' => $currentTail,
 			'siteName' => $siteName,
-			'link' => '/', //TODO @see old controller, how ot create? Iyt must be item.link
 			/*'' => '',
 			'' => '',*/
 		]);
@@ -55,16 +54,9 @@ class DefaultController extends Controller
 	*/
 	public function phones(int $nId, GazelMeService $oGazelMeService)
 	{
-		$sData = $oGazelMeService->getPhoneAsImage($nId);
-		
 		$response = new Response($sData);
 		$response->headers->set("Content-Type", "image/png");//jpg?
-		
-
-		var_dump($nId);
-		var_dump($oGazelMeService);
-		die;
-
+		$sData = $oGazelMeService->getPhoneAsImage($nId);
 		return $response;
 	}
 	/**

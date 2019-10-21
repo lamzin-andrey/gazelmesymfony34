@@ -102,6 +102,9 @@
     "lamzinforkpriler/text2image": {
         "version": "dev-master"
     },
+    "landlib/text2png": {
+        "version": "dev-master"
+    },
     "landlib/treealgorithms": {
         "version": "dev-master"
     },

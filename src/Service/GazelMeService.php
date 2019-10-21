@@ -3,7 +3,8 @@ namespace App\Service;
 
 use App\Entity\Main;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
-use \LamzinforkPriler\Text2Image\Magic AS Text2Image;
+//use \LamzinforkPriler\Text2Image\Magic AS Text2Image;
+use \Landlib\Text2Png;
 
 
 class GazelMeService
@@ -46,9 +47,9 @@ class GazelMeService
 			$sPhone = ($aPhone['phone'] ?? $sPhone);
 			$sPhone = $this->formatPhone($sPhone);
 		}
-		$oT2i = new Text2Image($sPhone);
-		$oT2i->width = 261;
-		$oT2i->output();
+		$oT2p = new Text2Png($sPhone);
+		$oT2p->setFontSize(24);
+		$oT2p->pngResponse();
 	}
 	/**
 	 * Возвращает отформатированый телефонный номер, например "8 (xxx)xxx-xx-xx"
