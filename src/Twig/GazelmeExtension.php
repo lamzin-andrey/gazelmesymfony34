@@ -23,6 +23,7 @@ class GazelmeExtension extends \Twig_Extension
 			new \Twig_SimpleFilter('rouble', array($this, 'roubleFilter')),
 			new \Twig_SimpleFilter('location_name', array($this, 'locationName')),
 			new \Twig_SimpleFilter('type_transfer', array($this, 'typeTransfer')),
+			new \Twig_SimpleFilter('distance', array($this, 'distanceFilter')),
 		];
     }
 	/**
@@ -100,6 +101,31 @@ class GazelmeExtension extends \Twig_Extension
     public function typeTransfer(\App\Entity\Main $oItem) : string
     {
 		return $this->oGazelService->getCarsTypes($oItem);
+	}
+	/**
+	 * TODO
+	 * Выводит тип дистанций (например, "По городу, межгород" или "Пикник")
+	 * @param \App\Entity\Main $oItem
+	 * @return string
+	*/
+    public function distanceFilter(\App\Entity\Main $oItem) : string
+    {
+		$a = [];
+		if ($oItem->getNear()) {
+			$a[] = $this->translator->trans('In city only'); 
+		}
+		
+		if ($oItem->getFar()) {
+			$a[] = $this->translator->trans('Far'); 
+		}
+		
+		if ($oItem->getPiknik()) {
+			$a[] = $this->translator->trans('Piknik'); 
+		}
+		$s = join($a, ', ');
+		$s = mb_strtolower($s, 'utf-8');
+		$s = $this->oGazelService->capitalize($s);
+		return $s;
 	}
 	
 }

@@ -34,6 +34,13 @@ class Cities
      * @ORM\Column(name="region", type="integer", nullable=true, options={"comment"="Id региона, если 0, значит город вне региона, например Москва или Питер"})
      */
     private $region;
+    
+    /**
+	 * @var Regions
+	 * @ORM\ManyToOne(targetEntity="Regions", inversedBy="citiesByRegion")
+     * @ORM\JoinColumn(name="region", referencedColumnName="id")
+	*/
+	private $regionObject;
 
     /**
      * @var int|null

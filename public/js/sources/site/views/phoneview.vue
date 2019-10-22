@@ -7,6 +7,7 @@
 		<div>
 			<span>{{ $t('app.PleaseSocnet') }}</span>
 		</div>
+		<div>&nbsp;</div>
 		<div :id="'sp' + id"></div>
 	</div>
 </div>

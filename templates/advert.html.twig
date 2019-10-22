@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{# block title %}My cool blog posts{% endblock #}
+
+{% block content %}
+	<ul class="lstnone mlist hnone" id="strip">
+		<li>
+			<img  class="ii" src="{{ advert.image }}">
+			<div class="shortitemtext left">
+				<header><h2 class="a b">{{ advert.title }}</h2></header>
+				<div class="text">
+					<div class="vprice b"><span class="name">Цена:</span>  {{ advert.price|rouble }}</div>
+					<div class="name"><span class="dd">Местоположение</span> {{ advert.regionObject.regionName|location_name(advert.cityObject.cityName, advert.city) }}</div>
+					<div class="name"><span class="dd">Контактное лицо</span> {{ advert.name }}</div>
+					<div class="name"><span class="dd">Тип</span> {{ advert|type_transfer }}</div>
+					<div class="name"><span class="dd">Расстояние</span> {{ advert|distance }}</div>
+					<div class="phone">
+						Телефон: <a class="dashed gn" data-id="{{ advert.id }}" href="#" @click="onClickGetPhone($event, '{{ advert.id }}')">
+							Показать</a>
+					</div>
+				</div>
+			</div>
+			<div class="both"></div>
+			<div class="avte pt10">{{ advert.addtext }}</div>
+			<phoneview id="{{ advert.id }}" ref="pv{{ advert.id }}"></phoneview>
+		</li>
+	</ul>
+	{#<div id="socnetbuttons" class="slogan socbut" style="text-align:center">
+		<div class="ya-share2" data-services="vkontakte,facebook,odnoklassniki,moimir,gplus,twitter,linkedin,viber,whatsapp"></div>
+	</div>#}
+
+	<div id="socnetbuttons" class="slogan socbut">
+		<div class="left">
+			<script type="text/javascript" src="http://vk.com/js/api/share.js?93" charset="windows-1251"></script>
+			<script type="text/javascript"><!--
+			document.write(VK.Share.button(false,{type: "round", text: "Поделиться"}));
+			--></script>
+		</div>
+		<div class="left">
+			<a href="https://plus.google.com/share?url=<?='http://gazel.me' . $_SERVER['REQUEST_URI']?>" target="_blank"><b id="bl">G</b><b id="r">o</b><b id="ye">o</b><b id="bl">g</b><b id="gr">l</b><b id="r">e+</b></a>
+		</div>
+		<div class="left">
+			<a id="fbook" target="_blank" href="http://www.facebook.com/share.php?u=<?='http://gazel.me' . $_SERVER['REQUEST_URI']?>"><b id="bgf">F</b>acebook</a>
+		</div>
+		<div class="left">
+			<div class="ya-share2" data-services="odnoklassniki,moimir,twitter" data-size="s"></div>
+		</div>
+		
+		<div class="both"></div>
+	</div>
+	<br>
+	<a href="{{ backLink }}" id="moreitems" class="hidelink">
+		<div class="button back2list" >
+			<span style="vertical-align:top; display:block-inline">Назад</span>
+		</div>
+	</a>
+
+{% endblock %}
+
+
+{% block js %}
+
+<script type="text/javascript" src="/js/L.js?{{assetsVersion}}" async></script>
+<script type="text/javascript">
+	var token = '{{ csrf }}';
+	var uid   = '{{ uid }}';
+	window.SITE_NAME   = '{{ siteName }}'; //TODO it need?
+</script>
+<script type="text/javascript" src="//yastatic.net/es5-shims/0.0.2/es5-shims.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="//yastatic.net/share2/share.js" charset="utf-8"></script>
+{# if ($_SERVER['HTTP_HOST'] == 'gz.loc'): #}
+{% if isLocalhost %}
+	<script type="text/javascript" src="/js/test.js?a=0"></script>
+{% endif %}
+{% endblock %}

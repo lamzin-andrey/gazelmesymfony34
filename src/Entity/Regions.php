@@ -75,6 +75,12 @@ class Regions
 	 * @ORM\OneToMany(targetEntity="Main", mappedBy="regionObject")
 	*/
 	private $regions;
+	
+	/**
+	 * @var array
+	 * @ORM\OneToMany(targetEntity="Cities", mappedBy="regionObject")
+	*/
+	private $cities;
 
     /**
      * @var int|null
@@ -91,6 +97,11 @@ class Regions
     public function getRegionName(): ?string
     {
         return $this->regionName;
+    }
+    
+    public function getRegions()
+    {
+        return $this->regions;
     }
 
     public function setRegionName(?string $regionName): self
@@ -183,6 +194,10 @@ class Regions
 
         return $this;
     }
-
+    
+	public function getCities()
+    {
+        return $this->cities;
+    }
 
 }
