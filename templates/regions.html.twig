@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+{{ breadCrumbs|raw }}
+<ul class="region-outer-list">
+{% for letter, list in data %}
+	<li>
+		<div class="region-inner-list">
+		   {% if (list|length > wordsOnLetter) %} {# TODO тут хз как на самом деле размер массива проверить #}
+				<p><a href="/regions/{{ regionInnerName }}{{ letter|translite_url }}" class="qbtn js-get-regions">{{ letter }}</a></p>
+			{% else  %}
+				<p><span class="qbtn-dis">{{ letter }}</span></p>
+			{% endif  %}
+
+			{# Смысл в том чтобы вывести не wordsOnLetter пунктов  #}
+			{# <? for ($i = 0; $i < $regions->wordsOnLetter; $i++) {?>#}
+			{% for i, item in list %}
+				{% if ( i < wordsOnLetter ) %}
+					{% if (isRegionInner == 0 and item|is_city_equ_zero) %}
+						<a href="/regions/{{ item|get_translite_location_name }}" class="regions_item js-get-cities">{{ item|get_location_name }}</a>
+					{% else  %}
+						<a href="/{{ regionInnerName }}{{ item|get_translite_location_name }}" class="regions_item">{{ item|get_location_name }}</a>
+					{% endif  %}
+				{% endif  %}
+			{% endfor  %}
+		</div>
+	</li>
+
+{% endfor %}
+</ul>
+{% endblock %}
