@@ -12,6 +12,7 @@ use \App\Entity\Cities;
 use \App\Entity\Regions;
 
 use App\Service\GazelMeService;
+use App\Service\RegionsService;
 
 class DefaultController extends Controller
 {
@@ -23,40 +24,43 @@ class DefaultController extends Controller
 	private $_sCyrRegionName = '';
 	
 	/**
+	 * Показать Страницу выбора региона
+	 * @Route("/regions", name="regions") 
+	*/
+	public function regions(Request $oRequest, GazelMeService $oGazelMeService, RegionsService $oRegionsService)
+	{
+		$oSession = $oRequest->getSession();
+		$aData = $this->_getDefaultTemplateData($oRequest);
+		$sTitle = $this->get('translator')->trans('');
+		$aData['title'] = $sTitle;
+		$aData['h1'] = $sTitle;
+		$oRegionsService->buildData($oRequest);
+		$aData['data'] = $oRegionsService->data;
+		$aData['breadCrumbs'] = $oRegionsService->breadCrumbs();
+		$aData['wordsOnLetter'] = $oRegionsService->wordsOnLetter;
+		$aData['isRegionInner'] = $oRegionsService->isRegionInner;
+		$aData['regionInnerName'] = $oRegionsService->regionInnerName;
+		return $this->render('regions.html.twig', $aData);
+	}
+	/**
 	 * Показать форму установки параметров объявления
 	 * @Route("/showfilter", name="showfilter") 
 	*/
 	public function showfilter(Request $oRequest)
 	{
-		$siteName = $this->getParameter('app.site_name', 10);
-		
 		$oSession = $oRequest->getSession();
-		
-		return $this->render('list/filterform.html.twig', [
-			'title' => $this->get('translator')->trans('Set filter page'),
-			'assetsVersion' => 0,
-			'additionalCss' => '',
-			'additionalJs' => '',
-			'csrf' => '',
-			'uid' => '0',
-			'nIspage100Percents' => 1,
-			'regionId' => '',
-			'cityId' => '',
-			'h1' => $this->get('translator')->trans('Set filter page'),
-			'politicDoc' => '/images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc',
-			'isAgreementPage' => $this->_getIsAgreementPage(),
-			'siteName' => $siteName,
-			'sLocationUrl' => $this->_getLocationUrl($oSession),
-			'sFilterQueryString' => $this->_getFilterQueryString($oSession),
-			'people' => ( intval($oSession->get('people', 0)) ? 'checked="checked"' : ''),
-			'box' => ( intval($oSession->get('box', 0)) ? 'checked="checked"' : ''),
-			'term' => ( intval($oSession->get('term', 0)) ? 'checked="checked"' : ''),
-			'far' => ( intval($oSession->get('far', 0)) ? 'checked="checked"' : ''),
-			'near' => ( intval($oSession->get('near', 0)) ? 'checked="checked"' : ''),
-			'piknik' => ( intval($oSession->get('piknik', 0)) ? 'checked="checked"' : ''),
-			/*'' => '',
-			'' => '',*/
-		]);
+		$aData = $this->_getDefaultTemplateData($oRequest);
+		$sTitle = $this->get('translator')->trans('Set filter page');
+		$aData['title'] = $sTitle;
+		$aData['nIspage100Percents'] = 1;
+		$aData['h1'] = $sTitle;
+		$aData['people'] = ( intval($oSession->get('people', 0)) ? 'checked="checked"' : '');
+		$aData['box'] = ( intval($oSession->get('box', 0)) ? 'checked="checked"' : '');
+		$aData['term'] = ( intval($oSession->get('term', 0)) ? 'checked="checked"' : '');
+		$aData['far'] = ( intval($oSession->get('far', 0)) ? 'checked="checked"' : '');
+		$aData['near'] = ( intval($oSession->get('near', 0)) ? 'checked="checked"' : '');
+		$aData['piknik'] = ( intval($oSession->get('piknik', 0)) ? 'checked="checked"' : '');
+		return $this->render('list/filterform.html.twig', $aData);
 	}
 	
 	/**
@@ -138,10 +142,8 @@ class DefaultController extends Controller
 		//for links
 		$s = $oRequest->server->get('REQUEST_URI');
 		$a = explode('?', $s);
-		$currentTail =  ($a[1] ?? '');
+		$currentTail =  ($a[1] ?? '');//??
 
-		$siteName = $this->getParameter('app.site_name', 10);
-		
 		$oSession = $oRequest->getSession();
 		
 		$oSession->set('people', intval( $oRequest->get('people', 0) ));
@@ -150,30 +152,20 @@ class DefaultController extends Controller
 		$oSession->set('far', intval( $oRequest->get('far', 0) ));
 		$oSession->set('near', intval( $oRequest->get('near', 0) ));
 		$oSession->set('piknik', intval( $oRequest->get('piknik', 0) ));
-
-        return $this->render('list/mainlist.html.twig', [
-			'title' => $oGazelMeService->getTiltle($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName),
-			'assetsVersion' => 0,
-			'additionalCss' => '',
-			'additionalJs' => '',
-			'csrf' => '',
-			'uid' => '0',
-			'regionId' => '',
-			'cityId' => '',
-			'nIsSetLocaton' => 1,
-			'sDisplayLocation' => 'Алтуфьево, Московская область',
-			'h1' => $oGazelMeService->getMainHeading($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName),
-			'politicDoc' => '/images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc',
-			'isLocalhost' => true,
-			'isAgreementPage' => 0,
-			'list' => $adverts,
-			'sLocationUrl' => $this->_getLocationUrl($oSession),
-			'sFilterQueryString' => $this->_getFilterQueryString($oSession),
-			'nCountAdverts' => count($adverts),
-			'siteName' => $siteName
-			/*'' => '',
-			'' => '',*/
-		]);
+		
+		
+		$aData = $this->_getDefaultTemplateData($oRequest);
+		$sTitle = $this->get('translator')->trans('Set filter page');
+		$aData['title'] = $oGazelMeService->getTiltle($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
+		$aData['nIspage100Percents'] = 1;
+		$aData['h1'] = $oGazelMeService->getMainHeading($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
+		$aData['nIsSetLocaton'] = 1;
+		$aData['sDisplayLocation'] = 'Алтуфьево, Московская область';
+		$aData['list'] = $adverts;
+		$aData['nCountAdverts'] = count($adverts);
+		
+		
+        return $this->render('list/mainlist.html.twig', $aData);
 	}
 	/**
 	  * Общая логика для главной и для страницы списка объявлений
@@ -184,39 +176,25 @@ class DefaultController extends Controller
 	  * @param string $sRegion = '' код региона латинскими буквами
       * @param string $sCity = ''   код города латинскими буквами
     */
-	private function _advPage(Request $request, GazelMeService $oGazelMeService, int $nAdvId, string $sTitle, string $sRegion = '', string $sCity = '')
+	private function _advPage(Request $oRequest, GazelMeService $oGazelMeService, int $nAdvId, string $sTitle, string $sRegion = '', string $sCity = '')
 	{
 		//advert data
 		$oRepository = $this->getDoctrine()->getRepository('App:Main');
 		$advert = $oRepository->find($nAdvId);
-		if (!$advert) {
+		if (!$advert) {//TODO 404!
 			die('TODO 404 ' . __FILE__ . __LINE__);
 		}
 		$siteName = $this->getParameter('app.site_name');
 		$a = [];
 		$this->_setCityConditionAndInitCyrValues($a, $sRegion, $sCity);
-		$currentTail = '';//??
-
-        return $this->render('advert.html.twig', [
-			'title' => $oGazelMeService->getTiltle($request, $this->_sCyrRegionName, $this->_sCyrCityName, $advert->getTitle()),
-			'assetsVersion' => 0,
-			'additionalCss' => '',
-			'additionalJs' => '',
-			'csrf' => '',
-			'uid' => '0',
-			'regionId' => '',
-			'cityId' => '',
-			'h1' => $oGazelMeService->getMainHeading($request, $this->_sCyrRegionName, $this->_sCyrCityName, $advert->getTitle()),
-			'politicDoc' => '/images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc',
-			'isLocalhost' => true,
-			'isAgreementPage' => 0,
-			'advert' => $advert,
-			'nCountAdverts' => 1,
-			'backLink' => $this->_getBackLink($sRegion, $sCity),
-			'siteName' => $siteName,
-			/*'' => '',
-			'' => '',*/
-		]);
+		
+		$aData = $this->_getDefaultTemplateData($oRequest);
+		$aData['title'] = $oGazelMeService->getTiltle($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
+		$aData['h1'] = $oGazelMeService->getMainHeading($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName, $advert->getTitle());
+		$aData['advert'] = $advert;
+		$aData['nCountAdverts'] = 1;
+		$aData['backLink'] = $this->_getBackLink($sRegion, $sCity);
+        return $this->render('advert.html.twig', $aData);
 	}
 	/**
 	 * 
@@ -365,5 +343,30 @@ class DefaultController extends Controller
 		}
 		$s = '?' . join('&', $a);
 		return $s;
+	}
+	/**
+	 * Возвращает переменные, которые есть в мастер шаблоне (то есть они есть практически на каждой странице)
+	*/
+	private function _getDefaultTemplateData(Request $oRequest) : array
+	{
+		$siteName = $this->getParameter('app.site_name', 10);
+		$oSession = $oRequest->getSession();
+		return [
+			'assetsVersion' => 0,
+			'additionalCss' => '',
+			'additionalJs' => '',
+			'csrf' => '',
+			'uid' => 0,
+			'regionId' => '',
+			'cityId' => '',
+			'politicDoc' => '/images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc',
+			'isAgreementPage' => $this->_getIsAgreementPage(),
+			'siteName' => $siteName,
+			'sLocationUrl' => $this->_getLocationUrl($oSession),
+			'sFilterQueryString' => $this->_getFilterQueryString($oSession),
+			'isLocalhost' => true
+			/*'' => '',
+			'' => '',*/
+		];
 	}
 }

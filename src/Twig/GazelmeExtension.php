@@ -24,6 +24,10 @@ class GazelmeExtension extends \Twig_Extension
 			new \Twig_SimpleFilter('location_name', array($this, 'locationName')),
 			new \Twig_SimpleFilter('type_transfer', array($this, 'typeTransfer')),
 			new \Twig_SimpleFilter('distance', array($this, 'distanceFilter')),
+			new \Twig_SimpleFilter('translite_url', array($this, 'transliteUrl')),
+			new \Twig_SimpleFilter('is_city_equ_zero', array($this, 'isCityEquZero')),
+			new \Twig_SimpleFilter('get_translite_location_name', array($this, 'getTransliteLocationName')),
+			new \Twig_SimpleFilter('get_location_name', array($this, 'getLocationName')),
 		];
     }
 	/**
@@ -103,7 +107,7 @@ class GazelmeExtension extends \Twig_Extension
 		return $this->oGazelService->getCarsTypes($oItem);
 	}
 	/**
-	 * TODO
+	 * 
 	 * Выводит тип дистанций (например, "По городу, межгород" или "Пикник")
 	 * @param \App\Entity\Main $oItem
 	 * @return string
@@ -126,6 +130,52 @@ class GazelmeExtension extends \Twig_Extension
 		$s = mb_strtolower($s, 'utf-8');
 		$s = $this->oGazelService->capitalize($s);
 		return $s;
+	}
+	/**
+	 * Транслитирует текст используя метод транслитерации GazelService, это важно так как url уже в Яндексе и неплохо индлексируются
+	 * @param \App\Entity\Main $oItem
+	 * @return string
+	*/
+	public function transliteUrl(string $letter) : string 
+	{
+		return $this->oGazelService->translite_url($letter);
+	}
+	/**
+	 * Должен проверить, есть ли в объекте метод getIssCity и если да вернуть isCity == 0. Если нет такого вернуть true
+	 * (Это странная логика по причине адаптации объекта = RegionsService::buildData() который выдлает неплохие результаты, но их трудно приспособить в twig реалиям)
+	 * @param  $oItem
+	 * @return bool
+	*/
+	public function isCityEquZero($oItem) : bool
+	{
+		if (method_exists($oItem, 'getIsCity')) {
+			return ($oItem->getIsCity() == 0);
+		}
+		return true;
+	}
+	/**
+	 * Получает имя локации (а это может быть как city_name, так и region_name) и транслитирует его
+	 * @param  $oItem
+	 * @return string
+	*/
+	public function getTransliteLocationName($oItem) : string
+	{
+		return $this->oGazelService->translite_url( $this->getLocationName($oItem) );
+	}
+	/**
+	 * Получает имя локации (а это может быть как city_name, так и region_name)
+	 * @param  $oItem
+	 * @return string
+	*/
+	public function getLocationName($oItem) : string
+	{
+		if (method_exists($oItem, 'getCityName')) {
+			return $oItem->getCityName();
+		}
+		if (method_exists($oItem, 'getRegionName')) {
+			return $oItem->getRegionName();
+		}
+		return '';
 	}
 	
 }

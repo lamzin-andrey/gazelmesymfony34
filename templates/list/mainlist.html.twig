@@ -64,7 +64,7 @@
 				{% else %}
 					<span class="ib regions_page_link">{{ sDisplayLocation }}</span>
 				{% endif %}
-			<a href="/regions" class="regions_page_link">{{ 'Change'|trans }}</a>
+			<a href="{{ path('regions') }}" class="regions_page_link">{{ 'Change'|trans }}</a>
 		</div>
 	</div>
 	<a class="block bggray text-center" href="{{ path('showfilter') }}">Фильтр</a>
