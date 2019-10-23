@@ -20,6 +20,7 @@ const i18n = new VueI18n({
 //end Интернациализация
 
 Vue.component('phoneview', require('./views/phoneview'));
+Vue.component('cityfilter', require('./views/cityfilter'));
 
 window.app = new Vue({
     i18n : i18n,

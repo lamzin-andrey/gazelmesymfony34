@@ -11,7 +11,7 @@ let mix = require('laravel-mix');
  |
  */
 
-//Страницы сайта - только список объявлений и фильтры
+//Страницы сайта - показ телефонов и фильтры
 mix.js('sources/site/app.js', 'L.js');
 /*mix.styles([
 		'./../s/vendor/bootstrap4.2.1.min.css',

@@ -11,7 +11,7 @@
     </body>
 </html>
 #}<!DOCTYPE html>
-<html>
+<html class="{% if ( nIspage100Percents is defined ) %}pageh100{% endif %}">
 	<head>
 		<meta name="viewport" 
 			content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -38,7 +38,7 @@
 				<div id="logoplace">
 					<div id="logo-out">
 						<div id="logo-in">
-							<a href="/">
+							<a href="{{ sLocationUrl }}{{ sFilterQueryString }}">
 								<img src="/images/gazeli.png"/>
 							</a>
 						</div>				
@@ -61,7 +61,7 @@
 				</div>
 				{% endif %}
 				<div class="maincontent">
-					{# include $GLOBALS['inner'] #}
+					{% block filterform %}{% endblock %}
 					{% block content %}{% endblock %}
 				</div>
 				<div style="clear:both"> </div>

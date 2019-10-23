@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block filterform %}
+<div id="mfwrap">
+	<div id="mainsfrorm">
+		<form action="{{ sLocationUrl }}" method="get" name="search" id="search">
+			<div class="prmf">
+				<div class="checkblock">
+					<input type="checkbox" name="people" id="people" value="1" {{ people }}> <label for="people">Пассажирская</label>
+				</div>
+				<div class="checkblock">
+					<input type="checkbox" name="box" id="box" value="1" {{ box }}> <label for="box">Грузовая</label>
+				</div>
+				<div class="checkblock">
+					<input type="checkbox" name="term" id="term" value="1" {{ term }}> <label for="term">Термобудка</label>
+				</div>
+				<div class="checkblock">	
+					<input type="checkbox" name="far" id="far" value="1" {{ far }}> <label for="far">Межгород</label>
+				</div>
+				<div class="checkblock">
+					<input type="checkbox" name="near" id="near" value="1" {{ near }}> <label for="near">По городу</label>
+				</div>
+				<div class="checkblock">
+					<input type="checkbox" name="piknik" id="piknik" value="1" {{ piknik }}> <label for="piknik">За город (пикник)</label>
+				</div>
+			</div>
+			<div class="text-right pt-2">
+				<input type="submit" value="Найти"/>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}

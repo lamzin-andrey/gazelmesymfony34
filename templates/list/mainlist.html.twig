@@ -16,7 +16,6 @@
 	unset( $_SESSION["ok_msg"] );
 } ?>
 #}
-
 {% if (nCountAdverts) %}
 	<ul class="lstnone mlist" id="strip">
 		{% for item in list %}
@@ -49,6 +48,26 @@
 <script type="text/javascript" src="//yastatic.net/share2/share.js" charset="utf-8"></script>
 {# if ($_SERVER['HTTP_HOST'] == 'gz.loc'): #}
 {% if isLocalhost %}
-	<script type="text/javascript" src="/js/test.js?a=0"></script>
+	{#<script type="text/javascript" src="/js/test.js?a=0"></script>#}
 {% endif %}
+{% endblock %}
+
+{% block filterform %}
+<div id="mfwrap">
+	{#{ include('list/usermenu.html.twig', {'item' : item}) }#}
+	<div>&nbsp;</div>
+	<div class="block bggray text-center" href="{{ path('showfilter') }}">
+		<div class="center slogan">
+			<span class="ib">Населенный пункт: </span>
+				{% if (nIsSetLocaton == 0) %}
+					<span class="regions_page_link">{{ 'Not set'|trans }}</span>
+				{% else %}
+					<span class="ib regions_page_link">{{ sDisplayLocation }}</span>
+				{% endif %}
+			<a href="/regions" class="regions_page_link">{{ 'Change'|trans }}</a>
+		</div>
+	</div>
+	<a class="block bggray text-center" href="{{ path('showfilter') }}">Фильтр</a>
+	<filter></filter>{# vue2 component #}
+</div>
 {% endblock %}
