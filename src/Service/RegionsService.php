@@ -215,4 +215,89 @@ class RegionsService  {
 		$s = join(' / ', $links);
 		return $s;
 	}
+	/**
+	 * Получает из сессии выбранный пользователем регион или мегаполис (имя латинскими буквами в нижнем регистре)
+	 * @param Request $oRequest
+	*/
+	public function getRegionCodenameFromSession(Request $oRequest) : string
+	{
+		$oSession = $oRequest->getSession();
+		return $oSession->get('sRegionCodename', '');
+	}
+	/**
+	 * Получает из сессии выбранный пользователем населенный пункт (имя латинскими буквами в нижнем регистре)
+	 * @param Request $oRequest
+	*/
+	public function getCityCodenameFromSession(Request $oRequest) : string
+	{
+		$oSession = $oRequest->getSession();
+		return $oSession->get('sCityCodename', '');
+	}
+	/**
+	 * Получает из сессии выбранный пользователем населенный пункт (кириллица или локализованое значение)
+	 * @param Request $oRequest
+	*/
+	public function getDisplayLocationFromSession(Request $oRequest) : string
+	{
+		$oSession = $oRequest->getSession();
+		return $oSession->get('sCyrLocation', '');
+	}
+	/**
+	 * Устанавливает в сессии выбранный пользователем город только в том случае, если человек пришел со страницы /regions/*
+	 * @param string $sRegion
+	 * @param string $sCity
+	 * @param Request $oRequest
+	 * @param string $sCyrRegionName
+	 * @param string $sCyrCityName
+	*/
+	public function saveSelectedLocation(string $sRegion, string $sCity, Request $oRequest, string $sCyrRegionName, string $sCyrCityName = '') : void
+	{
+		$sReferer = $oRequest->server->get('HTTP_REFERER');
+		$sUrl = explode('?', $oRequest->server->get('REQUEST_URI') )[0];
+		if ($sUrl != '/') {
+			$aUrl = parse_url($sReferer);
+			$sPath = ($aUrl['path'] ?? '');
+			if (strpos($sPath, '/regions') === 0) {
+				//set location
+				$aReqUrl = explode('/', $sUrl);
+				$oSession = $oRequest->getSession();
+				$nSz = count($aReqUrl);
+				if ($nSz == 3) {
+					$oSession->set('sRegionCodename', $aReqUrl[1]);
+					$oSession->set('sCityCodename', $aReqUrl[2]);
+					$this->_setCyrLocationValue($oSession, $aReqUrl[1], $aReqUrl[2], $sCyrRegionName, $sCyrCityName);
+				} else if ($nSz == 2) {
+					$oSession->set('sRegionCodename', $aReqUrl[1]);
+					$oSession->set('sCityCodename', '');
+					$this->_setCyrLocationValue($oSession, $aReqUrl[1], '', $sCyrRegionName, $sCyrCityName);
+				} else {
+					$oSession->set('sRegionCodename');
+					$oSession->set('sCityCodename');
+					$oSession->set('sCyrLocation', '');
+				}
+			}
+		}
+	}
+	/**
+	 * Устанавливает в сессии строку, которая показывается на форме фильтра как наименование локации
+	 * @param $oSession (Request::getSession() )
+	 * @param string $sRegion кодовое (транслитированое)  имя региона или мегаполиса латинскими буквами
+	 * @param string string $sCity = '' кодовое (транслитированое)  имя города  латинскими буквами
+	 * @param string $sCyrRegionName = ''
+	 * @param string $sCyrCityName = ''
+	*/
+	private function _setCyrLocationValue($oSession, string $sRegion, string $sCity = '', $sCyrRegionName = '', $sCyrCityName = '') : void
+	{
+		if (!$sCyrRegionName) {
+			$a = [];
+			$this->oGazelMeService->setCityConditionAndInitCyrValues($a, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
+		}	
+		if ($sCyrRegionName) {
+			if ($sCyrCityName) {
+				$oSession->set('sCyrLocation', $sCyrRegionName . ', ' . $sCyrCityName);
+			} else {
+				$oSession->set('sCyrLocation', $sCyrRegionName);
+			}
+		}
+	}
 }

@@ -11,10 +11,11 @@ use \Landlib\Text2Png;
 class GazelMeService
 {
 
-	public function __construct(ContainerInterface $container)
+	public function __construct(ContainerInterface $container, ViewDataService $oViewDataService)
 	{
-		$this->container = $container;
+		$this->oContainer = $container;
 		$this->translator = $container->get('translator');
+		$this->oViewDataService = $oViewDataService;
 	}
 	/**
 	 * Выводит тип перевозки (например, "Грузовая, термобудка" или "Пассажирская")
@@ -47,7 +48,7 @@ class GazelMeService
 	*/
 	public function getPhoneAsImage(int $nId):void
 	{
-		$oRepository = $this->container->get("doctrine")->getRepository("App:Main");
+		$oRepository = $this->oContainer->get("doctrine")->getRepository("App:Main");
 		$aPhone = $oRepository->createQueryBuilder('m')
             ->andWhere('m.id = :id')
             ->setParameter('id', $nId)
@@ -358,5 +359,51 @@ class GazelMeService
 		$string = str_replace('\\', '', $string);
 		$string = str_replace('?', '', $string);
 		return strtolower($string);
+	}
+	/**
+	 * @description
+	 * @param 
+	 * @return ViewDataService
+	*/
+	public function getViewDataService() : ViewDataService
+	{
+		return $this->oViewDataService;
+	}
+	/**
+	 * Добавит в $aWhere фильтр по городу и/или региону
+	 * Инициализует кириллические имена города и региона
+	 * @param string &$sCyrRegionName
+	 * @param string &$sCyrCityName
+	 * @param array  &$aWhere для запроса выборки объявлений, @see _loadAdvList
+	 * @param string $sRegion = '' код региона латинскими буквами
+     * @param string $sCity = ''   код города латинскими буквами
+	*/
+	public function setCityConditionAndInitCyrValues(&$aWhere, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity) : void
+	{
+		if ($sRegion) {
+			//всегда сначала загружаем по региону
+			$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Regions');
+			$aRegions = $oRepository->findBy([
+				'codename' => $sRegion
+			]);
+			if ($aRegions) {
+				$oRegion = current($aRegions);
+				if ($oRegion) {
+					$aWhere['region'] = $oRegion->getId();
+					$sCyrRegionName = $oRegion->getRegionName();
+					if ($sCity) {
+						//Тут в любом случае будет не более десятка записей для сел типа Крайновка или Калиновка. Отфильровать на php
+						$aCities = $oRegion->getCities();
+						foreach($aCities as $oCity) {
+							if ($oCity->getCodename() == $sCity) {
+								$sCyrCityName = $oCity->getCityName();
+								$aWhere['city'] = $oCity->getId();
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }

@@ -13,6 +13,7 @@ use \App\Entity\Regions;
 
 use App\Service\GazelMeService;
 use App\Service\RegionsService;
+use App\Service\ViewDataService;
 
 class DefaultController extends Controller
 {
@@ -56,7 +57,10 @@ class DefaultController extends Controller
 	public function showfilter(Request $oRequest)
 	{
 		$oSession = $oRequest->getSession();
-		$aData = $this->_getDefaultTemplateData($oRequest);
+		
+		$oGazelMeService = $this->get('App\Service\GazelMeService');
+		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
+		
 		$sTitle = $this->get('translator')->trans('Set filter page');
 		$aData['title'] = $sTitle;
 		$aData['nIspage100Percents'] = 1;
@@ -141,8 +145,9 @@ class DefaultController extends Controller
 	  * @param string $sRegion = '' код региона латинскими буквами
       * @param string $sCity = ''   код города латинскими буквами
     */
-	private function _advListPage(Request $oRequest, GazelMeService $oGazelMeService, string $sRegion = '', string $sCity = '')
+	private function _advListPage(Request $oRequest, GazelMeService $oGazelMeService, string $sRegion = '', string $sCity = ''/*, RegionsService $oRegionsService*/)
 	{
+		$oRegionsService = $this->get('App\Service\RegionsService');
 		//adverts data
 		$oSession = $oRequest->getSession();
 		$oSession->set('people', intval( $oRequest->get('people', 0) ));
@@ -154,21 +159,20 @@ class DefaultController extends Controller
 		
 		
 		$adverts = $this->_loadAdvList($sRegion, $sCity, $oRequest);
-		$this->_saveSelectedLocation($sRegion, $sCity, $oRequest);
+		$oRegionsService->saveSelectedLocation($sRegion, $sCity, $oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
 
 		//for links
 		$s = $oRequest->server->get('REQUEST_URI');
 		$a = explode('?', $s);
 		$currentTail =  ($a[1] ?? '');//??
 
+		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
 		
-		
-		$aData = $this->_getDefaultTemplateData($oRequest);
 		$sTitle = $this->get('translator')->trans('Set filter page');
 		$aData['title'] = $oGazelMeService->getTiltle($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
 		$aData['h1'] = $oGazelMeService->getMainHeading($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
 		
-		$sCyrLocation = $oSession->get('sCyrLocation', '');
+		$sCyrLocation = $oRegionsService->getDisplayLocationFromSession($oRequest);
 		if ($sCyrLocation) {
 			$aData['nIsSetLocaton'] = 1;
 			$aData['sDisplayLocation'] = $sCyrLocation;
@@ -204,7 +208,8 @@ class DefaultController extends Controller
 		$a = [];
 		$this->_setCityConditionAndInitCyrValues($a, $sRegion, $sCity);
 		
-		$aData = $this->_getDefaultTemplateData($oRequest);
+		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
+		
 		$aData['title'] = $oGazelMeService->getTiltle($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
 		$aData['h1'] = $oGazelMeService->getMainHeading($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName, $advert->getTitle());
 		$aData['advert'] = $advert;
@@ -260,39 +265,19 @@ class DefaultController extends Controller
 	}
 	/**
 	 * Добавит в $aWhere фильтр по городу и/или региону
-	 * Инимциализует кириллические имена города и региона
+	 * Инициализует кириллические имена города и региона
 	 * @param array &$aWhere для запроса выборки объявлений, @see _loadAdvList
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
-	 * @return array
 	*/
 	private function _setCityConditionAndInitCyrValues(array &$aWhere, string $sRegion = '', string $sCity = '') : void
 	{
-		if ($sRegion) {
-			//всегда сначала загружаем по региону
-			$oRepository = $this->getDoctrine()->getRepository('App:Regions');
-			$aRegions = $oRepository->findBy([
-				'codename' => $sRegion
-			]);
-			if ($aRegions) {
-				$oRegion = current($aRegions);
-				if ($oRegion) {
-					$aWhere['region'] = $oRegion->getId();
-					$this->_sCyrRegionName = $oRegion->getRegionName();
-					if ($sCity) {
-						//Тут в любом случае будет не более десятка записей для сел типа Крайновка или Калиновка. Отфильровать на php
-						$aCities = $oRegion->getCities();
-						foreach($aCities as $oCity) {
-							if ($oCity->getCodename() == $sCity) {
-								$this->_sCyrCityName = $oCity->getCityName();
-								$aWhere['city'] = $oCity->getId();
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
+		$oGazelMeService = $this->get('App\Service\GazelMeService');
+		$sCyrRegionName = '';
+		$sCyrCityName = '';
+		$oGazelMeService->setCityConditionAndInitCyrValues($aWhere, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
+		$this->_sCyrRegionName = $sCyrRegionName;
+		$this->_sCyrCityName = $sCyrCityName;
 	}
 	/**
 	 * Строит ссылку на список объявлений региона @see _advPage
@@ -307,93 +292,15 @@ class DefaultController extends Controller
 		}
 		return ('/' . $sRegion . '/' . $sCity);
 	}
-	//TODO
-	private function _getIsAgreementPage() : int
-	{
-		return 0;
-	}
-	/**
-	 * Строит ссылку на список объявлений региона @see _advPage
-	 * @param $oSesson
-	 * @return string
-	*/
-	private function _getLocationUrl($oSession) : string
-	{
-		$sRegionCodename = $oSession->get('sRegionCodename', '/');
-		$sCityCodename = $oSession->get('sCityCodename', '');
-		$sLocationUrl = ($sRegionCodename);
-		if ($sCityCodename) {
-			$sLocationUrl = ($sLocationUrl . '/' . $sCityCodename);
-		}
-		if ($sLocationUrl[0] != '/') {
-			$sLocationUrl = '/' . $sLocationUrl;
-		}
-		return $sLocationUrl;
-	}
-	/**
-	 * Строит query string с параметрами фильтра типов машин
-	 * @param $oSesson
-	 * @return string
-	*/
-	private function _getFilterQueryString($oSession) : string
-	{
-		$a = [];
-		if (intval($oSession->get('people', 0))) {
-			$a[] = 'people=1';
-		}
-		if (intval($oSession->get('box', 0))) {
-			$a[] = 'box=1';
-		}
-		if (intval($oSession->get('term', 0))) {
-			$a[] = 'term=1';
-		}
-		if (intval($oSession->get('far', 0))) {
-			$a[] = 'far=1';
-		}
-		if (intval($oSession->get('near', 0))) {
-			$a[] = 'near=1';
-		}
-		if (intval($oSession->get('piknik', 0))) {
-			$a[] = 'piknik=1';
-		}
-		if (!$a) {
-			return '';
-		}
-		$s = '?' . join('&', $a);
-		return $s;
-	}
-	/**
-	 * Возвращает переменные, которые есть в мастер шаблоне (то есть они есть практически на каждой странице)
-	*/
-	private function _getDefaultTemplateData(Request $oRequest) : array
-	{
-		$siteName = $this->getParameter('app.site_name', 10);
-		$oSession = $oRequest->getSession();
-		return [
-			'assetsVersion' => 0,
-			'additionalCss' => '',
-			'additionalJs' => '',
-			'csrf' => '',
-			'uid' => 0,
-			'regionId' => '',
-			'cityId' => '',
-			'politicDoc' => '/images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc',
-			'isAgreementPage' => $this->_getIsAgreementPage(),
-			'siteName' => $siteName,
-			'sLocationUrl' => $this->_getLocationUrl($oSession),
-			'sFilterQueryString' => $this->_getFilterQueryString($oSession),
-			'isLocalhost' => true
-			/*'' => '',
-			'' => '',*/
-		];
-	}
+	
 	/**
 	 * Общая логика для запросов вида /regions /regions/a /regions/samarskaya_oblast /regions/samarskaya_oblast/a
 	*/
 	private function _regionsPage(Request $oRequest, GazelMeService $oGazelMeService, RegionsService $oRegionsService)
 	{
 		$oSession = $oRequest->getSession();
-		$aData = $this->_getDefaultTemplateData($oRequest);
+		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
+		
 		$sTitle = $this->get('translator')->trans('');
 		$aData['title'] = $sTitle;
 		$aData['h1'] = $sTitle;
@@ -407,59 +314,5 @@ class DefaultController extends Controller
 			$aData['nIspage100Percents'] = 1;
 		}
 		return $this->render('regions.html.twig', $aData);
-	}
-	/**
-	 * Устанавливает в сессии выбранный пользователем город только в том случае, если человек пришел со страницы /regions/*
-	 * @param string $sRegion
-	 * @param string $sCity
-	 * @param Request $oRequest
-	*/
-	private function _saveSelectedLocation(string $sRegion, string $sCity, Request $oRequest) : void
-	{
-		$sReferer = $oRequest->server->get('HTTP_REFERER');
-		$sUrl = explode('?', $oRequest->server->get('REQUEST_URI') )[0];
-		if ($sUrl != '/') {
-			$aUrl = parse_url($sReferer);
-			$sPath = ($aUrl['path'] ?? '');
-			if (strpos($sPath, '/regions') === 0) {
-				//set location
-				$aReqUrl = explode('/', $sUrl);
-				$oSession = $oRequest->getSession();
-				$nSz = count($aReqUrl);
-				if ($nSz == 3) {
-					$oSession->set('sRegionCodename', $aReqUrl[1]);
-					$oSession->set('sCityCodename', $aReqUrl[2]);
-					$this->_setCyrLocationValue($oSession, $aReqUrl[1], $aReqUrl[2]);
-				} else if ($nSz == 2) {
-					$oSession->set('sRegionCodename', $aReqUrl[1]);
-					$oSession->set('sCityCodename', '');
-					$this->_setCyrLocationValue($oSession, $aReqUrl[1]);
-				} else {
-					$oSession->set('sRegionCodename');
-					$oSession->set('sCityCodename');
-					$oSession->set('sCyrLocation', '');
-				}
-			}
-		}
-	}
-	/**
-	 * Устанавливает в сессии строку, которая показывается на форме фильтра как наименование локации
-	 * @param $oSession (Request::getSession() )
-	 * @param string $sRegion кодовое (транслитированое)  имя региона или мегаполиса латинскими буквами
-	 * @param string string $sCity = '' кодовое (транслитированое)  имя города  латинскими буквами
-	*/
-	private function _setCyrLocationValue($oSession, string $sRegion, string $sCity = '') : void
-	{
-		if (!$this->_sCyrRegionName) {
-			$a = [];
-			$this->_setCityConditionAndInitCyrValues($a, $sRegion, $sCity);
-		}	
-		if ($this->_sCyrRegionName) {
-			if ($this->_sCyrCityName) {
-				$oSession->set('sCyrLocation', $this->_sCyrRegionName . ' ' . $this->_sCyrCityName);
-			} else {
-				$oSession->set('sCyrLocation', $this->_sCyrRegionName);
-			}
-		}
 	}
 }
