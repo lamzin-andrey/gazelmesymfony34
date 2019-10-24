@@ -246,6 +246,14 @@ class GazelMeService
 	 * @param string $s
 	 * @return
 	**/
+	public function cp1251(string $s) : string
+	{
+		return $this->_cp1251($s);
+	}
+	/**
+	 * @param string $s
+	 * @return
+	**/
 	private function _cp1251(string $s) : string
 	{
 		return mb_convert_encoding($s, 'WINDOWS-1251', 'UTF-8');

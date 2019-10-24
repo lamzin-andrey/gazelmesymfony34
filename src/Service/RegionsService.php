@@ -17,6 +17,8 @@ class RegionsService  {
 	public  $isRegionInner = 0;
 	/** @property string $sRegionInnerName имя региона в разделе выбора населённого пункта внутри которого находится пользователь */
 	public  $regionInnerName = '';
+	/** @property bool $bIsShortData Принимает true когда страница с буквой (как следствие на ней немного данных и надо установиить "растяжку для футера") */
+	public  $bIsShortData = false;
 	/** @property int $_nDefaultWordsOnLetter сколько регионов показывать под буквой по умолчанию */
 	private $_defaultWordsOnLetter = 5;
 	/** @property int $_aBreadCrumbs ассоциативный массив хлебных крошек */
@@ -85,7 +87,8 @@ class RegionsService  {
 		$a = explode('/', $url);
 		if (count($a) > 2 ) {
 			$s = $a[2];
-			if ($nRegId = $this->_checkRegion($s, $region_name)) {
+			$region_name = '';
+			if ($nRegId = $this->_checkRegion(strval($s), $region_name)) {
 				//$sql = "SELECT id, city_name AS region_name, codename, delta, 0 AS is_city FROM cities WHERE country = 3 AND region = {$reg_id} AND is_deleted = 0 ORDER BY city_name";
 				$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Cities');
 				//$rows = query($sql);
@@ -110,7 +113,8 @@ class RegionsService  {
 		 		}
 		 		$this->data = $data;
 		 		$this->wordsOnLetter = $this->_defaultWordsOnLetter;
-		 		$bc_url = end(array_keys($this->_aBreadCrumbs));
+		 		$aValues = array_keys($this->_aBreadCrumbs);
+		 		$bc_url = end($aValues);
 		 		$this->_aBreadCrumbs["{$bc_url}/{$s}"] = $region_name;
 		 		$this->isRegionInner = 1;
 		 		$this->regionInnerName = "{$s}/";
@@ -170,6 +174,7 @@ class RegionsService  {
 	**/
 	private function _setCityLetter() : void
 	{
+		$this->bIsShortData = false;
 		//$url = $_SERVER['REQUEST_URI'];
 		$url = $this->oRequest->server->get('REQUEST_URI');
 		$a = explode('/', $url);
@@ -177,11 +182,13 @@ class RegionsService  {
 			$s = $a[3];
 			if (strlen($s) < 3) {
 				foreach ($this->data as $key => $item) {
-					if ( $this->oGazelMeService->translite_url( $this->oGazelMeService->cp1251($key) ) == $s) {
+					if ( $this->oGazelMeService->translite_url( $key ) == $s) {
 						$this->data = array($key => $item);
 						$this->wordsOnLetter = 3000000;
-						$bc_url = end(array_keys($this->_bread_crumbs));
-						$this->_breadCrumbs["{$bc_url}/{$s}"] = $key;
+						$aKeys = array_keys($this->_aBreadCrumbs);
+						$bc_url = end($aKeys);
+						$this->_aBreadCrumbs["{$bc_url}/{$s}"] = $key;
+						$this->bIsShortData = true;
 					}
 				}
 			}
