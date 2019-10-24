@@ -4,3 +4,31 @@
 #index:
 #    path: /
 #    defaults: { _controller: 'App\Controller\DefaultController::index' }
+
+regions_cities:
+    path: /regions/{slug}
+    defaults: { _controller: 'App\Controller\RegionsController::regionsCities' }
+
+regions_cities_by_letter:
+    path: /regions/{regionName}/{slug}
+    defaults: { _controller: 'App\Controller\RegionsController::regionsCitiesByLetter' }
+
+regions:
+    path: /regions
+    defaults: { _controller: 'App\Controller\RegionsController::regions' }
+
+cityadvlist:
+    path: /{sCity}
+    defaults: { _controller: 'App\Controller\AdvertlistController::megapolis' }
+
+regioncityadvlist:
+    path: /{sRegion}/{sCity}
+    defaults: { _controller: 'App\Controller\AdvertlistController::city' }
+
+advincity:
+    path: /{sRegion}/{sCity}/{sTitle}/{nAdvId}
+    defaults: { _controller: 'App\Controller\AdvertController::advincity' }
+
+advinmegapolis:
+    path: /{sRegion}/{sTitle}/{nAdvId}
+    defaults: { _controller: 'App\Controller\AdvertController::advinmegapolis' }
