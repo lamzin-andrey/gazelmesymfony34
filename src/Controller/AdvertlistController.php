@@ -111,11 +111,30 @@ class AdvertlistController extends Controller
 	private function _loadAdvList(string $sRegion = '', string $sCity = '', Request $oRequest) : array
 	{
 		$limit = $this->getParameter('app.records_per_page', 10);
-		$aWhere = [
+		$repository = $this->getDoctrine()->getRepository('App:Main');
+		$qb = $repository->createQueryBuilder('m');
+		
+		/*$aWhere = [
 			'isDeleted' => 0,
 			'isHide' => 0,
 			'isModerate' => 1
-		];
+		];*/
+		$oQuery = $qb->select('m.id, m.title, m.addtext, m.price, m.people, m.box, m.term, m.far, m.near, m.piknik, m.image, m.name, m.phone, m.pinned, m.codename')
+			->where( $qb->expr()->eq('m.isDeleted', 0) )
+			->where( $qb->expr()->eq('m.isHide', 0) )
+			->where( $qb->expr()->eq('m.isModerate', 1) )
+			->leftJoin('App\Entity\Cities', 'c', \Doctrine\ORM\Query\Expr\Join::WITH, 'c.id = m.city')
+			->addSelect('c.cityName')
+			//->leftJoin('App:Regions', 'r', 'on', 'r.id = m.region')
+			->getQuery();
+		
+		$aCollection = $oQuery->getResult();
+		var_dump($aCollection);
+		die;/**/
+			
+		
+		return $aCollection;
+		
 		if ($sRegion) {
 			$this->_setCityConditionAndInitCyrValues($aWhere, $sRegion, $sCity);
 		}
@@ -140,7 +159,8 @@ class AdvertlistController extends Controller
 			$aWhere['piknik'] = 1;
 		}
 		
-		$repository = $this->getDoctrine()->getRepository('App:Main');
+		
+		
 		$aCollection = $repository->findBy($aWhere, [
 			'delta' => 'DESC',
 		], $limit, 0);
