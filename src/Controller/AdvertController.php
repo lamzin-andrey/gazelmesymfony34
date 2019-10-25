@@ -58,11 +58,12 @@ class AdvertController extends Controller
 			die('TODO 404 ' . __FILE__ . __LINE__);
 		}
 		$siteName = $this->getParameter('app.site_name');
-		$a = [];
 		
 		$sCyrRegionName = '';
 		$sCyrCityName = '';
-		$oGazelMeService->setCityConditionAndInitCyrValues($aWhere, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
+		$oRepository = $this->getDoctrine()->getRepository('App:Main');
+		$oQueryBuilder = $oRepository->createQueryBuilder('m');
+		$oGazelMeService->setCityConditionAndInitCyrValues($oQueryBuilder, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
 		
 		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
 		

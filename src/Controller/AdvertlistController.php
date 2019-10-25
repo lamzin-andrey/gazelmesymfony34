@@ -101,7 +101,6 @@ class AdvertlistController extends Controller
 		
         return $this->render('list/mainlist.html.twig', $aData);
 	}
-	
 	/**
 	 * 
 	 * @param string $sRegion = '' код региона латинскими буквами
@@ -112,72 +111,67 @@ class AdvertlistController extends Controller
 	{
 		$limit = $this->getParameter('app.records_per_page', 10);
 		$repository = $this->getDoctrine()->getRepository('App:Main');
-		$qb = $repository->createQueryBuilder('m');
-		
-		/*$aWhere = [
-			'isDeleted' => 0,
-			'isHide' => 0,
-			'isModerate' => 1
-		];*/
-		$oQuery = $qb->select()
-			->where( $qb->expr()->eq('m.isDeleted', 0) )
-			->where( $qb->expr()->eq('m.isHide', 0) )
-			->where( $qb->expr()->eq('m.isModerate', 1) )
-			//->orderBy('delta', 'DESC') -- it error
-			->getQuery();
-		
-		$aCollection = $oQuery->execute();
-		var_dump($aCollection);
-		die;/**/
-			
-		
-		return $aCollection;
-		
+		$oQueryBuilder = $repository->createQueryBuilder('m');
+		$oQueryBuilder = $oQueryBuilder->select()
+			->where( $oQueryBuilder->expr()->eq('m.isDeleted', 0) )
+			->andWhere( $oQueryBuilder->expr()->eq('m.isHide', 0) )
+			->andWhere( $oQueryBuilder->expr()->eq('m.isModerate', 1) )
+			->orderBy('m.delta','DESC')
+			->setMaxResults($limit)
+			->setFirstResult(0);
+
 		if ($sRegion) {
-			$this->_setCityConditionAndInitCyrValues($aWhere, $sRegion, $sCity);
+            //Тут в зависимости от http запроса может быть ещё пару раз вызван
+            //$oQueryBuilder->andWhere();
+			$this->_setCityConditionAndInitCyrValues($oQueryBuilder, $sRegion, $sCity);
 		}
 		
 		$oSession = $oRequest->getSession();
+		$aOrWhereType = [];
+		$aOrWhereDistance = [];
 		if (intval($oSession->get('people', 0))) {
-			$aWhere['people'] = 1;
+			$aOrWhereType[] = 'm.people = 1';
 		}
 		if (intval($oSession->get('box', 0))) {
-			$aWhere['box'] = 1;
+			$aOrWhereType[] = 'm.box = 1';
 		}
 		if (intval($oSession->get('term', 0))) {
-			$aWhere['term'] = 1;
+			$aOrWhereType[] = 'm.term = 1';
 		}
 		if (intval($oSession->get('far', 0))) {
-			$aWhere['far'] = 1;
+			$aOrWhereDistance[] = 'm.far = 1';
 		}
 		if (intval($oSession->get('near', 0))) {
-			$aWhere['near'] = 1;
+			$aOrWhereDistance[] = 'm.near = 1';
 		}
 		if (intval($oSession->get('piknik', 0))) {
-			$aWhere['piknik'] = 1;
+			$aOrWhereDistance[] = 'm.piknik = 1';
+		}
+		if ($aOrWhereType) {
+            //Добавляем первые скобки с OR
+			$oQueryBuilder->andWhere($oQueryBuilder->expr()->andX(   join(' OR ', $aOrWhereType) ) );
+		}
+		if ($aOrWhereDistance) {
+            //Добавляем вторые скобки с OR
+			$oQueryBuilder->andWhere($oQueryBuilder->expr()->andX(   join(' OR ', $aOrWhereDistance) ) );
 		}
 		
-		
-		
-		$aCollection = $repository->findBy($aWhere, [
-			'delta' => 'DESC',
-		], $limit, 0);
-		
+		$aCollection = $oQueryBuilder->getQuery()->execute();
 		return $aCollection;
 	}
 	/**
 	 * Добавит в $aWhere фильтр по городу и/или региону
 	 * Инициализует кириллические имена города и региона
-	 * @param array &$aWhere для запроса выборки объявлений, @see _loadAdvList
+	 * @param \Doctrine\ORM\QueryBuilder $oQueryBuilder ('Main:App') для запроса выборки объявлений, @see _loadAdvList
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
 	*/
-	private function _setCityConditionAndInitCyrValues(array &$aWhere, string $sRegion = '', string $sCity = '') : void
+	private function _setCityConditionAndInitCyrValues(\Doctrine\ORM\QueryBuilder $oQueryBuilder, string $sRegion = '', string $sCity = '') : void
 	{
 		$oGazelMeService = $this->get('App\Service\GazelMeService');
 		$sCyrRegionName = '';
 		$sCyrCityName = '';
-		$oGazelMeService->setCityConditionAndInitCyrValues($aWhere, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
+		$oGazelMeService->setCityConditionAndInitCyrValues($oQueryBuilder, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
 		$this->_sCyrRegionName = $sCyrRegionName;
 		$this->_sCyrCityName = $sCyrCityName;
 	}

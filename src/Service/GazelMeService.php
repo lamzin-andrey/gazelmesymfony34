@@ -372,13 +372,13 @@ class GazelMeService
 	/**
 	 * Добавит в $aWhere фильтр по городу и/или региону
 	 * Инициализует кириллические имена города и региона
+	 * @param \Doctrine\ORM\QueryBuilder $oQueryBuilder ('App:Main AS  m') для запроса выборки объявлений, @see AdvertListController::_loadAdvList
 	 * @param string &$sCyrRegionName
 	 * @param string &$sCyrCityName
-	 * @param array  &$aWhere для запроса выборки объявлений, @see _loadAdvList
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
 	*/
-	public function setCityConditionAndInitCyrValues(&$aWhere, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity) : void
+	public function setCityConditionAndInitCyrValues(\Doctrine\ORM\QueryBuilder $oQueryBuilder, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity) : void
 	{
 		if ($sRegion) {
 			//всегда сначала загружаем по региону
@@ -389,7 +389,8 @@ class GazelMeService
 			if ($aRegions) {
 				$oRegion = current($aRegions);
 				if ($oRegion) {
-					$aWhere['region'] = $oRegion->getId();
+					//$aWhere['region'] = $oRegion->getId();
+					$oQueryBuilder->andWhere( $oQueryBuilder->expr()->eq('m.region', $oRegion->getId()) );
 					$sCyrRegionName = $oRegion->getRegionName();
 					if ($sCity) {
 						//Тут в любом случае будет не более десятка записей для сел типа Крайновка или Калиновка. Отфильровать на php
@@ -397,7 +398,8 @@ class GazelMeService
 						foreach($aCities as $oCity) {
 							if ($oCity->getCodename() == $sCity) {
 								$sCyrCityName = $oCity->getCityName();
-								$aWhere['city'] = $oCity->getId();
+								//$aWhere['city'] = $oCity->getId();
+								$oQueryBuilder->andWhere( $oQueryBuilder->expr()->eq('m.city', $oCity->getId()) );
 								break;
 							}
 						}
