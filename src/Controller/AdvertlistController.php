@@ -119,16 +119,14 @@ class AdvertlistController extends Controller
 			'isHide' => 0,
 			'isModerate' => 1
 		];*/
-		$oQuery = $qb->select('m.id, m.title, m.addtext, m.price, m.people, m.box, m.term, m.far, m.near, m.piknik, m.image, m.name, m.phone, m.pinned, m.codename')
+		$oQuery = $qb->select()
 			->where( $qb->expr()->eq('m.isDeleted', 0) )
 			->where( $qb->expr()->eq('m.isHide', 0) )
 			->where( $qb->expr()->eq('m.isModerate', 1) )
-			->leftJoin('App\Entity\Cities', 'c', \Doctrine\ORM\Query\Expr\Join::WITH, 'c.id = m.city')
-			->addSelect('c.cityName')
-			//->leftJoin('App:Regions', 'r', 'on', 'r.id = m.region')
+			//->orderBy('delta', 'DESC') -- it error
 			->getQuery();
 		
-		$aCollection = $oQuery->getResult();
+		$aCollection = $oQuery->execute();
 		var_dump($aCollection);
 		die;/**/
 			
