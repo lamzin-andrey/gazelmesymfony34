@@ -158,10 +158,11 @@ class RegionsService  {
 			$s = $a[2];
 			if (strlen($s) < 3) {
 				foreach ($this->data as $key => $item) {
-					if ( $this->oGazelMeService->translite_url( $this->oGazelMeService->cp1251($key) ) == $s) {
+					if ( $this->oGazelMeService->translite_url( $key ) == $s) {
 						$this->data = [$key => $item];
 						$this->wordsOnLetter = 3000000;
 						$this->_aBreadCrumbs = array('/regions' => 'Регионы', "/regions/{$s}" => $key);
+						$this->bIsShortData = true;
 						return true;
 					}
 				}
