@@ -47,6 +47,14 @@ window.app = new Vue({
 	*/
 	methods:{
 		/**
+		 * @description Клик на ссылке Изменить регион
+		*/
+		onClickChangeRegion(ev) {
+			ev.preventDefault();
+			this.$refs['cityfilter'].swapVisible();
+			return false;
+		},
+		/**
 		 * @description Клик на ссылке Получить изображение с телефоном пользователя
 		 * @param {Number} id
 		*/
@@ -55,7 +63,6 @@ window.app = new Vue({
 			this.$refs[`pv${id}`].setSrc(`/phones/${id}`);
 			return false;
 		},
-		
 		/**
 		 * @description Извлекает clientX из 0 элемента changedTouches события TouchStartEvent
 		 * @param {TouchStartEvent} evt

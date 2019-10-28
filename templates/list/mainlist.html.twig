@@ -64,8 +64,9 @@
 				{% else %}
 					<span class="ib regions_page_link">{{ sDisplayLocation }}</span>
 				{% endif %}
-			<a href="{{ path('regions') }}" class="regions_page_link">{{ 'Change'|trans }}</a>
+			<a href="{{ path('regions') }}" class="regions_page_link" @click="onClickChangeRegion">{{ 'Change'|trans }}</a>
 		</div>
+		<cityfilter ref="cityfilter" ><cityfilter/>{# vue2 component #}
 	</div>
 	<a class="block bggray text-center" href="{{ path('showfilter') }}">Фильтр</a>
 	<filter></filter>{# vue2 component #}

@@ -966,3 +966,21 @@ li {
 .m50p {
 	margin-top: 50px;
 }
+.m10p {
+	margin-top: 10px;
+}
+
+
+/* vue 2 filter */
+.slide-fadedown-enter-active {
+  transition: all .3s ease;
+}
+.slide-fadedown-enter, .slide-fadesown-leave-to
+/* .slide-fadedown-leave-active до версии 2.1.8 */ {
+  transform: translateY(-10px);
+  height: 0px;
+}
+.slide-fadedown-leave{
+  transform: translateY(-10px);
+  height: auto;
+}
