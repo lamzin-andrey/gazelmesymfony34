@@ -1,0 +1,32 @@
+.slide-fadedown-enter-active {
+  transition: all .3s ease;
+}
+.slide-fadedown-enter, .slide-fadesown-leave-to
+/* .slide-fadedown-leave-active до версии 2.1.8 */ {
+  transform: translateY(-10px);
+  height: 0px;
+}
+.slide-fadedown-leave{
+  transform: translateY(-10px);
+  height: auto;
+}
+.locationsave {
+	min-height:38px;
+}
+@media(max-width:768px) {
+	.locationsave {
+		width:100%;
+	}
+	.locationsave-left{
+		float:none;
+		clear:both;
+	}
+}
+@media(min-width:769px) {
+	.locationsave {
+		width:auto;
+	}
+	.locationsave-left{
+		float:left;
+	}
+}

@@ -107,6 +107,25 @@ window.app = new Vue({
 		*/
 		getTitle(){
 			return document.getElementsByTagName('title')[0].innerHTML.trim();
+		},
+		/**
+		 * 
+		 * @param {*} d Может быть объектом данных с сервера, а может быть объектом события ошибки передачи данных
+		 * @return {Boolean} false если произошла ошибка передачи данных или приложения
+		 */
+		defaultAjaxFail(d){
+			if (d.status == 'ok') {
+				return true;
+			}
+			if (d.statuc == 'error' && d.message) {
+				this.alert(d.message);
+				return false;
+			}
+			this.alert(this.$t('app.Default_error'));
+			return false;
+		},
+		alert(s){
+			this.alert(s);
 		}
 	}//end methods
 

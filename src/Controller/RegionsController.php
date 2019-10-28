@@ -44,6 +44,22 @@ class RegionsController extends Controller
 		return $this->_regionsPage($oRequest, $oGazelMeService, $oRegionsService);
 	}
 	/**
+	 * JSON
+	 * Запрос населенных пунктов начинающихся на переданную в substring строку
+	 * @Route("getcitinamesbysubstr") 
+	*/
+	public function getcitinamesbysubstr(Request $oRequest, GazelMeService $oGazelMeService, RegionsService $oRegionsService)
+	{
+		$s = $oRequest->get('s', '');
+		$oResponse = new Response( json_encode(['status' => 'ok', 'list' => [] ]) );
+		if (strlen($s) > 3) {
+			$aList = $this->_loadCitylistBySubstring($s);
+			$oResponse = new Response( json_encode(['status' => 'ok', 'list' => $aList]) );
+		}
+		$oResponse->headers->set('Content-Type', 'application/json');
+		return $oResponse;
+	}
+	/**
 	 * Общая логика для запросов вида /regions /regions/a /regions/samarskaya_oblast /regions/samarskaya_oblast/a
 	*/
 	private function _regionsPage(Request $oRequest, GazelMeService $oGazelMeService, RegionsService $oRegionsService)
@@ -64,5 +80,39 @@ class RegionsController extends Controller
 			$aData['nIspage100Percents'] = 1;
 		}
 		return $this->render('regions.html.twig', $aData);
+	}
+	/**
+	 * Получить населенные пункты, в наименования которых входит подстрока $s
+	 * @param string $s
+	*/
+	private function _loadCitylistBySubstring(string $s) : array
+	{
+		//Запрос из таблицы регионов крупных городов
+		$oRepository = $this->getDoctrine()->getRepository('App:Regions');
+		$oQueryBuilder = $oRepository->createQueryBuilder('r');
+		$oQueryBuilder = $oQueryBuilder->select('r.id, r.regionName AS region_name, r.isCity AS is_city');
+		$oQueryBuilder->where($oQueryBuilder->expr()->eq('r.isCity', 1 ));
+		$oQueryBuilder->andWhere($oQueryBuilder->expr()->like('r.regionName', ':s' ));
+		$oQueryBuilder->setParameter('s', ($s . '%'));
+		$aData = $oQueryBuilder->getQuery()->getResult();
+		
+		//Запрос из таблицы городов
+		$oRepository = $this->getDoctrine()->getRepository('App:Cities');
+		$oQueryBuilder = $oRepository->createQueryBuilder('c');
+		$oQueryBuilder = $oQueryBuilder->select('c.id, c.cityName AS city_name, r.regionName AS r_region_name, r.id AS r_id, r.isCity AS r_is_city,
+			CASE WHEN c.cityName = :raw THEN 1 ELSE 0 END AS HIDDEN sortCondition');
+		$oQueryBuilder->where($oQueryBuilder->expr()->like('c.cityName', ':s' ));
+		$oQueryBuilder->setParameter('s', ($s . '%'));
+		$oQueryBuilder->setParameter('raw', $s );
+		$oQueryBuilder->leftJoin('App:Regions', 'r', \Doctrine\ORM\Query\Expr\Join::WITH, 'c.region = r.id');
+		$oQueryBuilder->orderBy('sortCondition', 'DESC' );
+		$aCityData = $oQueryBuilder->getQuery()->getResult();
+		
+		$aData = array_merge($aData, $aCityData);
+		
+		/*var_dump($aData);
+		die;*/
+		
+		return $aData;
 	}
 }
