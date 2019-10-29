@@ -13,6 +13,10 @@ let mix = require('laravel-mix');
 
 //Страницы сайта - показ телефонов и фильтры
 mix.js('sources/site/app.js', 'L.js');
+
+//Страницы сайта на которых надо только правильно работать с кэшем
+mix.js('sources/site/cacheonlyapp.js', 'co.js');
+
 /*mix.styles([
 		'./../s/vendor/bootstrap4.2.1.min.css',
 		'./../s/vendor/fontawesome5/all.css',
