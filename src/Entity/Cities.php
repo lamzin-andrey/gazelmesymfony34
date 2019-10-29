@@ -165,6 +165,10 @@ class Cities
 
         return $this;
     }
-
+	
+	public function getRegionObject(): ?Regions
+    {
+        return $this->regionObject;
+    }
 
 }

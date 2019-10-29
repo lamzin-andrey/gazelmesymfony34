@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -42,6 +43,43 @@ class RegionsController extends Controller
 	public function regions(Request $oRequest, GazelMeService $oGazelMeService, RegionsService $oRegionsService)
 	{
 		return $this->_regionsPage($oRequest, $oGazelMeService, $oRegionsService);
+	}
+	/**
+	 * Установить url региона при отправки vue 2 формы
+	 * @Route("/setregionjs", name="setregionjs") 
+	*/
+	public function setregionjs(Request $oRequest, GazelMeService $oGazelMeService, RegionsService $oRegionsService)
+	{
+		$nRegionId = intval($oRequest->get('regionId', 0) );
+		$nCityId = intval($oRequest->get('cityId', 0) );
+		$nIsCity = intval($oRequest->get('isCity', 0) );
+		
+		if ($nRegionId) {
+			$oRepository = $this->getDoctrine()->getRepository('App:Regions');
+			$oRegion = $oRepository->find($nRegionId);
+			if ($oRegion) {
+				$oRegionsService->setLocationUrl($oRegion->getCodename(), '', $oRequest, $oRegion->getRegionName());
+				return new RedirectResponse('/' . $oRegion->getCodename());
+			}
+			return $this->redirectToRoute('home');
+		}
+		
+		if ($nCityId) {
+			$oRepository = $this->getDoctrine()->getRepository('App:Cities');
+			$oCity = $oRepository->find($nCityId);
+			if ($oCity) {
+				$oRegion = $oCity->getRegionObject();
+				if ($oCity && $oRegion) {
+					$oRegionsService->setLocationUrl($oRegion->getCodename(), $oCity->getCodename(), $oRequest,
+					$oRegion->getRegionName(), $oCity->getCityName());
+					return new RedirectResponse('/' . $oRegion->getCodename() . '/' . $oCity->getCodename());
+				}
+			}
+			return $this->redirectToRoute('home');
+		}
+		$sE = '';
+		$oRegionsService->setLocationUrl($sE, $sE, $oRequest,$sE, $sE);
+		return $this->redirectToRoute('home');
 	}
 	/**
 	 * JSON

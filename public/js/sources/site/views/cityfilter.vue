@@ -14,7 +14,7 @@
 			:autocomplete-items="filteredItems"
 			:add-only-from-autocomplete="true"
 			:max-tags="1"
-			:placeholder="$t('app.bindArticle')"
+			:placeholder="$t('app.enterCity')"
 			@tags-changed="newTags => locations = newTags"
 			@before-deleting-tag="onDeleteLocation"
 			@input="onInput"
@@ -25,7 +25,7 @@
 	<!-- Save button-->
 	<div class="locationsave-left">
 		<!-- форма с тремя скрытыми инпутами (city_id, region_id, is_city )-->
-		<form action="/setregionjs">
+		<form action="/setregionjs" method="POST">
 			<input :value="getCityId" type="hidden" id="cityId" name="cityId">
 			<input :value="getRegionId" type="hidden" id="regionId" name="regionId" >
 			<input :value="getIsCity" type="hidden" id="isCity>" name="isCity" >
@@ -49,7 +49,10 @@
 			filteredItems() {
 				return this.autocompleteItems.filter(i => {
 					i.text = String(i.text);
-					return i.text.toLowerCase().indexOf(this.location.toLowerCase()) !== -1;
+					return (
+							i.text.toLowerCase().indexOf(this.location.toLowerCase()) !== -1
+							&& this.locations.length == 0
+					);
 				});
 			},
 			// /Вычисляемые свойства связанные с инпутом выбора города
@@ -109,7 +112,12 @@
 			//TODO формат ещё не закончен
 
 			//Это надо будет заполнять, если регион уже выбран в сессии пользователя
-			locations: [],
+			locations: [/*{
+				id: Number,    Идентификатор региона или города
+				text: String,  Отображаемое название локации ("Регион" или "Регион, город" или "Город")
+				is_region: Number говорит о том, что в id хранится regions.id, а не cities.id
+				is_city: Number Нужно учитывать только при is_region = 1. Говорит о том, что это не регион а крупный город (Нехорошее наследие связанное с тем что крупные города показывались в списке регионов)
+			}*/],
 			//Это будет заполняться по мере получения результата ajax запроса
 			/** @property {Array} autocompleteItems здесь будут храниться все  */
 			autocompleteItems: [],
@@ -157,9 +165,7 @@
 				}
 			},
 			/**
-			 * TODO найти в api компонента правильный способ отправки запроса и переработать в локации
-			 * Помимо всего прочего, собирать уникальные регионы и добавлять их в конец списка
-			 * @description Получение данных о существующих статьях, переработать в локации
+			 * @description Установка списка населенных пунктов в автокомплит vue-tags-input. Регионы городов добавляются в конец списка
 			*/
 			onSuccessLoadLocations(data) {
 				if (!this.onFailLoadLocations(data)) {
@@ -205,34 +211,42 @@
 					this.autocompleteItems.push(co);
 				}
 			},
-			/** TODO тут должно быть заполнение locations, то есть если регион уже выбран в сессии пользователя
+			/**
 			 * @description Отработает только тогда, когда есть и this.relatedArticles  и this.autocompleteItems
+			 * @param {String} sCityId
+			 * @param {String} sRegionId
+			 * @param {String} sIsCity
 			*/
-			setRelatedLocation(){
-				if (!this.relatedArticlesFromServer.length || !this.autocompleteItems.length) {
-					this.tags = [];
+			setLocation(sCityId, sRegionId, sIsCity) {
+				if (!$('#hDisplayLocation')[0]) {
 					return;
 				}
-				let i, j;
-				for (i = 0; i < this.relatedArticlesFromServer.length; i++) {
-					for (j = 0; j < this.autocompleteItems.length; j++) {
-						if (this.relatedArticlesFromServer[i].page_id == this.autocompleteItems[j].id) {
-							this.tags.push(this.autocompleteItems[j]);
-						}
-					}
+				let nCityId = parseInt(sCityId),
+					nRegionId = parseInt(sRegionId),
+					nIsCity = parseInt(sIsCity),
+					o = {
+						is_region : 0,
+						is_city : 0,
+						id : 0,
+						text : $('#hDisplayLocation').text()
+					};
+				if (nCityId) {
+					o.is_city = 0;
+					o.id = nCityId;
+				} else if (nRegionId) {
+					 o.is_city = nIsCity;
+					 o.id = nRegionId;
+					 o.is_region = 1;
 				}
-				if (this.tags.length) {
-					this.relatedArticles = JSON.stringify(this.tags);
-				} else {
-					this.relatedArticles = '';
-				}
+				this.locations = [];
+				this.locations.push(o);
 			},
 			/**TODO
 			 * Именно отсюда можно отправлять ajax запросы, а откуда же ещё?
 			 * @param {String} textContent
 			*/
 			onInput(textContent){
-				if (textContent.length > 3) {
+				if (textContent.length > 3 && this.locations.length == 0) {
 					if (!this.requestIsSended) {
 						this.requestIsSended = 1;
 						//_get(onSuccess, url, onFail) {

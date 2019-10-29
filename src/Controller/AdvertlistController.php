@@ -99,6 +99,32 @@ class AdvertlistController extends Controller
 		$aData['nCountAdverts'] = count($adverts);
 		
 		
+		$aData['nRegionId'] = 0;
+		$aData['nCityId'] = 0;
+		$aData['nIsCity'] = 0;
+		
+		//TODO сколько запросов к базе в итоге будет??
+		if ($sRegion && !$sCity) {
+			$oRepository = $this->getDoctrine()->getRepository('App:Regions');
+			$aRegions = $oRepository->findBy([
+				'codename' => $sRegion
+			]);
+			$oRegion = current($aRegions);
+			if ($oRegion) {
+				$aData['nRegionId'] = $oRegion->getId();
+				$aData['nIsCity'] = intval( $oRegion->getIsCity() );
+			}
+		}
+		if ($sCity) {
+			$oRepository = $this->getDoctrine()->getRepository('App:Cities');
+			$aCities = $oRepository->findBy([
+				'codename' => $sCity
+			]);
+			$oCity = current($aCities);
+			if ($oCity) {
+				$aData['nCityId'] = $oCity->getId();
+			}
+		}
         return $this->render('list/mainlist.html.twig', $aData);
 	}
 	/**

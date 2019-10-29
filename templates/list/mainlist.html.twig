@@ -42,6 +42,9 @@
 <script type="text/javascript">
 	var token = '{{ csrf }}';
 	var uid   = '{{ uid }}';
+	var cityId = '{{ nCityId }}';
+	var isCity = '{{ nIsCity }}';
+	var regionId = '{{ nRegionId }}';
 	window.SITE_NAME   = '{{ siteName }}';
 </script>
 <script type="text/javascript" src="//yastatic.net/es5-shims/0.0.2/es5-shims.min.js" charset="utf-8"></script>
@@ -62,7 +65,7 @@
 				{% if (nIsSetLocaton == 0) %}
 					<span class="regions_page_link">{{ 'Not set'|trans }}</span>
 				{% else %}
-					<span class="ib regions_page_link">{{ sDisplayLocation }}</span>
+					<span class="ib regions_page_link" id="hDisplayLocation">{{ sDisplayLocation }}</span>
 				{% endif %}
 			<a href="{{ path('regions') }}" class="regions_page_link" @click="onClickChangeRegion">{{ 'Change'|trans }}</a>
 		</div>

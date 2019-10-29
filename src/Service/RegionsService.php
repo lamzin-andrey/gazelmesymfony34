@@ -245,8 +245,8 @@ class RegionsService  {
 	}
 	/**
 	 * Устанавливает в сессии выбранный пользователем город только в том случае, если человек пришел со страницы /regions/*
-	 * @param string $sRegion
-	 * @param string $sCity
+	 * @param string $sRegion кодовое имя региона (латинскими буквами (это не стандартный транслит!) )
+	 * @param string $sCity кодовое имя города (латинскими буквами (это не стандартный транслит!) )
 	 * @param Request $oRequest
 	 * @param string $sCyrRegionName
 	 * @param string $sCyrCityName
@@ -272,11 +272,36 @@ class RegionsService  {
 					$oSession->set('sCityCodename', '');
 					$this->_setCyrLocationValue($oSession, $aReqUrl[1], '', $sCyrRegionName, $sCyrCityName);
 				} else {
-					$oSession->set('sRegionCodename');
-					$oSession->set('sCityCodename');
+					$oSession->set('sRegionCodename', '/');
+					$oSession->set('sCityCodename', '');
 					$oSession->set('sCyrLocation', '');
 				}
 			}
+		}
+	}
+	/**
+	 * Устанавливает в сессии выбранный пользователем город (без учета реферера, используется при отправки vue формы)
+	 * @param string $sRegion кодовое имя региона (латинскими буквами (это не стандартный транслит!) )
+	 * @param string $sCity кодовое имя города (латинскими буквами (это не стандартный транслит!) )
+	 * @param Request $oRequest
+	 * @param string $sCyrRegionName
+	 * @param string $sCyrCityName
+	*/
+	public function setLocationUrl(string $sRegion, string $sCity, Request $oRequest, string $sCyrRegionName, string $sCyrCityName = '') : void
+	{
+		$oSession = $oRequest->getSession();
+		if ($sRegion && $sCity && $sCyrRegionName && $sCyrCityName) {
+			$oSession->set('sRegionCodename', $sRegion);
+			$oSession->set('sCityCodename', $sCity);
+			$this->_setCyrLocationValue($oSession, $sRegion, $sCity, $sCyrRegionName, $sCyrCityName);
+		} else if ($sRegion && $sCyrRegionName) {
+			$oSession->set('sRegionCodename', $sRegion);
+			$oSession->set('sCityCodename', '');
+			$this->_setCyrLocationValue($oSession, $sRegion, '', $sCyrRegionName, '');
+		} else {
+			$oSession->set('sRegionCodename', '/');
+			$oSession->set('sCityCodename', '');
+			$oSession->set('sCyrLocation', '');
 		}
 	}
 	/**

@@ -39,8 +39,9 @@ window.app = new Vue({
 	* @description Событие, наступающее после связывания el с этой логикой
 	*/
 	mounted() {
-		//TODO from old app constructor
 		Rest._token = 'open';//TODO real value
+		console.log(cityId, regionId, isCity);
+		this.$refs.cityfilter.setLocation(cityId, regionId, isCity);
 	},
 	/**
 	* @property methods эти методы можно указывать непосредственно в @ - атрибутах
@@ -125,7 +126,7 @@ window.app = new Vue({
 			return false;
 		},
 		alert(s){
-			this.alert(s);
+			alert(s);
 		}
 	}//end methods
 

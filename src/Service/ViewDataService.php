@@ -32,8 +32,6 @@ class ViewDataService  {
 			'additionalJs' => '',
 			'csrf' => '',
 			'uid' => 0,
-			'regionId' => '',
-			'cityId' => '',
 			'politicDoc' => '/images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc',
 			'isAgreementPage' => $this->_getIsAgreementPage(),
 			'siteName' => $siteName,
@@ -58,6 +56,7 @@ class ViewDataService  {
 	private function _getLocationUrl($oSession) : string
 	{
 		$sRegionCodename = $oSession->get('sRegionCodename', '/');
+		$sRegionCodename = $sRegionCodename ? $sRegionCodename : '/';
 		$sCityCodename = $oSession->get('sCityCodename', '');
 		$sLocationUrl = ($sRegionCodename);
 		if ($sCityCodename) {
