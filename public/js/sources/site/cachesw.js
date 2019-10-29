@@ -9,7 +9,7 @@ class CacheSw extends LandCacheClient {
 	getExcludeFilterList() {
 		let o = new Object();
 		o.type = 'filterlist';
-		o.data = ['*.jn/', '*.jn', '/showfilter', 'https://gazelsym34cli4.ru/showfilter'];
+		o.data = ['*.jn/', '*.jn', '/showfilter', this.schemeHost() + '/showfilter'];
 		return o;
 	}
 	/**
@@ -25,5 +25,6 @@ class CacheSw extends LandCacheClient {
 	showFirstCachingCompleteMessage() {
 		//alert('All resources loaded, add us page on main screen and use it offline.');
 	}
+	
 }
 export default CacheSw;
