@@ -19,9 +19,21 @@ const i18n = new VueI18n({
 });
 //end Интернациализация
 
+
+//Back to top button
+import BackToTop from 'vue-backtotop';
+Vue.use(BackToTop);
+
+//customize btt
+import './css/backtotop.css'
+// /Back to top button
+
+
+
 Vue.component('phoneview', require('./views/phoneview'));
 Vue.component('cityfilter', require('./views/cityfilter'));
 Vue.component('typefilter', require('./views/typefilter'));
+
 
 window.app = new Vue({
     i18n : i18n,
@@ -42,6 +54,7 @@ window.app = new Vue({
 	mounted() {
 		Rest._token = 'open';//TODO real value
 		this.$refs.cityfilter.setLocation(cityId, regionId, isCity);
+		$('#bttimg').css('display', 'block');
 	},
 	/**
 	* @property methods эти методы можно указывать непосредственно в @ - атрибутах

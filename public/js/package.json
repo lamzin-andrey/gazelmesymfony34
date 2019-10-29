@@ -24,6 +24,7 @@
 		"datatables.net-rowreorder-bs4": "^1.2.5",
 		"popper": "^1.0.1",
 		"popper.js": "^1.15.0",
+		"vue-backtotop": "^1.6.1",
 		"vue-context-menu": "^2.0.6"
 	}
 }

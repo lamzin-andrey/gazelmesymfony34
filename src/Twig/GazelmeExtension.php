@@ -4,7 +4,7 @@ namespace App\Twig;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use App\Service\GazelMeService;
 
-class GazelmeExtension extends \Twig_Extension
+class GazelmeExtension extends \Twig\Extension\AbstractExtension
 {
 
 	public function __construct(ContainerInterface $container, GazelMeService $oGazelService)
