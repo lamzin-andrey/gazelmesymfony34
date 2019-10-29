@@ -21,6 +21,7 @@ const i18n = new VueI18n({
 
 Vue.component('phoneview', require('./views/phoneview'));
 Vue.component('cityfilter', require('./views/cityfilter'));
+Vue.component('typefilter', require('./views/typefilter'));
 
 window.app = new Vue({
     i18n : i18n,
@@ -40,7 +41,6 @@ window.app = new Vue({
 	*/
 	mounted() {
 		Rest._token = 'open';//TODO real value
-		console.log(cityId, regionId, isCity);
 		this.$refs.cityfilter.setLocation(cityId, regionId, isCity);
 	},
 	/**
@@ -53,6 +53,14 @@ window.app = new Vue({
 		onClickChangeRegion(ev) {
 			ev.preventDefault();
 			this.$refs['cityfilter'].swapVisible();
+			return false;
+		},
+		/**
+		 * @description Клик на ссылке Фильтр
+		*/
+		onClickSwapFilter(ev) {
+			ev.preventDefault();
+			this.$refs['typefilter'].swapVisible();
 			return false;
 		},
 		/**

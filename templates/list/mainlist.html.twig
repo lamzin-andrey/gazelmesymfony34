@@ -71,7 +71,7 @@
 		</div>
 		<cityfilter ref="cityfilter" ><cityfilter/>{# vue2 component #}
 	</div>
-	<a class="block bggray text-center" href="{{ path('showfilter') }}">Фильтр</a>
-	<filter></filter>{# vue2 component #}
+	<a class="block bggray text-center" href="{{ path('showfilter') }}" @click="onClickSwapFilter">Фильтр</a>
+	<typefilter ref="typefilter" formaction="{{ sLocationUrl }}" querystring="{{ sFilterQueryString }}"></typefilter>{# vue2 component #}
 </div>
 {% endblock %}
