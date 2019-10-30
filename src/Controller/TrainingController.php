@@ -5,10 +5,6 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
-//fort native uery
-use Doctrine\ORM\Query\ResultSetMapping;
-//use Doctrine\ORM\Query\ResultSetMappingBuilder;
-
 class TrainingController extends Controller
 {
     /**
@@ -93,20 +89,13 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
      */
     public function groupconcat()
     {
-        /*SELECT m.id, m.phone, GROUP_CONCAT(m.title) AS titles, GROUP_CONCAT(m.id) AS idlist FROM main AS m 
+        /*SELECT m.phone, GROUP_CONCAT(m.title, ';;;') AS titles, GROUP_CONCAT(m.id, ';;;') AS idlist FROM main AS m 
 					GROUP BY (m.phone)*/
-        $oEm = $this->getDoctrine()->getEntityManager();
-        $rsm = new ResultSetMapping();
-        $rsm->addEntityResult('App:UserAdverts', 'm');
-		$rsm->addFieldResult('m', 'id', 'id');
-		$rsm->addFieldResult('m', 'phone', 'phone');
-		$rsm->addFieldResult('m', 'titles', 'titles');
-		$rsm->addFieldResult('m', 'idlist', 'idlist');
-		
-		
-        $oQuery = $oEm->createNativeQuery('SELECT m.id, m.phone, GROUP_CONCAT(m.title) AS titles, GROUP_CONCAT(m.id) AS idlist FROM main AS m 
-					GROUP BY (m.phone)', $rsm);
-		
+        $oEm = $this->getDoctrine()->getRepository('App:Main');
+        $oQueryBuilder = $oEm->createQueryBuilder('m');
+        $oQueryBuilder->select("m.phone, GROUP_CONCAT(m.title, ';;;') AS titles, GROUP_CONCAT(m.id, ';;;') AS idlist")
+			->groupBy('m.phone');
+		$oQuery = $oQueryBuilder->getQuery();
 		$aResult = $oQuery->getResult();
 		var_dump($aResult);
 		die;
