@@ -3,12 +3,13 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Main
  *
  * @ORM\Table(name="main", indexes={@ORM\Index(name="city", columns={"city"}), @ORM\Index(name="box", columns={"box"}), @ORM\Index(name="far", columns={"far"}), @ORM\Index(name="piknik", columns={"piknik"}), @ORM\Index(name="region", columns={"region"}), @ORM\Index(name="people", columns={"people"}), @ORM\Index(name="term", columns={"term"}), @ORM\Index(name="near", columns={"near"}), @ORM\Index(name="phone", columns={"phone"})})
  * @ORM\Entity
+ * ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ * @ORM\Cache(usage="READ_ONLY")
  */
 class Main
 {
@@ -31,8 +32,8 @@ class Main
 	
 	/**
 	 * @var Regions
-	 * @ORM\ManyToOne(targetEntity="Regions", inversedBy="advertsByRegion")
-     * @ORM\JoinColumn(name="region", referencedColumnName="id")
+	 * @ORM\ManyToOne(targetEntity="Regions", inversedBy="regions")
+	 * @ORM\JoinColumn(name="region", referencedColumnName="id")
 	*/
 	private $regionObject;
 
@@ -46,7 +47,7 @@ class Main
 	/**
 	 * @var Cities
 	 * @ORM\ManyToOne(targetEntity="Cities", inversedBy="advertsByCity")
-     * @ORM\JoinColumn(name="city", referencedColumnName="id")
+	 * @ORM\JoinColumn(name="city", referencedColumnName="id")
 	*/
 	private $cityObject;
 

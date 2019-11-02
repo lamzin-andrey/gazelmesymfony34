@@ -23,3 +23,6 @@ doctrine:
         dql:
               string_functions:
                 group_concat: DoctrineExtensions\Query\Mysql\GroupConcat
+
+        second_level_cache:
+            enabled: true

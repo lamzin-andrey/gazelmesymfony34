@@ -36,11 +36,17 @@ class Cities
     private $region;
     
     /**
-	 * @var Regions
-	 * @ORM\ManyToOne(targetEntity="Regions", inversedBy="citiesByRegion")
+     * @var Regions
+     * @ORM\ManyToOne(targetEntity="Regions", inversedBy="citiesByRegion")
      * @ORM\JoinColumn(name="region", referencedColumnName="id")
-	*/
-	private $regionObject;
+    */
+    private $regionObject;
+    
+    /**
+     * @var Regions
+     * @ORM\OneToMany(targetEntity="Main", mappedBy="cityObject")
+    */
+    private $advertsByCity;
 
     /**
      * @var int|null

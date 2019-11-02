@@ -73,7 +73,7 @@ class AdvertController extends Controller
 		$aData['nCountAdverts'] = 1;
 		$aData['nIspage100Percents'] = 1;
 		$aData['backLink'] = $this->_getBackLink($sRegion, $sCity);
-        return $this->render('advert.html.twig', $aData);
+		return $this->render('advert.html.twig', $aData);
 	}
 	/**
 	 * Строит ссылку на список объявлений региона @see _advPage

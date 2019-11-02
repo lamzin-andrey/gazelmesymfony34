@@ -2,8 +2,12 @@
 
 namespace App\Controller;
 
+
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Persisters\Entity\BasicEntityPersister;
 
 class TrainingController extends Controller
 {
@@ -100,5 +104,106 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
 		var_dump($aResult);
 		die;
     }
+
+    /**
+     * @Route("/training/criteria/group_count", name="training_criteria_group_count")
+    */
+    public function criteria1()
+    {
+        //SELECT COUNT(id) AS cnt FROM main GROUP BY region
+        $oRepository = $this->getDoctrine()->getRepository('App:Main');
+        $oCriteria = Criteria::create();
+        $oExpression = Criteria::expr();
+        $oCriteria->where($oExpression->eq('isDeleted', 0));
+
+        $aResult = $oRepository->matching($oCriteria);
+        /** @var $o Doctrine\ORM\LazyCriteriaCollection */
+        /*foreach($aResult as $o) {
+            var_dump($o);
+        };*/
+        die;
+    }
+    /**
+     * @Route("/training/andoror", name="training_andoror")
+    */
+    public function testAndOrWhere()
+    {
+        //SELECT * FROM main WHERE (people = 1 OR box = 1) AND (near = 1 OR far = 1)
+        /** @var \Doctrine\ORM\EntityRepository $oRepository  */
+        $oRepository = $this->getDoctrine()->getRepository('App:Main');
+        $oQueryBuilder = $oRepository->createQueryBuilder('m');
+        $orCond1 = $oQueryBuilder->expr()->orX(); 
+        $orCond2 = $oQueryBuilder->expr()->orX();
+        $orCond1->add($oQueryBuilder->expr()->eq('m.people', 1));//совсем по фэншую!
+        $orCond1->add('m.box = 1');//не совсем по феншую
+        $orCond2->add('m.near = 1');
+        $orCond2->add('m.far = 1');
+        $oAndCond = $oQueryBuilder->expr()->andX();
+        $oAndCond->add($orCond1);
+        $oAndCond->add($orCond2);
+        $oQueryBuilder->andWhere($oAndCond);
+        $oQuery = $oQueryBuilder->getQuery();
+        $aResult = $oQuery->execute();
+        return $this->render('empty.html.twig', ['res' => $aResult]);
+    }
+    /**
+     * @Route("/training/criteria/andoror", name="training_criteria_testoror")
+    */
+    public function criteriaAndOrOr()
+    {
+        //SELECT * FROM main WHERE (people = 1 OR box = 1) AND (near = 1 OR far = 1)
+        $oRepository = $this->getDoctrine()->getRepository('App:Main');
+        $oCriteria = Criteria::create();
+        $oExpression = Criteria::expr();
+        
+        $oCriteria->where( $oExpression->andX(
+                $oExpression->orX(
+                    $oExpression->eq('people', 1),
+                    $oExpression->eq('box', 1)
+                ),
+                $oExpression->orX(
+                    $oExpression->eq('far', 1),
+                    $oExpression->eq('near', 1)
+                )
+        ));
+        
+
+        $aResult = $oRepository->matching($oCriteria);
+        //var_dump($aResult->get(0));die;
+        /** @var $o Doctrine\ORM\LazyCriteriaCollection */
+        /*foreach($aResult as $o) {
+            var_dump($o);
+        };*/
+        //die;
+        return $this->render('empty.html.twig', ['res' => $aResult->get(0)]);
+    }
     
+    /**
+     * @Route("/training/countqueries", name="training_countqueries")
+    */
+    public function testCountQueries()
+    {
+        //SELECT * FROM main WHERE people = 1
+	//SELECT * FROM main WHERE people = 1
+        /** @var \Doctrine\ORM\EntityRepository $oRepository  */
+        $oRepository = $this->getDoctrine()->getRepository('App:Main');
+	$oQueryBuilder = $oRepository->createQueryBuilder('m');
+	$oQueryBuilder->where($oQueryBuilder->expr()->eq('m.people', 1));
+		
+        $aResult = $oQueryBuilder->getQuery()->/*setCacheable(true)->*/execute();
+	
+	/*$oEm = $this->getDoctrine()->getManager();
+	$aResult[0]->setTitle('I Am Caching 6!!!');
+	$oEm->persist($aResult[0]);
+	$oEm->flush();
+	$oEm->clear();*/
+	
+	
+	
+	$aResult2 = $oQueryBuilder->getQuery()->/*setCacheable(true)->*/execute();
+	//var_dump($aResult2[0]->getTitle());die;
+	
+	
+        return $this->render('empty.html.twig', ['res' => $aResult2]);
+    }
 }

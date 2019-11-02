@@ -41,7 +41,7 @@ class Regions
      * @ORM\Column(name="country", type="integer", nullable=true, options={"comment"="Id страны"})
      */
     private $country;
-
+    
     /**
      * @var int|null
      *
@@ -80,7 +80,7 @@ class Regions
 	 * @var array
 	 * @ORM\OneToMany(targetEntity="Cities", mappedBy="regionObject")
 	*/
-	private $cities;
+	private $citiesByRegion;
 
     /**
      * @var int|null
@@ -190,14 +190,18 @@ class Regions
 
     public function setParentId(?int $parentId): self
     {
-        $this->parentId = $parentId;
-
-        return $this;
+	$this->parentId = $parentId;
+	return $this;
     }
     
-	public function getCities()
+    public function getCities()
     {
-        return $this->cities;
+	return $this->cities;
     }
-
+    
+    public function getCitiesByRegion()
+    {
+	return $this->getCities();
+    }
+    
 }
