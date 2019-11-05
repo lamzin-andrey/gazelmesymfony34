@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 use App\Entity\Main;
 use \Landlib\Text2Png;
-
+use Doctrine\Common\Collections\Criteria;
 
 class GazelMeService
 {
@@ -378,19 +378,22 @@ class GazelMeService
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
 	*/
-	public function setCityConditionAndInitCyrValues(\Doctrine\ORM\QueryBuilder $oQueryBuilder, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity) : void
+	public function setCityConditionAndInitCyrValues(\Doctrine\Common\Collections\Criteria $oCriteria, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity) : void
 	{
 		if ($sRegion) {
 			//всегда сначала загружаем по региону
 			$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Regions');
-			$aRegions = $oRepository->findBy([
+			//TODO use Criteria. How use RegionsRepository??
+			/*$aRegions = $oRepository->findBy([
 				'codename' => $sRegion
-			]);
+			]);*/
+			$aRegions = $this->oContainer->get('App\Repository\RegionsRepository')->findByCodename($sRegion);
 			if ($aRegions) {
 				$oRegion = current($aRegions);
 				if ($oRegion) {
 					//$aWhere['region'] = $oRegion->getId();
-					$oQueryBuilder->andWhere( $oQueryBuilder->expr()->eq('m.region', $oRegion->getId()) );
+					$e = Criteria::expr();
+					$oCriteria->andWhere( $e->eq('region', $oRegion->getId()) );
 					$sCyrRegionName = $oRegion->getRegionName();
 					if ($sCity) {
 						//Тут в любом случае будет не более десятка записей для сел типа Крайновка или Калиновка. Отфильровать на php
@@ -399,7 +402,7 @@ class GazelMeService
 							if ($oCity->getCodename() == $sCity) {
 								$sCyrCityName = $oCity->getCityName();
 								//$aWhere['city'] = $oCity->getId();
-								$oQueryBuilder->andWhere( $oQueryBuilder->expr()->eq('m.city', $oCity->getId()) );
+								$oCriteria->andWhere( $e->eq('city', $oCity->getId()) );
 								break;
 							}
 						}

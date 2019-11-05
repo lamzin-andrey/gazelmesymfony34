@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Persisters\Entity\BasicEntityPersister;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 class TrainingController extends Controller
 {
@@ -155,7 +156,6 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
         $oRepository = $this->getDoctrine()->getRepository('App:Main');
         $oCriteria = Criteria::create();
         $oExpression = Criteria::expr();
-        
         $oCriteria->where( $oExpression->andX(
                 $oExpression->orX(
                     $oExpression->eq('people', 1),
@@ -166,44 +166,89 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
                     $oExpression->eq('near', 1)
                 )
         ));
-        
-
         $aResult = $oRepository->matching($oCriteria);
-        //var_dump($aResult->get(0));die;
-        /** @var $o Doctrine\ORM\LazyCriteriaCollection */
-        /*foreach($aResult as $o) {
-            var_dump($o);
-        };*/
-        //die;
+		
+		//Делаем то же самое, для чистоты эксперимента создан новый 
+		//объект Criteria и Expression
+		$oCriteria2 = Criteria::create();
+        $oExpression2 = Criteria::expr();
+        $oCriteria2->where( $oExpression2->andX(
+                $oExpression2->orX(
+                    $oExpression2->eq('people', 1),
+                    $oExpression2->eq('box', 1)
+                ),
+                $oExpression2->orX(
+                    $oExpression2->eq('far', 1),
+                    $oExpression2->eq('near', 1)
+                )
+        ));
+		
+        $aResult2 = $oRepository->matching($oCriteria2);
         return $this->render('empty.html.twig', ['res' => $aResult->get(0)]);
     }
     
     /**
      * @Route("/training/countqueries", name="training_countqueries")
     */
-    public function testCountQueries()
+    public function testCountQueries(\App\Service\CachedDataService $oCachedData)
     {
         //SELECT * FROM main WHERE people = 1
-	//SELECT * FROM main WHERE people = 1
-        /** @var \Doctrine\ORM\EntityRepository $oRepository  */
-        $oRepository = $this->getDoctrine()->getRepository('App:Main');
-	$oQueryBuilder = $oRepository->createQueryBuilder('m');
-	$oQueryBuilder->where($oQueryBuilder->expr()->eq('m.people', 1));
+		//SELECT * FROM main WHERE people = 1
+        /** @var \App\Service\CachedDataService $oCachedData  */
+        $oQueryBuilder = $oCachedData->createQueryBuilder('App:Main', 'm');
+		$oQueryBuilder->where($oQueryBuilder->expr()->eq('m.people', 1));
 		
-        $aResult = $oQueryBuilder->getQuery()->/*setCacheable(true)->*/execute();
-	
-	/*$oEm = $this->getDoctrine()->getManager();
-	$aResult[0]->setTitle('I Am Caching 6!!!');
-	$oEm->persist($aResult[0]);
-	$oEm->flush();
-	$oEm->clear();*/
-	
-	
-	
-	$aResult2 = $oQueryBuilder->getQuery()->/*setCacheable(true)->*/execute();
-	//var_dump($aResult2[0]->getTitle());die;
-	
-	
-        return $this->render('empty.html.twig', ['res' => $aResult2]);
-    }
+        $aResult = $oQueryBuilder->getQuery()->execute();
+		
+		$aResult2 = $oQueryBuilder->getQuery()->setCacheable(false)->execute();
+		
+		return $this->render('empty.html.twig', ['res' => $aResult2]);
+	}
+	/**
+     * @Route("/training/criteria/countqueries", name="training_criteria_countqueries")
+    */
+    public function testCriteriaCountQueries(\App\Service\CachedDataService $oCachedData)
+    {
+		//need
+        //SELECT * FROM main WHERE people = 1
+		//SELECT * FROM main WHERE people = 1
+		/** @var \Doctrine\ORM\EntityRepository $oRepository */
+		$oRepository = $this->getDoctrine()->getRepository('App:Main');
+		//$oRepository->
+		
+		$oCriteria = Criteria::create();
+		$e = Criteria::expr();
+		var_dump($e);die;
+		$oCriteria->where($e->eq('people', 1));
+		
+		/** @var \Doctrine\ORM\LazyCriteriaCollection $aResult */
+		$aResult = $oRepository->matching($oCriteria);
+		//$aResult->
+		$aResult->get(0);
+		
+		$oCriteria2 = Criteria::create();
+		$e2 = Criteria::expr();
+		$oCriteria2->where($e2->eq('people', 1));
+		$aResult2 = $oRepository->matching($oCriteria2);
+		$aResult2->get(0);
+		
+		return $this->render('empty.html.twig', ['res' => $aResult]);
+	}
+	/**
+     * @Route("/training/findby/countqueries", name="training_findby_countqueries")
+    */
+    public function testFindByntQueries()
+	{
+		$oRepository = $this->getDoctrine()->getRepository('App:Regions');
+		//TODO use Criteria. How use RegionsRepository??
+		$sRegion = 'moskva';
+		$aRegions = $oRepository->findBy([
+			'codename' => $sRegion
+		]);
+		
+		$aRegions2 = $oRepository->findBy([
+			'codename' => $sRegion
+		]);
+		return $this->render('empty.html.twig', ['res' => $aRegions]);
+	}
 }

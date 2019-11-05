@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="stat_up", uniqueConstraints={@ORM\UniqueConstraint(name="_date", columns={"_date"})})
  * @ORM\Entity
+ * @ORM\Cache(usage="READ_ONLY")
  */
 class StatUp
 {

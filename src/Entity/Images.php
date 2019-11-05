@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="images")
  * @ORM\Entity
+ * @ORM\Cache(usage="READ_ONLY")
  */
 class Images
 {

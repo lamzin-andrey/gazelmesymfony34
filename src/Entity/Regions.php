@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="regions")
  * @ORM\Entity
+ * @ORM\Cache(usage="READ_ONLY")
  */
 class Regions
 {
@@ -196,7 +197,7 @@ class Regions
     
     public function getCities()
     {
-	return $this->cities;
+	return $this->citiesByRegion;
     }
     
     public function getCitiesByRegion()

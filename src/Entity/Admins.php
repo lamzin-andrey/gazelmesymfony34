@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="admins")
  * @ORM\Entity
+ * @ORM\Cache(usage="READ_ONLY")
  */
 class Admins
 {

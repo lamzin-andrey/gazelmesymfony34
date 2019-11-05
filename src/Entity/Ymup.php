@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="ymup", indexes={@ORM\Index(name="c", columns={"c"})})
  * @ORM\Entity
+ * @ORM\Cache(usage="READ_ONLY")
  */
 class Ymup
 {

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="ya_notification_type")
  * @ORM\Entity
+ * @ORM\Cache(usage="READ_ONLY")
  */
 class YaNotificationType
 {
