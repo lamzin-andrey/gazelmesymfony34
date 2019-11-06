@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(name="phone", columns={"phone"})})
  * @ORM\Entity
- * @ORM\Cache(usage="READ_ONLY")
+ * @ORM\Cache(usage="READ_ONLY", region="global")
  */
 class Users
 {

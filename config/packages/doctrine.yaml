@@ -25,4 +25,23 @@ doctrine:
                 group_concat: DoctrineExtensions\Query\Mysql\GroupConcat
 
         second_level_cache:
-           enabled: true
+           regions:
+                global:
+                    lifetime: 900
+                    cache_driver:
+                        type: memcache
+                        host: localhost
+                        port: 11211
+                
+                        
+        #query_cache_driver:
+        #    type: memcache
+        #    host: localhost
+        #    port: 11211
+        #    instance_class: Memcache
+        
+        #result_cache_driver:
+        #    type: memcache
+        #    host: localhost
+        #    port: 11211
+        #    instance_class: Memcache

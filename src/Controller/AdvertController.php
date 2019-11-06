@@ -55,6 +55,7 @@ class AdvertController extends Controller
 	{
 		//advert data
 		$oRepository = $this->getDoctrine()->getRepository('App:Main');
+		
 		$advert = $oRepository->find($nAdvId);
 		if (!$advert) {//TODO 404!
 			die('TODO 404 ' . __FILE__ . __LINE__);
@@ -63,14 +64,9 @@ class AdvertController extends Controller
 		
 		$sCyrRegionName = '';
 		$sCyrCityName = '';
-		/*$oRepository = $this->getDoctrine()->getRepository('App:Main');
-		$oQueryBuilder = $oRepository->createQueryBuilder('m');*/
 		$oCriteria = Criteria::create();
-		
 		$oGazelMeService->setCityConditionAndInitCyrValues($oCriteria , $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
-		
 		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
-		
 		$aData['title'] = $oGazelMeService->getTiltle($oRequest, $sCyrRegionName, $sCyrCityName);
 		$aData['h1'] = $oGazelMeService->getMainHeading($oRequest, $sCyrRegionName, $sCyrCityName, $advert->getTitle());
 		$aData['advert'] = $advert;

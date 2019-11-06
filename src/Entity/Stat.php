@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="stat", uniqueConstraints={@ORM\UniqueConstraint(name="location", columns={"region", "country", "city"})}, indexes={@ORM\Index(name="region", columns={"region"}), @ORM\Index(name="city", columns={"city"})})
  * @ORM\Entity
- * @ORM\Cache(usage="READ_ONLY")
+ * ORM\Cache(usage="READ_ONLY", region="global")
  */
 class Stat
 {

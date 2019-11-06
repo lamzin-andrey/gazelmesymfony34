@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="op_codes")
  * @ORM\Entity
- * @ORM\Cache(usage="READ_ONLY")
+ * ORM\Cache(usage="READ_ONLY", region="global")
  */
 class OpCodes
 {
