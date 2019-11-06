@@ -15,6 +15,8 @@ use App\Service\GazelMeService;
 use App\Service\RegionsService;
 use App\Service\ViewDataService;
 
+use Doctrine\Common\Collections\Criteria;
+
 class AdvertController extends Controller
 {
     /**
@@ -61,9 +63,11 @@ class AdvertController extends Controller
 		
 		$sCyrRegionName = '';
 		$sCyrCityName = '';
-		$oRepository = $this->getDoctrine()->getRepository('App:Main');
-		$oQueryBuilder = $oRepository->createQueryBuilder('m');
-		$oGazelMeService->setCityConditionAndInitCyrValues($oQueryBuilder, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
+		/*$oRepository = $this->getDoctrine()->getRepository('App:Main');
+		$oQueryBuilder = $oRepository->createQueryBuilder('m');*/
+		$oCriteria = Criteria::create();
+		
+		$oGazelMeService->setCityConditionAndInitCyrValues($oCriteria , $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
 		
 		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
 		
