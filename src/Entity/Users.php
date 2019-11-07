@@ -3,15 +3,16 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use FOS\UserBundle\Model\User as BaseUser;
 
 /**
  * Users
  *
  * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(name="phone", columns={"phone"})})
  * @ORM\Entity
- * @ORM\Cache(usage="READ_ONLY", region="global")
+ * ORM\Cache(usage="NONSTRICT_READ_WRITE", region="global")
  */
-class Users
+class Users extends BaseUser
 {
     /**
      * @var int
@@ -20,84 +21,88 @@ class Users
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string|null
      *
-     * @ORM\Column(name="pwd", type="string", length=32, nullable=true, options={"comment"="пароль"})
+     * @ORM\Column(name="pwd", type="string", length=64, nullable=true, options={"comment"="пароль"})
      */
-    private $pwd;
+    protected $pwd;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="rawpass", type="string", length=32, nullable=true, options={"comment"="пароль как он есть"})
      */
-    private $rawpass;
+    protected $rawpass;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="phone", type="string", length=15, nullable=true, options={"comment"="Номер телефона"})
      */
-    private $phone;
+    protected $phone;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="email", type="string", length=64, nullable=true, options={"comment"="email"})
      */
-    private $email;
 
     /**
      * @var bool|null
      *
      * @ORM\Column(name="sms", type="boolean", nullable=true, options={"comment"="Признак того, что я его сам добавил, предложим восстановление пароля на email"})
      */
-    private $sms;
+    protected $sms;
 
     /**
      * @var int|null
      *
      * @ORM\Column(name="is_deleted", type="integer", nullable=true, options={"comment"="Удален или нет. Может называться по другому, но тогда в cdbfrselectmodel надо указать, как именно"})
      */
-    private $isDeleted = '0';
+    protected $isDeleted = '0';
 
     /**
      * @var int|null
      *
      * @ORM\Column(name="delta", type="integer", nullable=true, options={"comment"="Позиция.  Может называться по другому, но тогда в cdbfrselectmodel надо указать, как именно"})
      */
-    private $delta;
+    protected $delta;
 
     /**
      * @var bool|null
      *
      * @ORM\Column(name="is_sms_verify", type="boolean", nullable=true, options={"comment"="Верифицирован ли пользователь по смс"})
      */
-    private $isSmsVerify = '0';
+    protected $isSmsVerify = '0';
 
     /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="last_sms_send_time", type="datetime", nullable=true, options={"comment"="Время последней отправки"})
      */
-    private $lastSmsSendTime;
+    protected $lastSmsSendTime;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="verify_code", type="string", length=8, nullable=true, options={"comment"="Последний запрошенный код верификации"})
      */
-    private $verifyCode = '';
+    protected $verifyCode = '';
 
     /**
      * @var int|null
      *
      * @ORM\Column(name="upcount", type="integer", nullable=true, options={"default"="10"})
      */
-    private $upcount = '10';
+    protected $upcount = '10';
+	
+	public function __construct()
+	{
+		parent::__construct();
+	}
 
     public function getId(): ?int
     {
@@ -144,8 +149,26 @@ class Users
     {
         return $this->email;
     }
+	
+	/**
+     * {@inheritdoc}
+     */
+    public function getUsername()
+    {
+        return $this->getEmail();
+    }
+	
+	/**
+     * {@inheritdoc}
+     */
+    public function setUsername($username)
+    {
+        $this->setEmail($username);
+		$this->username = $username;
+        return $this;
+    }
 
-    public function setEmail(?string $email): self
+    public function setEmail($email)
     {
         $this->email = $email;
 
@@ -235,6 +258,22 @@ class Users
 
         return $this;
     }
+	/**
+     * {@inheritdoc}
+     */
+    public function getPassword()
+    {
+        return $this->getPwd();
+    }
+	
+	/**
+     * {@inheritdoc}
+     */
+    public function setPassword($password)
+    {
+        $this->setPwd($password);
 
+        return $this;
+    }
 
 }

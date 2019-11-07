@@ -251,4 +251,56 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
 		]);
 		return $this->render('empty.html.twig', ['res' => $aRegions]);
 	}
+	
+	/**
+     * @Route("/training/removedoubles", name="training_removedoubles")
+    */
+    public function remobeDoubles()
+	{
+		$oRepository = $this->getDoctrine()->getRepository('App:Users');
+		$oEm = $this->getDoctrine()->getManager();
+		$aUsers  = $oRepository->findAll();
+		$aMap = [];
+		$aDoubles = [];
+		foreach ($aUsers as $oUser) {
+			$nId = $oUser->getId();
+			$sEmail = strtolower($oUser->getEmail());
+			if (!isset($aMap[$sEmail])) {
+				$aMap[$sEmail] = [];
+			}
+			$aMap[$sEmail][] = $nId;
+			if (count($aMap[$sEmail]) > 1) {
+				$aDoubles[$sEmail] = $sEmail;
+			}
+		}
+		var_dump($aDoubles);//die;
+		
+		//every doubles undouble
+		foreach ($aDoubles as $sEmail) {
+			$aItems = $aMap[$sEmail];
+			if ($sEmail == '') { //delete it
+				/*foreach ($aItems as $nId) {
+					$oUser = $oRepository->find($nId);
+					$oEm->remove($oUser);
+					$oEm->flush();
+				}*/
+			} else {
+				//sort
+				sort($aItems);
+				$n = 0;
+				$nSz = count($aItems) - 2;
+				foreach ($aItems as $nId) {
+					$oUser = $oRepository->find($nId);
+					$sNewEmail = $sEmail . $n;
+					$oUser->setEmail($sNewEmail);
+					$oUser->setUsernameCanonical($sNewEmail);
+					$oEm->persist($oUser);
+					$oEm->flush();
+					$n++;
+				}
+			}
+		}
+		die;
+		return $this->render('empty.html.twig', ['res' => $aRegions]);
+	}
 }

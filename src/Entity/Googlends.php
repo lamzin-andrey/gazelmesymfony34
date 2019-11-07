@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="googlends", indexes={@ORM\Index(name="payment_date", columns={"payment_date", "payment_sum", "is_public"})})
  * @ORM\Entity
- * @ORM\Cache(usage="READ_ONLY")
+ * ORM\Cache(usage="READ_ONLY", region="global")
  */
 class Googlends
 {
