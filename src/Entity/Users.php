@@ -145,14 +145,14 @@ class Users extends BaseUser
         return $this;
     }
 
-    public function getEmail(): ?string
+    /*public function getEmail(): ?string
     {
         return $this->email;
     }
 	
 	/**
      * {@inheritdoc}
-     */
+     *
     public function getUsername()
     {
         return $this->getEmail();
@@ -160,11 +160,11 @@ class Users extends BaseUser
 	
 	/**
      * {@inheritdoc}
-     */
+     *
     public function setUsername($username)
     {
         $this->setEmail($username);
-		$this->username = $username;
+        $this->username = $username;
         return $this;
     }
 
@@ -173,7 +173,7 @@ class Users extends BaseUser
         $this->email = $email;
 
         return $this;
-    }
+    }*/
 
     public function getSms(): ?bool
     {
@@ -258,22 +258,16 @@ class Users extends BaseUser
 
         return $this;
     }
-	/**
-     * {@inheritdoc}
-     */
-    public function getPassword()
+	
+    /*public function getPassword()
     {
         return $this->getPwd();
     }
 	
-	/**
-     * {@inheritdoc}
-     */
     public function setPassword($password)
     {
         $this->setPwd($password);
 
         return $this;
-    }
-
+    }*/
 }

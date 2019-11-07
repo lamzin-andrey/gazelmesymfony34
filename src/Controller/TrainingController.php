@@ -278,13 +278,13 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
 		//every doubles undouble
 		foreach ($aDoubles as $sEmail) {
 			$aItems = $aMap[$sEmail];
-			if ($sEmail == '') { //delete it
+			//if ($sEmail == '') { //delete it
 				/*foreach ($aItems as $nId) {
 					$oUser = $oRepository->find($nId);
 					$oEm->remove($oUser);
 					$oEm->flush();
 				}*/
-			} else {
+			//} else {
 				//sort
 				sort($aItems);
 				$n = 0;
@@ -298,7 +298,7 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
 					$oEm->flush();
 					$n++;
 				}
-			}
+			//}
 		}
 		die;
 		return $this->render('empty.html.twig', ['res' => $aRegions]);
