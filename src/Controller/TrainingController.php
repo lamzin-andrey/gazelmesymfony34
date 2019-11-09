@@ -10,6 +10,8 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Persisters\Entity\BasicEntityPersister;
 use Doctrine\ORM\Query\ResultSetMapping;
 
+use Symfony\Bundle\SwiftmailerBundle;
+
 class TrainingController extends Controller
 {
     /**
@@ -302,5 +304,20 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
 		}
 		die;
 		return $this->render('empty.html.twig', ['res' => $aRegions]);
+	}
+	
+	/**
+     *
+	 * @Route("/training/sendemail")
+	*/
+	public function sendTestEmail()
+	{
+		$msg = new\Swift_Message();
+		$msg->setSubject('Symtest');
+		$msg->setBody('<b>J Hello Hola Salam!</b>', 'text/html', 'UTF-8');
+		$msg->setFrom(['lamzin.an@gmail.com' => 'lamzin.an@gmail.com']);
+		$msg->setTo(['lamzin80@mail.ru' => 'lamzin80@mail.ru']);
+		$this->get('mailer')->send($msg);
+		return $this->render('empty.html.twig', ['res' => []]);
 	}
 }
