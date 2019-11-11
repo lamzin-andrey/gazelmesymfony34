@@ -88,4 +88,12 @@ class AdvertController extends Controller
 		}
 		return ('/' . $sRegion . '/' . $sCity);
 	}
+	/**
+	 * @Route("/podat_obyavlenie", name="podat_obyavlenie")
+	 * 
+	*/
+	public function add()
+	{
+		
+	}
 }

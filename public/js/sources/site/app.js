@@ -33,6 +33,7 @@ import './css/backtotop.css'
 Vue.component('phoneview', require('./views/phoneview'));
 Vue.component('cityfilter', require('./views/cityfilter'));
 Vue.component('typefilter', require('./views/typefilter'));
+Vue.component('loginform', require('./views/loginform'));
 
 
 window.app = new Vue({
@@ -66,6 +67,15 @@ window.app = new Vue({
 		onClickChangeRegion(ev) {
 			ev.preventDefault();
 			this.$refs['cityfilter'].swapVisible();
+			return false;
+		},
+		/**
+		 * @description Клик на ссылке Мои объявления
+		*/
+		onShowAuthFormClick(ev) {
+			ev.preventDefault();
+			//$('#alayer').toggleClass('hide');
+			this.$refs['loginform'].swapVisible();
 			return false;
 		},
 		/**

@@ -1,0 +1,46 @@
+<div class="buttons">
+			{% if (doNotShowAdvButton is not defined) %} 
+			<div class="left usermenu-mt">
+				<a href="{{ path('podat_obyavlenie') }}" class="hidelink">
+					<div class="add button">
+						{{ 'Add advertising'|trans }}
+					</div>
+				</a>
+			</div>
+			{% endif %}
+			
+			{% if (doNothowCabBtn is not defined) %}
+			<div class="left usermenu-mt">
+				<a href="{{ path('cabinet') }}" @click="onShowAuthFormClick" class="hidelink">
+					<div class="auth button">
+						<img src="{{ asset('images/encrypted.png') }}" class="w16"/>
+						<span style="vertical-align:top; display:block-inline" class="">{{ 'My adverts'|trans }}</span>
+					</div>
+				</a>
+			</div>
+			{% endif %}
+				
+			{% if (showExitBtn is defined) %}
+			<div class="left usermenu-mt">
+				<a href="{{ path('logout') }}" id="logoutlink" class="hidelink" title="{{ 'Exit' |trans }}Выход">
+					<div class="out button">
+						<img src="{{ asset('images/out.png') }}" class="w20"/>
+					</div>
+				</a>
+			</div>
+			{% endif %}
+				
+			{%  if (showSetBtn is defined)  %}
+			<div class="left usermenu-mt">
+				<a href="{{ path('cabinet_setting') }}" class="hidelink" title="{{ 'Your data'|trans }}">
+					<div class="out button">
+						<img src="{{ asset('images/set.png') }}" class="w20"/>
+					</div>
+				</a>
+			</div>
+			{% endif %}
+			<div class="both"></div>
+		
+	</div>
+	<loginform ref="loginform" src="{{ asset('images/phone32.png') }}"></loginform>
+				
