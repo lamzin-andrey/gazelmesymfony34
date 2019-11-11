@@ -18,7 +18,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta charset="UTF-8">
 		<script type="text/javascript" src="/js/landcacherswinstaller.js{% if (assetsVersion is defined) %}?{{ assetsVersion }}{% endif %}"></script>
-		<title>{{ title }}</title>
+		{% block title %}<title>{{ title }}</title>{% endblock %}
 		<link href="{{ asset('m.css')}}" media="all" rel="stylesheet" type="text/css" />
 		{{ additionalCss }}
 	</head>
@@ -58,7 +58,11 @@
 					<a href="/agreement" ><span class="red">Важно!</span> Пользовательское соглашение.</a>
 				</div>
 				{% endif %}
-				{% block userform %}{% endblock %}
+				
+				{% block userform %}
+					{% include 'users/loginform.html.twig' %}
+				{% endblock %}
+				
 				<div class="maincontent">
 					{% block filterform %}{% endblock %}
 					{% block content %}{% endblock %}

@@ -1,5 +1,7 @@
-{% extends "@FOSUser/layout.html.twig" %}
-{% block fos_user_content %}
-Hello!
+{% extends "base.html.twig" %}
+{% set doNotShowCabBtn = 1 %}
+{% set title = 'Reset password'|trans %}
+
+{% block content %}
 {% include "@FOSUser/Resetting/request_content.html.twig" %}
-{% endblock fos_user_content %}
+{% endblock content %}

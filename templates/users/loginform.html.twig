@@ -9,16 +9,18 @@
 			</div>
 			{% endif %}
 			
-			{% if (doNothowCabBtn is not defined) %}
+			{% if (doNotShowCabBtn is not defined) %}
 			<div class="left usermenu-mt">
 				<a href="{{ path('cabinet') }}" @click="onShowAuthFormClick" class="hidelink">
 					<div class="auth button">
 						<img src="{{ asset('images/encrypted.png') }}" class="w16"/>
 						<span style="vertical-align:top; display:block-inline" class="">{{ 'My adverts'|trans }}</span>
+						<span></span>
 					</div>
 				</a>
 			</div>
 			{% endif %}
+			
 				
 			{% if (showExitBtn is defined) %}
 			<div class="left usermenu-mt">
