@@ -316,7 +316,7 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
 		$msg->setSubject('Symtest');
 		$msg->setBody('<b>J Hello Hola Salam!</b>', 'text/html', 'UTF-8');
 		$msg->setFrom(['lamzin.an@gmail.com' => 'lamzin.an@gmail.com']);
-		$msg->setTo(['lamzin80@mail.ru' => 'lamzin80@mail.ru']);
+		$msg->setTo(['lamzin.a.m.d@yandex.ru' => 'lamzin.a.m.d@yandex.ru']);
 		$this->get('mailer')->send($msg);
 		return $this->render('empty.html.twig', ['res' => []]);
 	}
