@@ -52,7 +52,21 @@ services:
     #        arguments: ["@service_container"]
     #        tags:
     #            - { name: twig.extension, priority: 255 }
-
+    
+    # it work!
+    App\Controller\ResettingController:
+        decorates: fos_user.resetting.controller
+        arguments:
+            - '@App\Controller\ResettingController.inner'
+            - '@event_dispatcher'
+            - '@fos_user.resetting.form.factory'
+            - '@fos_user.user_manager'
+            - '@fos_user.util.token_generator'
+            - '@fos_user.mailer'
+            - '%fos_user.resetting.retry_ttl%'
+            - '@security.csrf.token_manager'
+    
+    
  
 
 # Это один из вариантов сделать видимым в twig шаблоне значение из конфига (app.city_zero_id) определена выше

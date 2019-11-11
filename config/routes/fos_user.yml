@@ -3,7 +3,7 @@
     
 fos_user_resetting_request:
     path: /remind
-    defaults: { _controller: 'fos_user.resetting.controller:requestAction' }
+    defaults: { _controller: 'App\Controller\ResettingController::requestAction' }
     
 fos_user_security_login:
     path: /login

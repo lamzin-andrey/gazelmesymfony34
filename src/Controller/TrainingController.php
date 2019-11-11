@@ -12,11 +12,12 @@ use Doctrine\ORM\Query\ResultSetMapping;
 
 use Symfony\Bundle\SwiftmailerBundle;
 
+
 class TrainingController extends Controller
 {
     /**
      * @Route("/training/group_count", name="training_group_count")
-     */
+    */
     public function index()
     {
         //SELECT COUNT(id) AS cnt FROM main GROUP BY region
