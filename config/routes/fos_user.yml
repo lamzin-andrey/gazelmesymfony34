@@ -1,2 +1,14 @@
-fos_user:
-    resource: "@FOSUserBundle/Resources/config/routing/all.xml"
+#fos_user:
+    #resource: "@FOSUserBundle/Resources/config/routing/all.xml"
+    
+fos_user_resetting_request:
+    path: /remind
+    defaults: { _controller: 'fos_user.resetting.controller:requestAction' }
+    
+fos_user_security_login:
+    path: /login
+    defaults: { _controller: 'fos_user.security.controller:loginAction' }
+    
+fos_user_resetting_send_email:
+    path: /send-email
+    defaults: { _controller: 'fos_user.resetting.controller:sendEmailAction' }
