@@ -30,7 +30,6 @@ use FOS\UserBundle\Controller\ResettingController as BaseResettingController;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 use ReCaptcha\ReCaptcha;
-//use Symfony\Component\DependencyInjection\ContainerBuilder;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Controller managing the resetting of the password.
