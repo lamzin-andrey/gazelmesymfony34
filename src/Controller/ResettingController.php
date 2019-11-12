@@ -101,9 +101,6 @@ class ResettingController extends AbstractController
 		$secret = $this->oContainer->getParameter('app.google_recaptcha_secret_key');
 		$sRemoteIp = $oRequest->server->get('REMOTE_ADDR');
 		$sDomain = $this->oContainer->getParameter('app.domain');
-		/*
-		var_dump($gRecaptchaResponse); //try get on server
-		die;/**/
 		
 		//check user by phone
 		$aUsers = $this->getDoctrine()->getRepository('App:Users')->findBy(['username' => $sPhone]);

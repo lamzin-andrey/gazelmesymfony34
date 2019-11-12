@@ -4,29 +4,23 @@
 	<div id="add_legend">Восстановление доступа</div>
 	<hr id="add_hr"/>
 		<form action="{{ path('fos_user_resetting_send_email') }}" method="post" name="">
-			<div class="aformwrap upformwrap" id="upform">
+			<div class="aformwrap upformwrap" id="remindform">
 					<div class="aphone" style="margin-bottom:10px;">
 						<label for="login" class="slabel">Номер телефона</label><br/>
 						<label for="login"><img alt="Телефон" title="Телефон" src="/images/phone32.png" /></label> 
 						
 						<input type="text" id="username" name="username" required="required" style="width:70%;">
 					</div>
-					<div class="left captwr tc">
-						<!--img width="174" id="cpi" src="/images/random"><br>
-						<a class="smbr" id="smbr" href="#">Кликните для обновления рисунка</a-->
+					<div class="captwr tc">
 						<div class="g-recaptcha" data-sitekey="{{ recapcthasitekey }}"></div>
 						<br/>
 					</div>
-					<div class="left capinputs capiwr">
-						<div class="left capinputs">
-							<!--div class="capinputs tc cpcodewr">
-								<input type="text" value="" id="cp" name="cp" autocomplete="off">
-							</div-->
-							<div class="right upformbtn">
+					<div class="capinputs capiwr">
+						<div class="capinputs">
+							<div class="upformbtn tright">
 								<input type="submit" name="sup" id="sup" value="Отправить">
 							</div>
 						</div>
-						<div class="both"></div>
 					</div>
 				<div class="both"></div>
 			</div>
