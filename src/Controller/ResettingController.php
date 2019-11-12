@@ -29,6 +29,9 @@ use Symfony\Component\HttpFoundation\Response;
 use FOS\UserBundle\Controller\ResettingController as BaseResettingController;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+use ReCaptcha\ReCaptcha;
+//use Symfony\Component\DependencyInjection\ContainerBuilder;
+use \Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Controller managing the resetting of the password.
  *
@@ -47,6 +50,7 @@ class ResettingController extends AbstractController
     private $userManager;
     private $tokenGenerator;
     private $mailer;
+	private $oContainer;
 
     /**
      * @var int
@@ -60,8 +64,9 @@ class ResettingController extends AbstractController
      * @param TokenGeneratorInterface  $tokenGenerator
      * @param MailerInterface          $mailer
      * @param int                      $retryTtl
+     * @param ContainerInterface		   $container
      */
-    public function __construct(BaseResettingController $baseController, EventDispatcherInterface $eventDispatcher, FactoryInterface $formFactory, UserManagerInterface $userManager, TokenGeneratorInterface $tokenGenerator, MailerInterface $mailer, $retryTtl)
+    public function __construct(BaseResettingController $baseController, EventDispatcherInterface $eventDispatcher, FactoryInterface $formFactory, UserManagerInterface $userManager, TokenGeneratorInterface $tokenGenerator, MailerInterface $mailer, $retryTtl, ContainerInterface $container)
     {
 		$this->resettingController = $baseController;
         $this->eventDispatcher = $eventDispatcher;
@@ -70,6 +75,7 @@ class ResettingController extends AbstractController
         $this->tokenGenerator = $tokenGenerator;
         $this->mailer = $mailer;
         $this->retryTtl = $retryTtl;
+		$this->oContainer = $container;
     }
 
     /**
@@ -88,12 +94,40 @@ class ResettingController extends AbstractController
      *
      * @return Response
      */
-    public function sendEmailAction(Request $request)
-    {
-		/*$cp = $request->get('cp');
-		var_dump($cp);
-		die;*/
-        return $this->resettingController->sendEmailAction($request);
+    public function sendEmailAction(Request $oRequest)
+    {	
+		$sGRecaptchaResponse = $oRequest->get('g-recaptcha-response');
+		$sPhone = $oRequest->get('username');
+		$secret = $this->oContainer->getParameter('app.google_recaptcha_secret_key');
+		$sRemoteIp = $oRequest->server->get('REMOTE_ADDR');
+		$sDomain = $this->oContainer->getParameter('app.domain');
+		/*
+		var_dump($gRecaptchaResponse); //try get on server
+		die;/**/
+		
+		//check user by phone
+		$aUsers = $this->getDoctrine()->getRepository('App:Users')->findBy(['username' => $sPhone]);
+		$oUser = $aUsers[0] ?? null;
+		if (!$oUser) {
+			return $this->_redirectToFailRoute('User with phone not found');
+		}
+		if (!$sGRecaptchaResponse) {
+			return $this->_redirectToFailRoute('missing-input-response');
+		}
+		
+		$oRecaptcha = new ReCaptcha($secret);
+		$oResponse = $oRecaptcha->setExpectedHostname($sDomain)
+						  ->verify($sGRecaptchaResponse, $sRemoteIp);
+		if ($oResponse->isSuccess()) {
+			// Verified!
+			return $this->resettingController->sendEmailAction($oRequest);
+		}
+		$aErrors = $oResponse->getErrorCodes();
+		$oTranslator = $this->oContainer->get('translator');
+		$aErrors = array_map(function($sMessage, $oTranslator){
+			return $oTranslator->trans($sMessage);
+		}, $aErrors, [$oTranslator]);
+		return $this->_redirectToFailRoute( '<p>' . join('</p></p>', $aErrors) . '</p>');
     }
 
     /**
@@ -120,4 +154,18 @@ class ResettingController extends AbstractController
     {
         return $this->resettingController->checkEmailAction($request);
     }
+	/**
+     * Redirect in to resetting_request and set flash with error text
+     *
+     * @param string  $sMessage - with error text
+     *
+     * @return Redirect
+     */
+	private function _redirectToFailRoute(string $sMessage)
+	{
+		$sFailRoute = 'fos_user_resetting_request';
+		$sMessage = $this->oContainer->get('translator')->trans($sMessage);
+		$this->addFlash('notice', $sMessage);
+		return $this->redirectToRoute($sFailRoute);
+	}
 }

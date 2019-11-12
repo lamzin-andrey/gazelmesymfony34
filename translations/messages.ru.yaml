@@ -22,3 +22,5 @@ Add advertising: Подать объявление
 Your data: Ваши данные
 Exit: Выход
 Reset password: Сброс пароля
+User with phone not found: Не найден пользователь с таким телефоном
+missing-input-response: Необходимо подтвердить, что вы не робот

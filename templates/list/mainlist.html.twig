@@ -3,19 +3,6 @@
 {# block title %}My cool blog posts{% endblock #}
 
 {% block content %}
-
-{#TODO use flash
-<?php if (@$_SESSION["ok_msg"] && @$_GET["status"] === '0') {
-?><div id="mainsfrormsuccess" class="vis"><?=@$_SESSION["ok_msg"] ?></div><?php
-	unset( $_SESSION["ok_msg"] );
-} ?>
-#}
-{#TODO use flash
-<?php if (@$_SESSION["ok_msg"] && @$_GET["status"] > 0) {
-?><div id="mainsfrormerror" class="vis"><?=@$_SESSION["ok_msg"] ?></div><?php
-	unset( $_SESSION["ok_msg"] );
-} ?>
-#}
 {% if (nCountAdverts) %}
 	<ul class="lstnone mlist" id="strip">
 		{% for item in list %}

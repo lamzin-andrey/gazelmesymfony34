@@ -5,7 +5,6 @@
 	<hr id="add_hr"/>
 		<form action="{{ path('fos_user_resetting_send_email') }}" method="post" name="">
 			<div class="aformwrap upformwrap" id="upform">
-					<div id="uperror" class="both hide">Неверно введен код</div>
 					<div class="aphone" style="margin-bottom:10px;">
 						<label for="login" class="slabel">Номер телефона</label><br/>
 						<label for="login"><img alt="Телефон" title="Телефон" src="/images/phone32.png" /></label> 
@@ -20,9 +19,9 @@
 					</div>
 					<div class="left capinputs capiwr">
 						<div class="left capinputs">
-							<div class="capinputs tc cpcodewr">
+							<!--div class="capinputs tc cpcodewr">
 								<input type="text" value="" id="cp" name="cp" autocomplete="off">
-							</div>
+							</div-->
 							<div class="right upformbtn">
 								<input type="submit" name="sup" id="sup" value="Отправить">
 							</div>

@@ -5,3 +5,7 @@
 {% block content %}
 {% include "@FOSUser/Resetting/request_content.html.twig" %}
 {% endblock content %}
+
+{% block js %}
+<script type="text/javascript" src="/js/co.js?{{assetsVersion}}" async></script>
+{% endblock %}

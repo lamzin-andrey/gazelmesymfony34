@@ -23,6 +23,9 @@ parameters:
   # Site Display Name
   app.site_name: 'Gazel Symfony 3.4 Demo'
   
+  # Site domain
+  app.domain: '%env(resolve:HOST)%'
+  
   # Ключи для re-captcha
   app.google_recaptcha_site_key: '%env(resolve:GOOGLE_RECAPTCHA_SITEKEY)%'
   app.google_recaptcha_secret_key: '%env(resolve:GOOGLE_RECAPTCHA_SECRETKEY)%'
@@ -68,7 +71,7 @@ services:
             - '@fos_user.util.token_generator'
             - '@fos_user.mailer'
             - '%fos_user.resetting.retry_ttl%'
-            - '@security.csrf.token_manager'
+            - '@service_container'
     
     
  

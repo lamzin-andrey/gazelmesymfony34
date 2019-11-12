@@ -66,6 +66,16 @@
 				
 				<div class="maincontent">
 					{% block filterform %}{% endblock %}
+					{% for label, messages in app.flashes %}
+						{% for message in messages %}
+							{% if (label == 'notice') %}
+								<div id="mainsfrormerror" class="vis">{{ message|raw }}</div>
+							{% else %}
+								<div id="mainsfrormsuccess" class="vis">{{ message|raw }}</div>
+							{% endif %}
+						{% endfor %}
+					{% endfor %}
+					
 					{% block content %}{% endblock %}
 				</div>
 				<div style="clear:both"> </div>
