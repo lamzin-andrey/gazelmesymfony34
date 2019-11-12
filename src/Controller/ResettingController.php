@@ -90,6 +90,9 @@ class ResettingController extends AbstractController
      */
     public function sendEmailAction(Request $request)
     {
+		$cp = $request->get('cp');
+		var_dump($cp);
+		die;
         return $this->resettingController->sendEmailAction($request);
     }
 
