@@ -78,5 +78,6 @@ services:
 twig:
   globals:
     city_zero_id: "%app.city_zero_id%"
+    recapcthasitekey: "%app.google_recaptcha_site_key%"
 
 
