@@ -26,12 +26,13 @@ class ViewDataService  {
 	{
 		$siteName = $this->oContainer->getParameter('app.site_name', '');
 		$oSession = $oRequest->getSession();
+		$nUid = $this->getUid();
 		return [
 			'assetsVersion' => 0,
 			'additionalCss' => '',
 			'additionalJs' => '',
 			'csrf' => '',
-			'uid' => 0,
+			'uid' => $nUid,
 			'politicDoc' => '/images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc',
 			'isAgreementPage' => $this->_getIsAgreementPage(),
 			'siteName' => $siteName,
@@ -98,5 +99,18 @@ class ViewDataService  {
 		}
 		$s = '?' . join('&', $a);
 		return $s;
+	}
+	/**
+	 * Вернет 0 если пользователь не авторизован и id авторизованного пользователя, если пользователь авторизован
+	 * @return int
+	*/
+	public function getUid() : int
+	{
+		$nUid = 0;
+		$oUser = $this->oContainer->get('security.token_storage')->getToken()->getUser();
+		if (!is_string($oUser)) {
+			$nUid = $oUser->getId();
+		}
+		return $nUid;
 	}
 }

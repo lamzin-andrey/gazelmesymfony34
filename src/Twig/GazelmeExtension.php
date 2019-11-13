@@ -15,6 +15,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 		//$this->translator = $translator;
 		$this->translator = $container->get('translator');
 		$this->oGazelService = $oGazelService;
+		$this->_oViewDataService = $oGazelService->getViewDataService();
 	}
 
     public function getFilters() : array
@@ -30,6 +31,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			new \Twig_SimpleFilter('get_translite_location_name', array($this, 'getTransliteLocationName')),
 			new \Twig_SimpleFilter('get_location_name', array($this, 'getLocationName')),
 			new \Twig_SimpleFilter('pluralize_hours', array($this, 'pluralizeHours')),
+			new \Twig_SimpleFilter('get_uid', array($this, 'getUid')),
 		];
     }
 	/**
@@ -187,5 +189,10 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	public function pluralizeHours(int $n) : string
 	{
 		return ($n . ' ' . RusLexicon::getMeasureWordMorph($n, 'час', 'часа', 'часов') );
+	}
+	
+	public function getUid()
+	{
+		return $this->_oViewDataService->getUid();
 	}
 }

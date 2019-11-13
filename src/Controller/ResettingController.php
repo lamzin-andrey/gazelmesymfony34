@@ -153,7 +153,7 @@ class ResettingController extends AbstractController
      */
     public function resetAction(Request $request, $token)
     {
-        return $this->resettingController->checkEmailAction($request);
+        return $this->resettingController->resetAction($request, $token);
     }
 	/**
      * Redirect in to resetting_request and set flash with error text

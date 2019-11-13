@@ -233,10 +233,10 @@
 /** на прочих разрешениях тянем на всю ширину экрана */
 @media (min-width:240px) {
 	.aformwrap .aphone input[type=text]{
-		width:80%;
+		width:70%;
 	}
 	.aformwrap  .apwd input[type=password] {
-		width:93%;
+		width:80%;
 	}
 }
 /** выше этого считаем что у нас десктоп*/
@@ -970,6 +970,19 @@ li {
 	margin-top: 10px;
 }
 
-#remindform.aformwrap {
+#remindform.aformwrap, #resetremindform.aformwrap, #statloginform.aformwrap {
 	height:auto;
+}
+
+#resetremindform.aformwrap label {
+	display:block;
+	margin-top:10px;
+}
+
+#resetremindform.aformwrap input[type=password] {
+	display:block;
+	width:95%;
+}
+.ml5p {
+	margin-left: 5px;
 }

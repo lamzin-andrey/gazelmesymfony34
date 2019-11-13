@@ -11,7 +11,7 @@
 			
 			{% if (doNotShowCabBtn is not defined) %}
 			<div class="left usermenu-mt">
-				<a href="{{ path('cabinet') }}" @click="onShowAuthFormClick" class="hidelink">
+				<a href="{% if uid > 0 %} {{ path('cabinet') }} {% else %} {{ path('fos_user_security_login') }} {% endif %}" @click="onShowAuthFormClick" class="hidelink">
 					<div class="auth button">
 						<img src="{{ asset('images/encrypted.png') }}" class="w16"/>
 						<span style="vertical-align:top; display:block-inline" class="">{{ 'My adverts'|trans }}</span>
@@ -21,25 +21,26 @@
 			</div>
 			{% endif %}
 			
-				
-			{% if (showExitBtn is defined) %}
+			{% if (uid > 0) %}	
+			
 			<div class="left usermenu-mt">
-				<a href="{{ path('logout') }}" id="logoutlink" class="hidelink" title="{{ 'Exit' |trans }}Выход">
+				<a href="{{ path('fos_user_security_logout') }}" id="logoutlink" class="hidelink" title="{{ 'Exit' |trans }}">
 					<div class="out button">
 						<img src="{{ asset('images/out.png') }}" class="w20"/>
 					</div>
 				</a>
 			</div>
-			{% endif %}
-				
-			{%  if (showSetBtn is defined)  %}
-			<div class="left usermenu-mt">
-				<a href="{{ path('cabinet_setting') }}" class="hidelink" title="{{ 'Your data'|trans }}">
-					<div class="out button">
-						<img src="{{ asset('images/set.png') }}" class="w20"/>
-					</div>
-				</a>
-			</div>
+			
+				{% if (doNotShowProfileBtn is not defined) %}
+				<div class="left usermenu-mt">
+					<a href="{{ path('fos_user_profile_edit') }}" class="hidelink" title="{{ 'Your data'|trans }}">
+						<div class="out button">
+							<img src="{{ asset('images/set.png') }}" class="w20"/>
+						</div>
+					</a>
+				</div>
+				{% endif %}
+					
 			{% endif %}
 			<div class="both"></div>
 		

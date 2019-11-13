@@ -14,7 +14,9 @@ security:
         username: 'Имя пользователя'
         password: Пароль
         remember_me: 'Запомнить меня'
-        submit: Войти
+        submit: Вход
+    Autorization: Авторизация
+    Password reset: Восстановление пароля
 profile:
     show:
         username: 'Имя пользователя'

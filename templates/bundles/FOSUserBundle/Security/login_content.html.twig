@@ -1,0 +1,42 @@
+{% trans_default_domain 'FOSUserBundle' %}
+
+{% if error %}
+    <div id="mainsfrormerror" class="vis">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+{% endif %}
+
+
+<div class="bgwhite">
+	<div id="add_legend">{{ 'security.Autorization'|trans }}</div>
+	<hr id="add_hr"/>
+	<div class="aformwrap upformwrap" id="statloginform">
+		<form action="{{ path("fos_user_security_check") }}" method="post">
+			{% if csrf_token %}
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+			{% endif %}
+			<div class="aphone">
+				<label for="username" class="slabel">{{ 'resetting.Phone number'|trans }}</label>
+				<br> <label for="username">
+				<img alt="{{ 'resetting.Phone'|trans }}" title="{{ 'resetting.Phone'|trans }}" src="{{ asset('images/phone32.png') }}"></label>
+				<input type="text" id="username" name="_username" value="{{ last_username }}" required="required" autocomplete="username" />
+			</div>
+			
+			<div class="apwd">
+				<label for="password" class="slabel">{{ 'security.login.password'|trans }}</label><br>
+				<input type="password" id="password" name="_password" required="required" autocomplete="current-password" />
+			</div>
+			
+			<div class="m10p">
+				<input class="ml5p" type="checkbox" id="remember_me" name="_remember_me" value="on" />
+				<label for="remember_me">{{ 'security.login.remember_me'|trans }}</label>
+			</div>
+			
+			<div class="left lpm1">
+				<a href="{{ path('fos_user_resetting_request') }}" target="_blank" class="smbr">{{ 'security.Password reset'|trans }}</a>
+			</div>
+			<div class="m10p tright">
+				<input type="submit" id="_submit" name="_submit" value="{{ 'security.login.submit'|trans }}" />
+			</div>
+			<div class="both"></div>
+		</form>
+	</div>
+</div>

@@ -26,9 +26,13 @@ fos_user_security_logout:
     defaults: { _controller: 'fos_user.security.controller:logoutAction' }
 
 fos_user_profile_show:
-    path: /
+    path: /profile
     defaults: { _controller: 'fos_user.profile.controller:showAction' }
-    
+
+fos_user_profile_edit:
+    path: /profile/edit
+    defaults: { _controller: 'fos_user.profile.controller:editAction' }
+
 fos_user_security_check:
     path: /login_check
     defaults: { _controller: 'fos_user.security.controller:checkAction' }
