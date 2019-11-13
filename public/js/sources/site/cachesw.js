@@ -13,7 +13,11 @@ class CacheSw extends LandCacheClient {
 			this.schemeHost() + '/remind',
 			this.schemeHost() + '/send-email',
 			'/remind',
-			'/send-email'
+			'/send-email',
+			'/resetting/check-email',
+			'/resetting/reset/*',
+			this.schemeHost() + '/resetting/check-email',
+			this.schemeHost() + '/resetting/reset/*'
 		];
 		return o;
 	}
