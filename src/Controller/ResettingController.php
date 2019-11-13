@@ -95,6 +95,11 @@ class ResettingController extends AbstractController
      */
     public function sendEmailAction(Request $oRequest)
     {	
+		$bCaptchaIsOn = $this->oContainer->getParameter('app.google_recaptcha_on');
+		$bCaptchaIsOn = $bCaptchaIsOn == 'false' ? false : $bCaptchaIsOn;
+		if (!$bCaptchaIsOn) {
+			return $this->resettingController->sendEmailAction($oRequest);
+		}
 		$sGRecaptchaResponse = $oRequest->get('g-recaptcha-response');
 		$sPhone = $oRequest->get('username');
 		$secret = $this->oContainer->getParameter('app.google_recaptcha_secret_key');

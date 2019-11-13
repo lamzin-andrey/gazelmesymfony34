@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Main;
 use \Landlib\Text2Png;
 use Doctrine\Common\Collections\Criteria;
+use Landlib\RusLexicon;
 
 class GazelMeService
 {
@@ -140,7 +141,7 @@ class GazelMeService
 		}
 		return $this->translator->trans('Get car in') . ' ' . $s . $sAdvTitle;
 	}
-	//candidate
+	
 	/**
 	 * Изменяет имя города в соответствии с правилами русского языка, ответ на вопрос "где?"
 	 * @param string $s ожидается например "Астрахань, Астраханская область" или "Астраханская область" или "Астрахань"
@@ -148,100 +149,7 @@ class GazelMeService
 	*/
 	private function _modCityName(string $s) : string
 	{
-		//Не изменяется
-		if ($s == 'Марий Эл') {
-			return $s;
-		}
-		$s = trim($s);
-		$g = 'аеёиоуыэюя';
-		$sg = 'бвгджзйклмнпрстфхцчшщъь';
-		$g = $this->_cp1251($g);//TODO
-		$sg = $this->_cp1251($sg);
-		$s = $this->_cp1251($s);
-		
-		if (strpos($s, ' ') !== false) {
-			$ar = explode(' ', $s);
-			$first = str_replace(
-				array( $this->_cp1251('ой '), $this->_cp1251('ая '),  $this->_cp1251('ое '), $this->_cp1251('ый '), $this->_cp1251('ие '), $this->_cp1251('ые '), $this->_cp1251('кий '), $this->_cp1251('ий '),  ),
-				array( $this->_cp1251('ом '), $this->_cp1251('ой '), $this->_cp1251('ом '), $this->_cp1251('ом '), $this->_cp1251('их '), $this->_cp1251('ых '), $this->_cp1251('ком '),  $this->_cp1251('ем ') ),
-				$ar[ count($ar) - 2] . ' '
-			);
-			$second = $ar[ count($ar) - 1];
-			if ($second == $this->_cp1251('Яр')) return $this->_utf8($s);
-			$this->_modLastLetter($second, $sg);
-			$s = $this->_utf8(trim($first)) . ' ' . $this->_utf8($second); 
-		} else {
-			$this->_modLastLetter($s, $sg);
-			$s = $this->_utf8($s);
-		}
-		return $s;
-	}
-	/**
-	 * Изменяет последнюю букву в имени города или региона
-	 * @param string &$second
-	 * @param string $sg
-	 * @return string
-	*/
-	private function _modLastLetter(&$second, $sg) : void
-	{
-		$secondSRep = 0;
-		$lastLetter = isset($second[strlen($second) - 1]) ? $second[strlen($second) - 1] : '';
-		$preLastLetter = ($second[ strlen($second) - 2] ?? '');
-		$preLastLetter2 = ($second[ strlen($second) - 3] ?? '' );
-		$msog = $this->_cp1251('н');
-		if ( strpos($sg, $lastLetter) === false ) {
-			if ($lastLetter == $this->_cp1251('е')) {
-				$secondSRep = 1;
-				$second = str_replace(
-					array( $this->_cp1251('ае '),  $this->_cp1251('ое '), $this->_cp1251('ый '), $this->_cp1251('ие '), $this->_cp1251('ые ') ),
-					array($this->_cp1251('ае'), $this->_cp1251('ом'), $this->_cp1251('ом'), $this->_cp1251('их'), $this->_cp1251('ых') ),
-					$second . ' ',
-					$cnt
-				);
-			}
-			if ($lastLetter == $this->_cp1251('а')) {
-				$lastLetter = $this->_cp1251('е');
-			}
-			if ($lastLetter == $this->_cp1251('ы')) {
-				$lastLetter = $this->_cp1251('ах');
-			}
-			if ($lastLetter == $this->_cp1251('и')) {
-				if (strpos($msog, $preLastLetter) === false) {
-					$lastLetter = $this->_cp1251('ах');
-				} else {
-					$lastLetter = $this->_cp1251('ях');
-				}
-			}
-			if ($lastLetter == $this->_cp1251('я') && $preLastLetter != $this->_cp1251('а')) {
-				$lastLetter = $this->_cp1251('и');
-			}
-		} else { 
-			if ($lastLetter == $this->_cp1251('ь')) {
-				if (strpos($msog, $preLastLetter) !== false) {
-					$lastLetter = $this->_cp1251('и');
-				} else {
-					$lastLetter = $this->_cp1251('е');
-				}
-			}else if ($lastLetter == $this->_cp1251('й')) {
-				$secondSRep = 1;
-				$second = str_replace(
-					array( $this->_cp1251('ий '),  $this->_cp1251('ай '), $this->_cp1251('ый '), $this->_cp1251('ой '), $this->_cp1251('ей') ),
-					array($this->_cp1251('ом'), $this->_cp1251('ае'), $this->_cp1251('ом'), $this->_cp1251('ом'), $this->_cp1251("ее") ),
-					$second . ' '
-				);
-			}else {
-				$lastLetter .= $this->_cp1251('е');
-			}
-		}
-		if (!$secondSRep) {
-			if ( strlen($lastLetter) == 1 ) {
-				$second[ strlen($second) - 1 ] = $lastLetter;
-			} else {
-				$second = substr($second, 0, strlen($second) - 1);
-				$second .= $lastLetter;
-			}
-		}
-		trim($second);
+		return RusLexicon::getCityNameFor_In_the_City($s);
 	}
 	/**
 	 * @param string $s
@@ -249,24 +157,7 @@ class GazelMeService
 	**/
 	public function cp1251(string $s) : string
 	{
-		return $this->_cp1251($s);
-	}
-	/**
-	 * @param string $s
-	 * @return
-	**/
-	private function _cp1251(string $s) : string
-	{
-		return mb_convert_encoding($s, 'WINDOWS-1251', 'UTF-8');
-	}
-	/**
-	 * Конвертит win1251 utf8 если строка в windows-1251
-	 * @param string $s
-	 * @return
-	**/
-	private function _utf8(string $s) : string
-	{
-		return mb_convert_encoding($s, 'UTF-8', 'WINDOWS-1251');
+		return RusLexicon::cp1251($s);
 	}
 	//candidate
 	/**

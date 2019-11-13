@@ -3,6 +3,7 @@ namespace App\Twig;
 
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use App\Service\GazelMeService;
+use Landlib\RusLexicon;
 
 class GazelmeExtension extends \Twig\Extension\AbstractExtension
 {
@@ -28,6 +29,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			new \Twig_SimpleFilter('is_city_equ_zero', array($this, 'isCityEquZero')),
 			new \Twig_SimpleFilter('get_translite_location_name', array($this, 'getTransliteLocationName')),
 			new \Twig_SimpleFilter('get_location_name', array($this, 'getLocationName')),
+			new \Twig_SimpleFilter('pluralize_hours', array($this, 'pluralizeHours')),
 		];
     }
 	/**
@@ -177,5 +179,13 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 		}
 		return '';
 	}
-	
+	/**
+	 * Изменяет слово "час" в зависмости от количества
+	 * @param  int $n
+	 * @return string
+	*/
+	public function pluralizeHours(int $n) : string
+	{
+		return ($n . ' ' . RusLexicon::getMeasureWordMorph($n, 'час', 'часа', 'часов') );
+	}
 }

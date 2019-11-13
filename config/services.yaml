@@ -29,6 +29,10 @@ parameters:
   # Ключи для re-captcha
   app.google_recaptcha_site_key: '%env(resolve:GOOGLE_RECAPTCHA_SITEKEY)%'
   app.google_recaptcha_secret_key: '%env(resolve:GOOGLE_RECAPTCHA_SECRETKEY)%'
+  
+  #Включена ли вообще re-captcha
+  app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
+  #app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
 
 services:
     # default configuration for services in *this* file
@@ -82,5 +86,6 @@ twig:
   globals:
     city_zero_id: "%app.city_zero_id%"
     recapcthasitekey: "%app.google_recaptcha_site_key%"
+    google_recaptcha_on: "%app.google_recaptcha_on%"
 
 
