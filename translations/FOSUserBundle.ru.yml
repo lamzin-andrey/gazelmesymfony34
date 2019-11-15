@@ -23,6 +23,7 @@ profile:
         email: 'Электронная почта'
     edit:
         submit: Обновить
+    Display-name-required: Имя продавца или наименование компании обязательно для заполнения
     flash:
         updated: 'Профиль пользователя обновлен.'
 change_password:

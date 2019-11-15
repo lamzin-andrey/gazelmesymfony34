@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use FOS\UserBundle\Model\User as BaseUser;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Users
@@ -98,6 +99,13 @@ class Users extends BaseUser
      * @ORM\Column(name="upcount", type="integer", nullable=true, options={"default"="10"})
      */
     protected $upcount = '10';
+	
+	/**
+	 * @Assert\NotBlank(message="Display-name-required")
+     * @var string|null
+     * @ORM\Column(name="display_name", type="string", length=255, nullable=true, options={"comment"="Отображамое имя или название организации"})
+     */
+    protected $displayName = '';
 	
 	public function __construct()
 	{
@@ -259,15 +267,15 @@ class Users extends BaseUser
         return $this;
     }
 	
-    /*public function getPassword()
+    public function getDisplayName()
     {
-        return $this->getPwd();
+        return $this->displayName;
     }
 	
-    public function setPassword($password)
+    public function setDisplayName($sDisplayName)
     {
-        $this->setPwd($password);
+        $this->displayName = $sDisplayName;
 
         return $this;
-    }*/
+    }
 }

@@ -5,3 +5,6 @@ fos_user:
     from_email:
         address: "lamzin.an@gmail.com"
         sender_name: "lamzin.an@gmail.com"
+    profile:
+        form:
+            type: App\Form\ProfileFormType
