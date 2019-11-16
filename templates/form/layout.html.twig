@@ -1,0 +1,22 @@
+{% block form_row %}
+	{% set isCheckbox = 0 %}
+	{% for i in block_prefixes %}
+		{% if i == 'checkbox' %}
+			{% set isCheckbox = 1 %}
+		{% endif %}
+	{% endfor %}
+	
+	{% if isCheckbox %}
+    <div>
+		{{- form_widget(form) -}}
+        {{- form_label(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+	{% else %}
+		<div>
+		{{- form_label(form) -}}
+		{{- form_widget(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+	{% endif %}
+{% endblock %}
