@@ -55,6 +55,11 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
+    app.security.authentication_handler:
+        class: App\Handler\AuthenticationHandler
+        public: false
+        arguments: ["@router", "@service_container"]
+            
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 

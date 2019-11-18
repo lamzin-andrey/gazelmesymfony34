@@ -17,6 +17,8 @@ security:
             form_login:
                 provider: fos_userbundle
                 csrf_token_generator: security.csrf.token_manager
+                success_handler: app.security.authentication_handler
+                failure_handler: app.security.authentication_handler
 
             logout:       true
             anonymous:    true

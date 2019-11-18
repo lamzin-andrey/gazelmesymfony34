@@ -45,5 +45,7 @@
 			<div class="both"></div>
 		
 	</div>
-	<loginform ref="loginform" data-csrf="{{ csrf_token }}" src="{{ asset('images/phone32.png') }}"></loginform>
+	{% if (csrf_token is defined) %}
+		<loginform ref="loginform" action="{{ path('fos_user_security_check') }}" csrf="{{ csrf_token }}" src="{{ asset('images/phone32.png') }}"></loginform>
+	{% endif %}
 				

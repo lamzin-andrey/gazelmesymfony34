@@ -3,6 +3,7 @@ namespace App\Service;
 
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use \Symfony\Component\HttpFoundation\Request;
+use \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 use App\Entity\Main;
 use App\Entity\Regions;
@@ -13,10 +14,11 @@ use App\Entity\Cities;
 */
 class ViewDataService  {
 	
-	public function __construct(ContainerInterface $oContainer)
+	public function __construct(ContainerInterface $oContainer, CsrfTokenManagerInterface $oTokenManager)
 	{
 		$this->oContainer = $oContainer;
 		$this->oTranslator = $oContainer->get('translator');
+		$this->_oTokenManager = $oTokenManager;
 	}
 	
 	/**
@@ -31,7 +33,7 @@ class ViewDataService  {
 			'assetsVersion' => 0,
 			'additionalCss' => '',
 			'additionalJs' => '',
-			'csrf' => '',
+			'csrf_token' => $this->_oTokenManager ? $this->_oTokenManager->getToken('authenticate')->getValue() : '',
 			'uid' => $nUid,
 			'politicDoc' => '/images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc',
 			'isAgreementPage' => $this->_getIsAgreementPage(),

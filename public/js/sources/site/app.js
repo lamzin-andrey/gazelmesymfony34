@@ -54,6 +54,10 @@ window.app = new Vue({
 	*/
 	mounted() {
 		Rest._token = 'open';//TODO real value
+		if (this.$refs.loginform) {
+			Rest._token = Rest._token = this.$refs.loginform.getCsrf();
+			console.log(Rest._token);
+		}
 		this.$refs.cityfilter.setLocation(cityId, regionId, isCity);
 		$('#bttimg').css('display', 'block');
 	},
