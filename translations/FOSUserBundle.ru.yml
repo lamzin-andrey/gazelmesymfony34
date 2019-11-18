@@ -26,6 +26,7 @@ profile:
     Display-name-required: Имя продавца или наименование компании обязательно для заполнения
     flash:
         updated: 'Профиль пользователя обновлен.'
+    Edit profile: Редактирование профиля
 change_password:
     submit: 'Изменить пароль'
     flash:

@@ -979,9 +979,15 @@ li {
 	margin-top:10px;
 }
 
-#resetremindform.aformwrap input[type=password] {
+#resetremindform.aformwrap input[type=password], #resetremindform.aformwrap input[type=text],
+ #resetremindform.aformwrap input[type=email] {
 	display:block;
 	width:95%;
+}
+#resetremindform form ul li {
+	color: #aa0000;
+	background-color: #FFB0B9;
+	list-style-type:none;
 }
 .ml5p {
 	margin-left: 5px;

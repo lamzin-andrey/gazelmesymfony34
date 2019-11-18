@@ -46,9 +46,10 @@ class ProfileController extends AbstractController
     /**
      * Show the user.
      */
-    public function showAction()
+    public function showAction(Request $oRequest)
     {
-        return $this->_oBaseController->showAction();
+		return $this->redirectToRoute('fos_user_profile_edit');
+        //return $this->_oBaseController->showAction();
     }
 
     /**
@@ -58,23 +59,51 @@ class ProfileController extends AbstractController
      *
      * @return Response
      */
-    public function editAction(Request $request)
+    public function editAction(Request $oRequest)
     {
-		if ($request->getMethod() == 'POST') {
-			$oUser = $this->getUser();
-			$aInput = $request->get('fos_user_profile_form');
+		if ($oRequest->getMethod() == 'POST') {
+			$aInput = $oRequest->get('fos_user_profile_form');
 			$sRawPassword = $aInput['current_password'];
 			$sNewPassword = ($aInput['plainPassword']['first'] ?? '');
 			if (trim($sNewPassword)) {
+				$oUser = $this->getUser();
+				$t = $this->_oContainer->get('translator');
 				/** @var \Symfony\Component\Security\Core\Encoder\UserPasswordEncoder $encoder */
 				$encoder = $this->_oContainer->get('security.password_encoder');
 				$bCurrentPasswordIsValid = $encoder->isPasswordValid($oUser, $sRawPassword);
 				if (!$bCurrentPasswordIsValid) {
-					$this->addFlash('notice', $this->_oContainer->get('translator')->trans('Current password is invalid'));
+					$this->addFlash('notice', $t->trans('Current password is invalid'));
 					return $this->redirectToRoute('fos_user_profile_edit');
 				}
+				$aUserData = [];
+				$aUserData['email'] = $safeEmail = $oUser->getEmail();
+				$aUserData['display_name'] = $safeDisplayName = $oUser->getDisplayName();
+				$aUserData['password_hash'] = $oUser->getPassword();
+				$oRequest->getSession()->set('safeUserData', $aUserData);
+			}
+		} else {
+			$aUserData = $oRequest->getSession()->get('safeUserData');
+			$oRequest->getSession()->remove('safeUserData');
+			$oUser = $this->getUser();
+			$safePassword = ($aUserData['password_hash'] ?? '');
+			$safeDisplayName = ($aUserData['display_name'] ?? '');
+			$safeEmail = ($aUserData['email'] ?? '');
+			/** @var \Symfony\Component\Translation\DataCollectorTranslator $t */
+			$t = $this->_oContainer->get('translator');
+
+			$sPassword = $oUser->getPassword();
+			if (trim($safePassword) && $safePassword != $sPassword) {
+
+				$this->addFlash('info', $t->trans('change_password.flash.success', [], 'FOSUserBundle'));
+			}
+
+			if (trim($safeDisplayName) && $safeDisplayName != $oUser->getDisplayName()) {
+				$this->addFlash('info', $t->trans('Display name was update', [], null));
+			}
+			if (trim($safeEmail) && $safeEmail != $oUser->getEmail()) {
+				$this->addFlash('info', $t->trans('Email was updated', [], null));
 			}
 		}
-        return $this->_oBaseController->editAction($request);
+        return $this->_oBaseController->editAction($oRequest);
     }
 }
