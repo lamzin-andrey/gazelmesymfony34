@@ -302,4 +302,10 @@ class GazelMeService
 			}
 		}
 	}
+	
+	public function getAuthUser()
+	{
+		$oUser = $this->oContainer->get('security.token_storage')->getToken()->getUser();
+		return $oUser;
+	}
 }

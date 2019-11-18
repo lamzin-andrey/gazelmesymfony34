@@ -31,7 +31,7 @@ fos_user_profile_show:
 
 fos_user_profile_edit:
     path: /profile/edit
-    defaults: { _controller: 'fos_user.profile.controller:editAction' }
+    defaults: { _controller: 'App\Controller\ProfileController::editAction' }
 
 fos_user_security_check:
     path: /login_check

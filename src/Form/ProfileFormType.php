@@ -39,7 +39,7 @@ class ProfileFormType extends AbstractType{
 		
 		$oBuilder->add('plainPassword', RepeatedType::class, array(
             'type' => PasswordType::class,
-			'mapped' => false,
+			'mapped' => true,
 			'required' => false,
             'options' => array(				//видимо потому что RepeatedType сложный пользовательский тип
 											//эти два атрибута вынесены в отдельный массив options
