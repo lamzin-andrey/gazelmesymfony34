@@ -32,7 +32,7 @@
 			</div>
 			
 				
-				<div class="left usermenu-mt {% if (uid == 0 and doNotShowProfileBtn is not defined) %} hide {% endif %}" id="profilelinkwrap">
+				<div id="profilelinkwrap" class="left usermenu-mt {% if (uid == 0 and doNotShowProfileBtn is not defined) %} hide {% endif %}" >
 					<a href="{{ path('fos_user_profile_edit') }}" class="hidelink" title="{{ 'Your data'|trans }}" >
 						<div class="out button">
 							<img src="{{ asset('images/set.png') }}" class="w20"/>

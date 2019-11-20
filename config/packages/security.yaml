@@ -20,7 +20,9 @@ security:
                 success_handler: app.security.authentication_handler
                 failure_handler: app.security.authentication_handler
 
-            logout:       true
+            logout:
+                handler: app.security.logout_handler
+                
             anonymous:    true
 
             # activate different ways to authenticate

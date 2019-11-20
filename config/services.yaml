@@ -59,6 +59,11 @@ services:
         class: App\Handler\AuthenticationHandler
         public: false
         arguments: ["@router", "@service_container"]
+        
+    app.security.logout_handler:
+        class: App\Handler\LogoutHandler
+        public: false
+        arguments: ["@service_container"]
             
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
