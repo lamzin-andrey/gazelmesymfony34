@@ -7,7 +7,7 @@
 {% block content %}
 <div id="mainsfrormsuccess" style="display:block">
 	<p>
-	{{ 'resetting.check_email'|trans({'%tokenLifetime%': tokenLifetime|pluralize_hours})|nl2br }}
+	{{ 'resetting.check_email'|trans({'%tokenLifetime%': tokenLifetime|pluralize_hours, '%email%' : email})|nl2br }}
 	</p>
 </div>
 {% endblock %}

@@ -98,7 +98,9 @@ class ResettingController extends AbstractController
 		$bCaptchaIsOn = $this->oContainer->getParameter('app.google_recaptcha_on');
 		$bCaptchaIsOn = $bCaptchaIsOn == 'false' ? false : $bCaptchaIsOn;
 		if (!$bCaptchaIsOn) {
-			return $this->resettingController->sendEmailAction($oRequest);
+			/** @var \Symfony\Component\HttpFoundation\RedirectResponse $oResult */
+			$oResult = $this->resettingController->sendEmailAction($oRequest);
+			return $oResult;
 		}
 		$sGRecaptchaResponse = $oRequest->get('g-recaptcha-response');
 		$sPhone = $oRequest->get('username');
@@ -140,7 +142,27 @@ class ResettingController extends AbstractController
      */
     public function checkEmailAction(Request $request)
     {
-        return $this->resettingController->checkEmailAction($request);
+		/** @var \Symfony\Component\HttpFoundation\Response $oResult */
+		//$oResult = $this->resettingController->checkEmailAction($request);
+		$username = $request->query->get('username');
+
+        if (empty($username)) {
+            // the user does not come from the sendEmail action
+            return new RedirectResponse($this->generateUrl('fos_user_resetting_request'));
+        }
+
+		$oRepository = $this->getDoctrine()->getRepository('App:Users');
+		$aUsers = $oRepository->findBy(['username' => $username]);
+		$oUser = $aUsers[0] ?? null;
+		if (!$oUser) {
+			return new RedirectResponse($this->generateUrl('fos_user_resetting_request'));
+		}
+		$aEmail = explode('@', $oUser->getEmail());
+		$sEmail = $aEmail[0][0] . '******' . '@'  . $aEmail[1];
+        return $this->render('@FOSUser/Resetting/check_email.html.twig', [
+            'tokenLifetime' => ceil($this->retryTtl / 3600),
+			'email' => $sEmail
+        ]);
     }
 
     /**

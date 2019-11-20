@@ -111,7 +111,7 @@
 				if (data.message && !data.success) {
 					this.isHasError = true;
 					$('.aformwrap').css('height', '220px');
-					if (~data.messageimdexOf('CSRF')) {
+					if (~data.message.indexOf('CSRF')) {
 						location.reload();
 					}
 					return false;
