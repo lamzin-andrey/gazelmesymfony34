@@ -100,7 +100,8 @@
 					return;
 				}
 				if (data.success == true) {
-					location.reload();
+					this.isVisible = false;
+					this.$root.setAuthView(true);
 				}
 			},
 			/**
@@ -110,6 +111,9 @@
 				if (data.message && !data.success) {
 					this.isHasError = true;
 					$('.aformwrap').css('height', '220px');
+					if (~data.messageimdexOf('CSRF')) {
+						location.reload();
+					}
 					return false;
 				}
 				return true;

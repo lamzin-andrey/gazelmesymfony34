@@ -37,3 +37,7 @@ fos_user_security_check:
     path: /login_check
     defaults: { _controller: 'fos_user.security.controller:checkAction' }
     
+getauthstate:
+    path: /getauthstate
+    defaults: { _controller: 'App\Controller\ProfileController::getauthstate' }
+    

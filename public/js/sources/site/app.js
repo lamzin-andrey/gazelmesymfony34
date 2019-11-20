@@ -56,10 +56,10 @@ window.app = new Vue({
 		Rest._token = 'open';//TODO real value
 		if (this.$refs.loginform) {
 			Rest._token = Rest._token = this.$refs.loginform.getCsrf();
-			console.log(Rest._token);
 		}
 		this.$refs.cityfilter.setLocation(cityId, regionId, isCity);
 		$('#bttimg').css('display', 'block');
+		Rest._get((data) => { this.onSuccessGetIsAuth(data); }, '/getauthstate', () => {});
 	},
 	/**
 	* @property methods эти методы можно указывать непосредственно в @ - атрибутах
@@ -98,6 +98,24 @@ window.app = new Vue({
 			ev.preventDefault();
 			this.$refs[`pv${id}`].setSrc(`/phones/${id}`);
 			return false;
+		},
+		/** 
+		 * @description Установить вид контролов связанных с авторизацией пользователя (Показать / скрыть кнопки Выход и Настройки)
+		 * @param {Boolean} bIsAuth 
+		*/
+		setAuthView(bIsAuth) {
+			let m = 'addClass';
+			if (bIsAuth) {
+				m = 'removeClass';
+			}
+			$('#profilelinkwrap')[m]('hide');
+			$('#logoutlinkwrap')[m]('hide');
+		},
+		/**
+		 * @description Успещшное получение данных, авторизован ли пользователь (связанно с кэшированием через sw)
+		*/
+		onSuccessGetIsAuth(data) {
+			this.setAuthView( parseInt(data.uid) > 0 );
 		},
 		/**
 		 * @description Извлекает clientX из 0 элемента changedTouches события TouchStartEvent

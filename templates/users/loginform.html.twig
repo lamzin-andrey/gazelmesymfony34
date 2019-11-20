@@ -21,9 +21,9 @@
 			</div>
 			{% endif %}
 			
-			{% if (uid > 0) %}	
 			
-			<div class="left usermenu-mt">
+			
+			<div id="logoutlinkwrap" class="left usermenu-mt {% if (uid == 0) %} hide {% endif %}">
 				<a href="{{ path('fos_user_security_logout') }}" id="logoutlink" class="hidelink" title="{{ 'Exit' |trans }}">
 					<div class="out button">
 						<img src="{{ asset('images/out.png') }}" class="w20"/>
@@ -31,17 +31,17 @@
 				</a>
 			</div>
 			
-				{% if (doNotShowProfileBtn is not defined) %}
-				<div class="left usermenu-mt">
-					<a href="{{ path('fos_user_profile_edit') }}" class="hidelink" title="{{ 'Your data'|trans }}">
+				
+				<div class="left usermenu-mt {% if (uid == 0 and doNotShowProfileBtn is not defined) %} hide {% endif %}" id="profilelinkwrap">
+					<a href="{{ path('fos_user_profile_edit') }}" class="hidelink" title="{{ 'Your data'|trans }}" >
 						<div class="out button">
 							<img src="{{ asset('images/set.png') }}" class="w20"/>
 						</div>
 					</a>
 				</div>
-				{% endif %}
+				
 					
-			{% endif %}
+			
 			<div class="both"></div>
 		
 	</div>

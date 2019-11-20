@@ -988,6 +988,11 @@ li {
 	color: #aa0000;
 	background-color: #FFB0B9;
 	list-style-type:none;
+	padding: 10px;
+	border: none;
+}
+#resetremindform form ul {
+	padding:0;
 }
 .ml5p {
 	margin-left: 5px;

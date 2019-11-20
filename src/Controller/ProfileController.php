@@ -106,4 +106,18 @@ class ProfileController extends AbstractController
 		}
         return $this->_oBaseController->editAction($oRequest);
     }
+	/**
+	 * Проверяет, авторизован ли пользователь
+	**/
+	public function getauthstate()
+	{
+		$aData = ['uid' => 0];
+		$oUser = $this->get("security.token_storage")->getToken()->getUser();
+		if (!is_string($oUser)) {
+			$aData['uid'] = $oUser->getId();
+		}
+		$oResponse = new Response( json_encode($aData) );
+		$oResponse->headers->set('Content-Type', 'application/json');
+		return $oResponse;
+	}
 }
