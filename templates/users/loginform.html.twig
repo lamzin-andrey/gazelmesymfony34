@@ -11,7 +11,7 @@
 			
 			{% if (doNotShowCabBtn is not defined) %}
 			<div class="left usermenu-mt">
-				<a href="{% if uid > 0 %} {{ path('cabinet') }} {% else %} {{ path('fos_user_security_login') }} {% endif %}" @click="onShowAuthFormClick" class="hidelink">
+				<a id="cablink" href="{% if uid > 0 %}{{ path('cabinet') }}{% else %}{{ path('fos_user_security_login') }}{% endif %}" @click="onShowAuthFormClick" class="hidelink">
 					<div class="auth button">
 						<img src="{{ asset('images/encrypted.png') }}" class="w16"/>
 						<span style="vertical-align:top; display:block-inline" class="">{{ 'My adverts'|trans }}</span>

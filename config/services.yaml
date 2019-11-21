@@ -34,6 +34,9 @@ parameters:
   app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
   #app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
 
+  # Чтобы была возможность в контролере менять его
+  app.uid: 0
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -95,11 +98,26 @@ services:
             - '@fos_user.profile.form.factory'
             - '@fos_user.user_manager'
             - '@service_container'
+            
+    App\Controller\RegistrationController:
+        decorates: fos_user.registration.controller
+        arguments:
+            - '@App\Controller\RegistrationController.inner'
+            - '@event_dispatcher'
+            - '@fos_user.registration.form.factory'
+            - '@fos_user.user_manager'
+            - '@security.token_storage'
+            - '@service_container'
   
     app.form.profile:
         class: App\Form\ProfileFormType
         tags:
             - { name: form.type, alias: app_user_profile }
+            
+    app.form.registration:
+        class: App\Form\RegistrationFormType
+        tags:
+            - { name: form.type, alias: app_user_registration }
 
 
 # Это один из вариантов сделать видимым в twig шаблоне значение из конфига (app.city_zero_id) определена выше
@@ -109,5 +127,6 @@ twig:
     city_zero_id: "%app.city_zero_id%"
     recapcthasitekey: "%app.google_recaptcha_site_key%"
     google_recaptcha_on: "%app.google_recaptcha_on%"
+    uid: "%app.uid%"
 
 

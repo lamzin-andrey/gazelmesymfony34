@@ -1,0 +1,16 @@
+{% trans_default_domain 'FOSUserBundle' %}
+
+
+
+<div id="mainsfrormadd" class="bgwhite">
+	<div id="add_legend">{{ 'registration.New user'|trans }}</div>
+	<hr id="add_hr"/>
+	<div class="aformwrap upformwrap" id="resetremindform">
+		{{ form_start(form, {'method': 'post', 'action': path('fos_user_registration_register'), 'attr': {'class': 'fos_user_registration_register'}}) }}
+			{{ form_widget(form) }}
+			<div class="upformbtn tright">
+				<input type="submit" value="{{ 'registration.submit'|trans }}" />
+			</div>
+		{{ form_end(form) }}
+	</div>
+</div>

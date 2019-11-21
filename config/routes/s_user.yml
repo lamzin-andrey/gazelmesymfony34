@@ -40,4 +40,21 @@ fos_user_security_check:
 getauthstate:
     path: /getauthstate
     defaults: { _controller: 'App\Controller\ProfileController::getauthstate' }
+   
+
+fos_user_registration_register:
+    path: /register
+    defaults: { _controller: 'App\Controller\RegistrationController:registerAction' }
+    
+fos_user_registration_check_email:
+    path: /register/check-email
+    defaults: { _controller: 'fos_user.registration.controller:checkEmailAction' }
+    
+fos_user_registration_confirm:
+    path: /register/confirm/{token}
+    defaults: { _controller: 'fos_user.registration.controller:confirmAction' }
+    
+fos_user_registration_confirmed:
+    path: /register/confirmed
+    defaults: { _controller: 'fos_user.registration.controller:confirmedAction' }
     

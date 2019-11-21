@@ -19,7 +19,13 @@ class CacheSw extends LandCacheClient {
 			this.schemeHost() + '/profile/edit',
 			this.schemeHost() + '/resetting/check-email',
 			this.schemeHost() + '/getauthstate',
-			this.schemeHost() + '/resetting/reset/*'
+			this.schemeHost() + '/resetting/reset/*',
+
+			this.schemeHost() + '/register',
+			this.schemeHost() + '/register/check-email',
+			this.schemeHost() + '/register/confirm/*',
+			this.schemeHost() + '/register/confirmed',
+			this.schemeHost() + '/register/'
 		];
 		return o;
 	}

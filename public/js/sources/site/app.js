@@ -77,10 +77,16 @@ window.app = new Vue({
 		 * @description Клик на ссылке Мои объявления
 		*/
 		onShowAuthFormClick(ev) {
-			ev.preventDefault();
-			//$('#alayer').toggleClass('hide');
-			this.$refs['loginform'].swapVisible();
-			return false;
+			let s = ev.currentTarget.getAttribute('href');
+			console.log(ev.target);
+			console.log(ev.currentTarget);
+			if (s != '/cabinet') {
+				ev.preventDefault();
+				//$('#alayer').toggleClass('hide');
+				this.$refs['loginform'].swapVisible();
+				return false;
+			}
+			return true;
 		},
 		/**
 		 * @description Клик на ссылке Фильтр
@@ -104,12 +110,15 @@ window.app = new Vue({
 		 * @param {Boolean} bIsAuth 
 		*/
 		setAuthView(bIsAuth) {
-			let m = 'addClass';
+			let m = 'addClass',
+				cablink = '/login';
 			if (bIsAuth) {
 				m = 'removeClass';
+				cablink = '/cabinet';
 			}
 			$('#profilelinkwrap')[m]('hide');
 			$('#logoutlinkwrap')[m]('hide');
+			$('#cablink').attr('href', cablink);
 		},
 		/**
 		 * @description Успещшное получение данных, авторизован ли пользователь (связанно с кэшированием через sw)
