@@ -36,6 +36,8 @@ parameters:
 
   # Чтобы была возможность в контролере менять его
   app.uid: 0
+  
+  app.testuid: 0
 
 services:
     # default configuration for services in *this* file
@@ -67,6 +69,13 @@ services:
         class: App\Handler\LogoutHandler
         public: false
         arguments: ["@service_container"]
+        
+    # app/config/services.yml
+    
+    App\EventListener\ControllerListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller }
+
             
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
