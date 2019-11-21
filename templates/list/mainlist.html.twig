@@ -28,9 +28,11 @@
 
 {% if (app.user) %}}
     <script>var uidTest = '{{ app.user.id }}';</script>
-{% endif %}
+{% else %}
     <script>var uidTest = '0';</script>
 {% endif %}}
+	
+<script>var uidTest2 = '{{ 0|get_uid }}';</script>
 
 <script type="text/javascript" src="/js/L.js?{{assetsVersion}}" async></script>
 <script type="text/javascript">
