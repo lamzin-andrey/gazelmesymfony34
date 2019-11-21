@@ -34,10 +34,6 @@ parameters:
   app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
   #app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
 
-  # Чтобы была возможность в контролере менять его
-  app.uid: 0
-  
-  app.testuid: 0
 
 services:
     # default configuration for services in *this* file
@@ -64,7 +60,7 @@ services:
         class: App\Handler\AuthenticationHandler
         public: false
         arguments: ["@router", "@service_container"]
-        
+
     app.security.logout_handler:
         class: App\Handler\LogoutHandler
         public: false
@@ -136,6 +132,5 @@ twig:
     city_zero_id: "%app.city_zero_id%"
     recapcthasitekey: "%app.google_recaptcha_site_key%"
     google_recaptcha_on: "%app.google_recaptcha_on%"
-    uid: "%app.uid%"
 
 

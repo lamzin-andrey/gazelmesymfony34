@@ -49,7 +49,7 @@ class ResettingController extends AbstractController
     private $userManager;
     private $tokenGenerator;
     private $mailer;
-	private $oContainer;
+    private $oContainer;
 
     /**
      * @var int
@@ -68,7 +68,7 @@ class ResettingController extends AbstractController
     public function __construct(BaseResettingController $baseController, EventDispatcherInterface $eventDispatcher, FactoryInterface $formFactory, UserManagerInterface $userManager, TokenGeneratorInterface $tokenGenerator, MailerInterface $mailer, $retryTtl, ContainerInterface $container)
     {
 		$this->resettingController = $baseController;
-        $this->eventDispatcher = $eventDispatcher;
+		$this->eventDispatcher = $eventDispatcher;
         $this->formFactory = $formFactory;
         $this->userManager = $userManager;
         $this->tokenGenerator = $tokenGenerator;

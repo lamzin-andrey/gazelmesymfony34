@@ -26,10 +26,7 @@ class ViewDataService  {
 	*/
 	public function getDefaultTemplateData(Request $oRequest) : array
 	{
-		//TODO тут надо  проверить getParameter
-                //$this->oContainer->setParameter('app.testuid', '110');
 		$siteName = $this->oContainer->getParameter('app.site_name', '');
-		
 		$oSession = $oRequest->getSession();
 		$nUid = $this->getUid();
 		return [
