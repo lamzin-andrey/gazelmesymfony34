@@ -321,4 +321,60 @@ WHERE m.is_deleted = 1 LIMIT 10, 10;*/
 		$this->get('mailer')->send($msg);
 		return $this->render('empty.html.twig', ['res' => []]);
 	}
+	/**
+     *
+	 * @Route("/training/resultcache")
+	*/
+	public function getResult()
+	{
+		//Пробуем с моделью, не использующую кэш второго уровня
+		
+		//createQuery
+		/*
+		$oRep = $this->getDoctrine()->getManager(); //getRepository('App:Users');
+		$aUsers = $oRep->createQuery('SELECT u.id FROM App:Users AS u WHERE u.id = 10')
+				->useResultCache(true)
+				->execute();
+		
+		
+		
+		$aUsers2 = $oRep->createQuery('SELECT u.id FROM App:Users AS u WHERE u.id = 10')
+				->useResultCache(true)
+				->getResult();
+		
+		//queryBuilder
+		$oRep = $this->getDoctrine()->getRepository('App:Users');
+		$oQb = $oRep->createQueryBuilder('u');
+		$aUsers = $oQb->select('u.id')->where( $oQb->expr()->eq('u.id', 10) )->
+				getQuery()->
+				useResultCache(true)->
+				execute();
+				*/
+		
+		
+		//Пробуем с моделью,  использующую кэш второго уровня
+		
+		$oRep = $this->getDoctrine()->getManager(); //getRepository('App:Cities');
+		$aCities = $oRep->createQuery('SELECT u.id FROM App:Cities AS u WHERE u.id = 10')
+				->useResultCache(true)
+				->execute();
+		
+		
+		
+		$aCities2 = $oRep->createQuery('SELECT u.id FROM App:Cities AS u WHERE u.id = 10')
+				->useResultCache(true)
+				->getResult();
+		
+		//queryBuilder
+		$oRep = $this->getDoctrine()->getRepository('App:Cities');
+		$oQb = $oRep->createQueryBuilder('u');
+		$aCities = $oQb->where( $oQb->expr()->eq('u.id', 10) )->
+				select('u.cityName')->
+				getQuery()->
+				//useResultCache(false)->
+				getResult();
+		
+		var_dump($aCities); 
+		return $this->render('empty.html.twig', ['res' => []]);
+	}
 }
