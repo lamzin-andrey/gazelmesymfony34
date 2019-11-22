@@ -40,7 +40,7 @@ class LogoutHandler implements \Symfony\Component\Security\Http\Logout\LogoutHan
      */
     public function logout(Request $request, Response $response, TokenInterface $token)
     {
-		die('Делай что хочешь!');
+		//die('Делай что хочешь!');
     }
    
 }

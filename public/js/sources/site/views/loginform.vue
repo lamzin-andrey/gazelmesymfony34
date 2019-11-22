@@ -7,7 +7,7 @@
 					<label for="login" class="slabel">Номер телефона</label><br/>
 					<label for="login">
 						<img :alt="$t('app.Phone')" :title="$t('app.Phone')" :src="src" /></label> 
-					<input @keydown="onEnterData" type="text" v-model="login">
+					<input @keydown="onEnterData" type="text" v-model="login" id="login">
 				</div>
 				<div class="apwd">
 					<label for="password" class="slabel">{{ $t('app.Password')  }}</label><br/> 

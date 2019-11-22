@@ -84,6 +84,10 @@ window.app = new Vue({
 				ev.preventDefault();
 				//$('#alayer').toggleClass('hide');
 				this.$refs['loginform'].swapVisible();
+				Vue.nextTick(() => {
+					$('#login')[0].focus();
+				});
+				
 				return false;
 			}
 			return true;
