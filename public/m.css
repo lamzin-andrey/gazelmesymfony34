@@ -491,6 +491,9 @@ header.mainhead {
 .prmf {
 	margin: 8px 10px 0 0;
 }
+.prmf div label, .prmf div{
+	display:inline;
+}
 .upformbtn {
 	margin: 18px 0 0 0;
 }

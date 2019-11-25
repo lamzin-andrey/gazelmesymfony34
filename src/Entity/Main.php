@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints AS Assert;
 /**
  * Main
  *
@@ -101,7 +102,7 @@ class Main
 
     /**
      * @var string|null
-     *
+     * @Assert\Length(min=1, max=255)
      * @ORM\Column(name="title", type="string", length=255, nullable=true, options={"comment"="Заголовок объявления"})
      */
     private $title;
@@ -113,13 +114,7 @@ class Main
      */
     private $image;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="name", type="string", length=512, nullable=true, options={"comment"="Имя автора (название компании)"})
-     */
-    private $name;
-
+    
     /**
      * @var string|null
      *
@@ -334,17 +329,6 @@ class Main
         return $this;
     }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
 
     public function getAddtext(): ?string
     {

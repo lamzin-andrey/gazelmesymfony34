@@ -1,0 +1,108 @@
+{% extends "base.html.twig" %}
+{% block content %}
+
+<div id="mainsfrormadd">
+	<div id="add_legend">Добавить свое объявление</div>
+	<hr id="add_hr"/>
+		{{  form_start(form, {'action': path('podat_obyavlenie'), 'attr': {'enctype': 'multipart/form-data'} }) }}
+		<div>
+			{{ form_label(form.region) }} {{ form_widget(form.region) }}{{ form_errors(form.region) }}
+			{{ form_label(form.city) }} {{ form_widget(form.city) }}{{ form_errors(form.city) }}
+		</div>
+			<div class="right prmf">
+				<?=FV::checkbox('people', 'Пассажирская') ?>
+				{{ form_row(form.people) }}
+				<?=FV::checkbox('box', 'Грузовая') ?>
+				{{ form_row(form.box) }}
+				<?=FV::checkbox('term', 'Термобудка') ?>
+				{{ form_row(form.term) }}
+				<?=FV::checkbox('far', 'Межгород') ?>
+				{{ form_row(form.far) }}
+				<?=FV::checkbox('near', 'По городу') ?>
+				{{ form_row(form.near) }}
+				<?=FV::checkbox('piknik', 'За город (пикник)') ?>
+				{{ form_row(form.piknik) }}
+			</div>
+			<div class="both"></div>
+			<p class="adtitle">
+				<?=FV::labinp("title", "Заголовок объявления *", @$addform->title);?>
+			</p>
+			<p class="add_text">
+				<label for="addtext">Текст объявления <span class="red">*</span></label>
+				<textarea id="addtext" name="addtext" rows="16" style="width:100%" rel="afctrl"><?=@$addForm->addtext?></textarea>
+				<span class="right praf" id="afctrl">955 / 1000</span>
+			</p>
+			<p class="price">
+					<?=FV::labinp("price", "Стоимость");?>
+				</p>
+			<p class="image ">
+				<img src="<?=(@$addForm->image ? $addForm->image : '/images/gazel.jpg') ?>" class="ii" id="imgview"/> <label for="image">Загрузите изображение</label><br/>
+				<table>
+					<tr>
+						<td>
+							<input type="file" id="image" name="image" style="width:173px"/>
+							<div class="red" id="imerr"></div>
+						</td>
+						<td>
+							<img src="/images/l-w.gif" id="upLdr" class="hide"/>
+						</td>
+					</tr>
+				</table>
+				<input type="hidden" id="ipath" name="ipath" value="<?=@$addForm->image ?>"/>
+			</p>
+			<div class="both"></div>
+			<p class="authorname">
+				<?=FV::labinp("person", "Введите ваше имя или название компании *", @$addForm->name, 0, 0, $authorized);?>
+			</p>
+			
+			<p class="adphone">
+				<?=FV::labinp("phone", "Введите номер сотового телефона *", @$addForm->phone, 0, 0, $authorized);?>
+			</p>
+			<p class="fcomment green">
+				Например, 8 917 000 11 22 или +7 917 000 11 22, + перед семеркой обязателен! (пробелы и скобки по желанию)
+			</p>
+			<?php if (!$authorized) {?>
+			<div id="grb">
+				<p class="register">Если хотите обновлять и редактировать объявление, введите пароль
+				<br/>Адрес электронной почты понадобится вам, если вы его забудете.</p>
+				<p class="pwdmail">
+					<?=FV::labinp("pwd", "Пароль", '', 0, 1);?>
+				</p>
+				<p class="pwdmail">
+					<?=FV::labinp("email", "Email");?>
+				</p>
+			</div>
+			<? } ?>
+			
+			<div class="both"></div>
+			
+			<div class="agreearea">
+				<?=FV::checkbox('agreement', '<a href="/agreement" target="_blank">Я прочитал и согласен с Политикой конфидециальности</a>');?>
+			</div>
+			
+			<?php if( !($addForm->captchaForAllIsOff || $addForm->captchaForAuthIsOff) ): ?>
+				<div>
+					<div class="capthtabl">
+							<div class="left">
+								<img src="/images/random" width="174"id="cpi" /><br><a href="#" class="smbr" id="smbr">Кликните для обновления рисунка</a>
+							</div>
+							<div class="left">
+									<label for="cp">Введите текст <span class="red">*</span></label><br>
+									<?=FV::i("cp", '', 0, 'autocomplete="off"')?>
+							</div>
+							<div class="both">&nbsp;</div>
+					</table>
+				</div>
+			<?php endif?>
+			
+			<div class="right prmf">
+				<input type="submit" value="Подать объявление" id="addsubmit" />
+				<input type="hidden" name="token" value="<?=$_SESSION["utoken"] ?>"/>
+			</div>
+			<div class="both"></div>
+		<!--/form-->
+		{{ form_end(form) }}
+</div>
+{% endblock content %}
+
+

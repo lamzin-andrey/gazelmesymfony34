@@ -34,8 +34,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Controller managing the registration.
  *
- * @author Thibault Duplessis <thibault.duplessis@gmail.com>
- * @author Christophe Coevoet <stof@notk.org>
  */
 class RegistrationController extends AbstractController
 {

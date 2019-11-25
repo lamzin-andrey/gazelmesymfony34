@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-use \App\Entity\Main;
+use \App\Entity\Main as Advert;
 use \App\Entity\Cities;
 use \App\Entity\Regions;
 
@@ -16,6 +16,8 @@ use App\Service\RegionsService;
 use App\Service\ViewDataService;
 
 use Doctrine\Common\Collections\Criteria;
+
+use App\Form\AdvertForm;
 
 class AdvertController extends Controller
 {
@@ -92,8 +94,30 @@ class AdvertController extends Controller
 	 * @Route("/podat_obyavlenie", name="podat_obyavlenie")
 	 * 
 	*/
-	public function add()
+	public function add(Request $oRequest)
 	{
+		$oForm = $this->createForm(get_class(new AdvertForm()), new Advert());
 		
+		if ($oRequest->getMethod() == 'POST') {
+			$oForm->handleRequest($oRequest);
+			if ($oForm->isValid()) {
+				/*$oUserManager = $this->get('fos_user.user_manager');
+				$oUser = $oUserManager->createUser();
+				$oUser->setUsername($oRequest->get('username'));
+				$oUser->setEmail($oRequest->get('email'));
+				$oUser->setPlainPassword($oRequest->get('password'));
+				$oUser->setEnabled(true);
+				$oUserManager->updateUser($oUser);	*/
+				$oError = new \Symfony\Component\Form\FormError('User already exists');
+				$vd = $oForm->get('phone')->addError($oError);
+			} else {
+				/** @var \Symfony\Component\Form\FormErrorIterator $errs */
+				$errs = $oForm->getErrors(true);
+			}
+		}
+		$aData = [
+			'form' => $oForm->createView()
+		];
+		return $this->render('advert/form.html.twig', $aData);
 	}
 }
