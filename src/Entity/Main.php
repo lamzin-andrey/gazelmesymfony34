@@ -28,7 +28,7 @@ class Main
      *
      * @ORM\Column(name="region", type="integer", nullable=true, options={"comment"="Номер региона"})
      */
-	private $region;
+	private $region = '1';
 	
 	/**
 	 * @var Regions
@@ -63,7 +63,7 @@ class Main
      *
      * @ORM\Column(name="price", type="decimal", precision=12, scale=2, nullable=true, options={"comment"="Стоимость"})
      */
-    private $price;
+    private $price = 1.00;
 
     /**
      * @var int|null
@@ -141,7 +141,7 @@ class Main
      *
      * @ORM\Column(name="created", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP","comment"="Время публикации проекта"})
      */
-    private $created = 'CURRENT_TIMESTAMP';
+    private $created;
 
     /**
      * @var int|null

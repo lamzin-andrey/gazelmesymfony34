@@ -49,18 +49,40 @@ class AdvertForm extends AbstractType
 		$oBuilder->add('piknik', CheckboxType::class, [
 			'required' => false
 		]);
-		$oBuilder->add('title', TextType::class);
-		$oBuilder->add('image', TextType::class, [
+		$oBuilder->add('title', TextType::class, [
+			'translation_domain' => 'Adform',
+		]);
+		/*$oBuilder->add('image', TextType::class, [
+			'required' => false
+		]);*/
+		$oBuilder->add('addtext', TextareaType::class, [
+			'attr' => [
+				'rows' => 16,
+				'style' => 'width:100%',
+				'rel' => 'afctrl'
+			]
+		]);
+		$oBuilder->add('price', MoneyType::class, [
+			'currency' => '',
 			'required' => false
 		]);
-		$oBuilder->add('addtext', TextareaType::class);
-		$oBuilder->add('price', IntegerType::class);
-		$oBuilder->add('phone', TextType::class);
+		$oBuilder->add('phone', TextType::class, [
+			'translation_domain' => 'Adform'
+		]);
 		
-		$oBuilder->add('password', PasswordType::class, [
+		$oBuilder->add('company_name', TextType::class, [
 			'mapped' => false
 		]);
+		
+		$oBuilder->add('password', PasswordType::class, [
+			'mapped' => false,
+			'required' => false
+		]);
 		$oBuilder->add('email', EmailType::class, [
+			'mapped' => false,
+			'required' => false
+		]);
+		$oBuilder->add('agreement', CheckboxType::class, [
 			'mapped' => false
 		]);
 	}

@@ -33,6 +33,9 @@ parameters:
   #Включена ли вообще re-captcha
   app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
   #app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
+  
+  test:
+      phone: '80001112233'
 
 
 services:

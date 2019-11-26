@@ -5,6 +5,10 @@
 #    path: /
 #    defaults: { _controller: 'App\Controller\DefaultController::index' }
 
+agreement:
+    path: /agreement
+    defaults: { _controller: 'App\Controller\DefaultController::agreement' }
+
 regions_cities:
     path: /regions/{slug}
     defaults: { _controller: 'App\Controller\RegionsController::regionsCities' }
@@ -32,3 +36,4 @@ advincity:
 advinmegapolis:
     path: /{sRegion}/{sTitle}/{nAdvId}
     defaults: { _controller: 'App\Controller\AdvertController::advinmegapolis' }
+    

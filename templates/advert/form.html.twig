@@ -9,38 +9,46 @@
 			{{ form_label(form.region) }} {{ form_widget(form.region) }}{{ form_errors(form.region) }}
 			{{ form_label(form.city) }} {{ form_widget(form.city) }}{{ form_errors(form.city) }}
 		</div>
-			<div class="right prmf">
-				<?=FV::checkbox('people', 'Пассажирская') ?>
-				{{ form_row(form.people) }}
-				<?=FV::checkbox('box', 'Грузовая') ?>
-				{{ form_row(form.box) }}
-				<?=FV::checkbox('term', 'Термобудка') ?>
-				{{ form_row(form.term) }}
-				<?=FV::checkbox('far', 'Межгород') ?>
-				{{ form_row(form.far) }}
-				<?=FV::checkbox('near', 'По городу') ?>
-				{{ form_row(form.near) }}
-				<?=FV::checkbox('piknik', 'За город (пикник)') ?>
-				{{ form_row(form.piknik) }}
+			<div class="prmf">
+				<div class="checkblock">
+					 {{ form_row(form.people) }}
+				</div>
+				<div class="checkblock">
+					 {{ form_row(form.box) }}
+				</div>
+				<div class="checkblock">
+					 {{ form_row(form.term) }}
+				</div>
+				<div class="checkblock">
+					 {{ form_row(form.far) }}
+				</div>
+				<div class="checkblock">
+					 {{ form_row(form.near) }}
+				</div>
+				<div class="checkblock">
+					 {{ form_row(form.piknik) }}
+				</div>
 			</div>
-			<div class="both"></div>
 			<p class="adtitle">
-				<?=FV::labinp("title", "Заголовок объявления *", @$addform->title);?>
+				{{ form_label(form.title) }} <span class="red">*</span> {{ form_widget(form.title) }}
+				{{ form_errors(form.title) }}
 			</p>
 			<p class="add_text">
-				<label for="addtext">Текст объявления <span class="red">*</span></label>
-				<textarea id="addtext" name="addtext" rows="16" style="width:100%" rel="afctrl"><?=@$addForm->addtext?></textarea>
+				{{ form_label(form.addtext) }}<span class="red">*</span>
+				{{ form_widget(form.addtext) }}
 				<span class="right praf" id="afctrl">955 / 1000</span>
+				{{ form_errors(form.addtext) }}
 			</p>
 			<p class="price">
-					<?=FV::labinp("price", "Стоимость");?>
-				</p>
+				{{ form_row(form.price) }}
+			</p>
 			<p class="image ">
-				<img src="<?=(@$addForm->image ? $addForm->image : '/images/gazel.jpg') ?>" class="ii" id="imgview"/> <label for="image">Загрузите изображение</label><br/>
+				<img src="{{ asset(image) }}" class="ii" id="imgview"/> <label for="image">Загрузите изображение</label><br/>
 				<table>
 					<tr>
 						<td>
 							<input type="file" id="image" name="image" style="width:173px"/>
+							
 							<div class="red" id="imerr"></div>
 						</td>
 						<td>
@@ -51,53 +59,61 @@
 				<input type="hidden" id="ipath" name="ipath" value="<?=@$addForm->image ?>"/>
 			</p>
 			<div class="both"></div>
-			<p class="authorname">
-				<?=FV::labinp("person", "Введите ваше имя или название компании *", @$addForm->name, 0, 0, $authorized);?>
-			</p>
+			<div class="authorname py-4">
+				{# <?=FV::labinp("person", "Введите ваше имя или название компании *", @$addForm->name, 0, 0, $authorized);?> #}
+				{{ form_row(form.company_name) }}
+			</div>
 			
-			<p class="adphone">
-				<?=FV::labinp("phone", "Введите номер сотового телефона *", @$addForm->phone, 0, 0, $authorized);?>
-			</p>
+			<div class="adphone py-5">
+				{#<?=FV::labinp("phone", "Введите номер сотового телефона *", @$addForm->phone, 0, 0, $authorized);?> #}
+				{{ form_row(form.phone) }}
+			</div>
 			<p class="fcomment green">
 				Например, 8 917 000 11 22 или +7 917 000 11 22, + перед семеркой обязателен! (пробелы и скобки по желанию)
 			</p>
-			<?php if (!$authorized) {?>
+			
+			{% if (app.user is null) %}
 			<div id="grb">
 				<p class="register">Если хотите обновлять и редактировать объявление, введите пароль
 				<br/>Адрес электронной почты понадобится вам, если вы его забудете.</p>
 				<p class="pwdmail">
-					<?=FV::labinp("pwd", "Пароль", '', 0, 1);?>
+					{#<?=FV::labinp("pwd", "Пароль", '', 0, 1);?>#}
+					{{ form_row(form.password) }}
 				</p>
-				<p class="pwdmail">
-					<?=FV::labinp("email", "Email");?>
-				</p>
+				<div class="pwdmail">
+					{#<?=FV::labinp("email", "Email");?>#}
+					{{ form_row(form.email) }}
+				</div>
 			</div>
-			<? } ?>
+			{% endif %}
+			
 			
 			<div class="both"></div>
 			
 			<div class="agreearea">
-				<?=FV::checkbox('agreement', '<a href="/agreement" target="_blank">Я прочитал и согласен с Политикой конфидециальности</a>');?>
+				{{ form_widget(form.agreement) }}
+				<label for="advert_form_agreement">Я прочитал и согласен с <a href="{{ politicDoc }}" target="_blank">Политикой конфидециальности</a> и <a href="{{ path('agreement') }}" target="_blank">Условиями использования</a></label>
+				{{ form_errors(form.agreement) }}
 			</div>
 			
-			<?php if( !($addForm->captchaForAllIsOff || $addForm->captchaForAuthIsOff) ): ?>
-				<div>
+			{#<?php if( !($addForm->captchaForAllIsOff || $addForm->captchaForAuthIsOff) ): ?>#}
+			{% if (google_recaptcha_on != 'false') %}
+				<div class="ml--18px-w320"><!-- TODO тут сделать установку mr -20px если экран мобильный -->
 					<div class="capthtabl">
 							<div class="left">
-								<img src="/images/random" width="174"id="cpi" /><br><a href="#" class="smbr" id="smbr">Кликните для обновления рисунка</a>
-							</div>
-							<div class="left">
-									<label for="cp">Введите текст <span class="red">*</span></label><br>
-									<?=FV::i("cp", '', 0, 'autocomplete="off"')?>
+								<div class="captwr tc">
+									<div class="g-recaptcha" data-sitekey="{{ recapcthasitekey }}"></div>
+									<br/>
+								</div>
 							</div>
 							<div class="both">&nbsp;</div>
 					</table>
 				</div>
-			<?php endif?>
+			{% endif %}
 			
 			<div class="right prmf">
 				<input type="submit" value="Подать объявление" id="addsubmit" />
-				<input type="hidden" name="token" value="<?=$_SESSION["utoken"] ?>"/>
+				<input type="hidden" name="token" value="{{ csrf_token }}"/>
 			</div>
 			<div class="both"></div>
 		<!--/form-->

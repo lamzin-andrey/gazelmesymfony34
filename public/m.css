@@ -108,6 +108,9 @@
 	}
 }
 @media (max-width:320px) {
+	.ml--18px-w320{
+		margin-left:-18px;
+	}
 	.p100banner section{
 		height:39px!important;
 	}
@@ -855,9 +858,6 @@ li {
 	vertical-align:middle;
 }
 .agreearea label {
-	vertical-align:top;
-}
-.agreearea label a{
 	vertical-align:middle;
 }
 #ye {color:#FBBC05;}
@@ -987,16 +987,27 @@ li {
 	display:block;
 	width:95%;
 }
-#resetremindform form ul li {
+#resetremindform form ul li, #mainsfrormadd form ul li {
 	color: #aa0000;
 	background-color: #FFB0B9;
 	list-style-type:none;
 	padding: 10px;
 	border: none;
 }
-#resetremindform form ul {
+#resetremindform form ul, #mainsfrormadd form ul{
 	padding:0;
 }
 .ml5p {
 	margin-left: 5px;
+}
+.py-4 {
+	padding: 10px 0px;
+}
+
+.py-5 {
+	padding: 20px 0px;
+}
+
+#mainsfrormadd form label {
+	margin-right:8px;
 }

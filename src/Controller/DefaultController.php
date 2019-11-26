@@ -49,8 +49,14 @@ class DefaultController extends Controller
 		$sData = $oGazelMeService->getPhoneAsImage($nId);
 		return $response;
 	}
-	
-	
-	
+	/**
+	 * @Route("/agreement", name="agreement") 
+	*/
+	public function agreement()
+	{
+		//TODO template is temp
+		//return $this->render('list/filterform.html.twig', $aData);
+		return $this->redirectToRoute("home");
+	}
 	
 }
