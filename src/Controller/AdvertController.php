@@ -104,18 +104,18 @@ class AdvertController extends Controller
 	 * Форма подачи объявления
 	 * @Route("/podat_obyavlenie", name="podat_obyavlenie")
 	*/
-	public function add(Request $oRequest, ViewDataService $oViewDataService, \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder)
+	public function add(Request $oRequest, ViewDataService $oViewDataService, \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder, \App\Service\GazelMeService $oGazelMeService)
 	{
 		$this->_oAdvert = new Advert();
 		$this->_oEncoder =  $oEncoder;
 		//TODO define _oForm
-		$this->_oForm = $oForm = $this->createForm(get_class(new AdvertForm()), $this->_oAdvert);
+		$this->_oForm = $oForm = $this->createForm(get_class(new AdvertForm()), $this->_oAdvert, ['file_uploader' => $oGazelMeService->getFileUploaderService()]);
 		
 		if ($oRequest->getMethod() == 'POST') {
 			$oForm->handleRequest($oRequest);
 			if ($oForm->isValid()) {
 				if ($this->_isAdditionalValid()) {	//TODO
-					$this->_saveAdvertData($oForm);
+					$this->_saveAdvertData($oForm, $oGazelMeService);
 				}
 		
 				//$oError = new \Symfony\Component\Form\FormError('User already exists');
@@ -134,7 +134,7 @@ class AdvertController extends Controller
 	 * Если пользователь не авторизован создаётся пользователь.
 	 * Данные формы также сохраняются.
 	**/
-	private function _saveAdvertData(\Symfony\Component\Form\FormInterface $oForm)
+	private function _saveAdvertData(\Symfony\Component\Form\FormInterface $oForm, \App\Service\GazelMeService $oGazelMeService)
 	{
 		$this->_oEm = $this->getDoctrine()->getManager();
 		
@@ -146,8 +146,8 @@ class AdvertController extends Controller
 		$nRegionId = intval($nRegionId) > 0 ? $nRegionId : null;
 		$nCityId = intval($nCityId) > 0 ? $nCityId : null;
 		
-		//TODO транслитировать заголовок объявления
-		$this->_oAdvert->setCodename( '' );
+		//транслитировать заголовок объявления
+		$this->_oAdvert->setCodename($oGazelMeService->translite_url($this->_oAdvert->getTitle()));
 		$this->_oEm->persist($this->_oAdvert);
 		$this->_oEm->flush();
 		
@@ -184,12 +184,25 @@ class AdvertController extends Controller
 	 * Дополнительная валидация формы подачи объявления. Если пользователь не авторизован, 
 	 *	проверяется, не существует ли аккаунт с такими данными.
 	 * Проверяется, выбран ли хотя бы один  тип транспорта и хотя бы одно расстояние
-	 * TODO тут ещё верхние чекбоксы как минимум не валидируются (минимум один в каждой группе должен быть)
 	**/
 	private function _isAdditionalValid() : bool
 	{
-		$this->_bNeedCreateAccount = false; //TODO add it define
 		$aData = $this->_formData();
+		//валидация заполненности хотя бы одного из чекбоксов
+		//Тип авто
+		$nType = intval($aData['people'] ?? 0) + intval($aData['box'] ?? 0) + intval($aData['term'] ?? 0);
+		if (!$nType) {
+			$this->_addError('Type auto required', 'people');
+			return false;
+		}
+		//Тип дистанции
+		$nDistance = intval($aData['far'] ?? 0) + intval($aData['near'] ?? 0) + intval($aData['piknik'] ?? 0);
+		if (!$nDistance) {
+			$this->_addError('Distance required', 'far');
+			return false;
+		}
+		//валидация логина и пароля, который может быть введён
+		$this->_bNeedCreateAccount = false; //TODO add it define
 		//Если введён email то должен быть введён и пароль
 		//Таких данных в базе быть не должно, с учётом телефона
 		$sPhone = $aData['phone'] ?? '';
@@ -198,7 +211,6 @@ class AdvertController extends Controller
 		
 		if ($sEmail || $sPassword) {
 			if (!$sEmail || !$sPassword ) {
-				//TODO translite
 				$this->_addError('Email and Password required if on from these no empty', 'email');
 				return false;
 			}
@@ -221,13 +233,15 @@ class AdvertController extends Controller
 					$this->_addError('User already exists, but password not valid', 'phone');
 					return false;
 				}
+			} else {
+				//Нет пользователя с таким логином или паролем - значит надо создать
+				$this->_bNeedCreateAccount = true;
 			}
-			//Нет пользователя с таким логином или паролем - значит надо создать
-			$this->_bNeedCreateAccount = true;
+			
 		} else {
 			//Тут норм, неавторизованым подавать позволяем, всё равно на запрос телефона редирект
 		}
-		$this->_bNeedCreateAccount = false;
+		
 		return true;
 	}
 	/**
@@ -251,7 +265,7 @@ class AdvertController extends Controller
 	private function _addError(string $sError, string $sField)
 	{
 		//TODO -> in service, third arg form = null and method setForm
-		$oError = new \Symfony\Component\Form\FormError($sError);
+		$oError = new \Symfony\Component\Form\FormError($this->get('translator')->trans($sError));
 		$this->_oForm->get($sField)->addError($oError);
 	}
 }

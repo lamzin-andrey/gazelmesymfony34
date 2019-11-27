@@ -15,6 +15,11 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class AdvertForm extends AbstractType
 {
+	
+	/** @property \App\Service\FileUploaderService $_oFileUploader */
+	private $_oFileUploader;
+	
+	
 	public function buildForm(FormBuilderInterface $oBuilder, array $options)
 	{
 		$oBuilder->add('region', TextType::class, [
@@ -85,10 +90,29 @@ class AdvertForm extends AbstractType
 		$oBuilder->add('agreement', CheckboxType::class, [
 			'mapped' => false
 		]);
+		
+		$this->_oFileUploader = $options['file_uploader'];
+		$this->_oFileUploader->addAllowMimetype('image/jpeg');
+		$this->_oFileUploader->addAllowMimetype('image/png');
+		$this->_oFileUploader->addAllowMimetype('image/gif');
+		$this->_oFileUploader->setFileInputLabel('Append file!');
+		$this->_oFileUploader->setMimeWarningMessage('Choose allowed file type, jpg, gif or png');
+		$this->_oFileUploader->setMaxImageHeight(480);
+		$this->_oFileUploader->setMaxImageWidth(320);
+		
+		$aOptions = $this->_oFileUploader->getFileTypeOptions();
+		$aOptions['attr'] = [
+			'style' => 'width:173px;'
+		];
+		$oBuilder->add('imagefile', \Symfony\Component\Form\Extension\Core\Type\FileType::class, $aOptions);
 	}
 	
 	public function getName() : string
 	{
 		return 'app.advertform';
 	}
+	public function configureOptions(\Symfony\Component\OptionsResolver\OptionsResolver $resolver)
+    {
+        $resolver->setRequired('file_uploader');
+    }
 }

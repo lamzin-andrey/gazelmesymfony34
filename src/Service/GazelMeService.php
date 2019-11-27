@@ -8,15 +8,17 @@ use App\Entity\Main;
 use \Landlib\Text2Png;
 use Doctrine\Common\Collections\Criteria;
 use Landlib\RusLexicon;
+use App\Service\FileUploaderService;
 
 class GazelMeService
 {
 
-	public function __construct(ContainerInterface $container, ViewDataService $oViewDataService)
+	public function __construct(ContainerInterface $container, ViewDataService $oViewDataService, FileUploaderService $oFileUploaderService)
 	{
 		$this->oContainer = $container;
 		$this->translator = $container->get('translator');
 		$this->oViewDataService = $oViewDataService;
+		$this->oFileUploaderService = $oFileUploaderService;
 	}
 	/**
 	 * Выводит тип перевозки (например, "Грузовая, термобудка" или "Пассажирская")
@@ -259,6 +261,15 @@ class GazelMeService
 	public function getViewDataService() : ViewDataService
 	{
 		return $this->oViewDataService;
+	}
+	/**
+	 * @description
+	 * @param 
+	 * @return ViewDataService
+	*/
+	public function getFileUploaderService() : FileUploaderService
+	{
+		return $this->oFileUploaderService;
 	}
 	/**
 	 * Добавит в $aWhere фильтр по городу и/или региону

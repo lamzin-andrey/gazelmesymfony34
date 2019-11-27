@@ -47,7 +47,8 @@
 				<table>
 					<tr>
 						<td>
-							<input type="file" id="image" name="image" style="width:173px"/>
+							<!--input type="file" id="image" name="image" style="width:173px"/-->
+							{{ form_widget(form.imagefile) }}
 							
 							<div class="red" id="imerr"></div>
 						</td>
@@ -66,7 +67,16 @@
 			
 			<div class="adphone py-5">
 				{#<?=FV::labinp("phone", "Введите номер сотового телефона *", @$addForm->phone, 0, 0, $authorized);?> #}
-				{{ form_row(form.phone) }}
+				{# form_row(form.phone) #}
+				{{ form_label(form.phone) }}
+				{{ form_widget(form.phone) }}
+				{%- if form.phone.vars.errors|length > 0 -%}
+				<ul>
+					{%- for error in form.phone.vars.errors -%}
+						<li>{{ error.message|raw }}</li>
+					{%- endfor -%}
+				</ul>
+				{%- endif -%}
 			</div>
 			<p class="fcomment green">
 				Например, 8 917 000 11 22 или +7 917 000 11 22, + перед семеркой обязателен! (пробелы и скобки по желанию)

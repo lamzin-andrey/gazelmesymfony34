@@ -36,6 +36,9 @@ parameters:
   
   test:
       phone: '80001112233'
+      email: 'ftest_user@host.do'
+      password: '123456'
+      wrong_password: '1234567'
 
 
 services:
