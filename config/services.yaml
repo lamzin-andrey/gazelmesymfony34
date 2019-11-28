@@ -34,6 +34,9 @@ parameters:
   app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
   #app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
   
+  #Каталог с загружаемыми файлами
+  app.uploadfiledir: 'images'
+  
   test:
       phone: '80001112233'
       email: 'ftest_user@host.do'

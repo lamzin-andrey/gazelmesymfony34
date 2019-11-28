@@ -30,6 +30,9 @@ class AdvertController extends Controller
 	/** @property \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $_oEncoder */
 	private $_oEncoder;
 	
+	/** @property string $_subdir Каталог для загрузки файлов из настроек (без DOCUMENT_ROOT и подкаталогов ГОД/МЕСЯЦ ) */
+	private $_subdir;
+	
 
     /**
       * @param string $sRegion
@@ -108,8 +111,14 @@ class AdvertController extends Controller
 	{
 		$this->_oAdvert = new Advert();
 		$this->_oEncoder =  $oEncoder;
+		$this->_oGazelMeService = $oGazelMeService;
+		$this->_subdir = $this->getParameter('app.uploadfiledir') . '/' . date('Y/m');
 		//TODO define _oForm
-		$this->_oForm = $oForm = $this->createForm(get_class(new AdvertForm()), $this->_oAdvert, ['file_uploader' => $oGazelMeService->getFileUploaderService()]);
+		$this->_oForm = $oForm = $this->createForm(get_class(new AdvertForm()), $this->_oAdvert, [
+			'file_uploader' => $oGazelMeService->getFileUploaderService(),
+			'request' => $oRequest,
+			'uploaddir' => $this->_subdir
+		]);
 		
 		if ($oRequest->getMethod() == 'POST') {
 			$oForm->handleRequest($oRequest);
@@ -148,6 +157,14 @@ class AdvertController extends Controller
 		
 		//транслитировать заголовок объявления
 		$this->_oAdvert->setCodename($oGazelMeService->translite_url($this->_oAdvert->getTitle()));
+		
+		//save file
+		$oFile = $this->_oForm['imagefile']->getData();
+        if ($oFile) {
+            $sFileName = $this->_oGazelMeService->getFileUploaderService()->upload($oFile);
+            $this->_oAdvert->setImage('/' . $this->_subdir . '/' . $sFileName);
+        }
+		
 		$this->_oEm->persist($this->_oAdvert);
 		$this->_oEm->flush();
 		
@@ -164,6 +181,8 @@ class AdvertController extends Controller
 			':id' => $nId
 		]);
 		$oQuery->execute();
+		
+		
 	}
 	/**
 	 * TODO что-то не работает, main gott (мскорее всего дело было в пустом пароле)!

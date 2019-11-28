@@ -58,5 +58,13 @@ class DefaultController extends Controller
 		//return $this->render('list/filterform.html.twig', $aData);
 		return $this->redirectToRoute("home");
 	}
+	/**
+	 * @Route("/preview", name="uploaded_imagePreview") 
+	*/
+	public function uploadedImagePreview()
+	{
+		$aData = [];
+		return $this->render('advert/imagepreview.html.twig', $aData);
+	}
 	
 }

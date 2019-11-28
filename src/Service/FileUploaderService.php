@@ -7,20 +7,58 @@ use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Image;
 
 // TODO service -> MyToolBundle
-// Что касается самой загрузки тут всё есть https://symfony.com/doc/3.4/controller/upload_file.html
+
 
 /**
- * Возможно, в FormType это окажется обяхательным
  * 
- * public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => Product::class,
-        ]);
-    } 
+ * Usage 
+ *
+ * settings:
  * 
- * *
- */
+ *    controller:
+ * 
+ *		$this->_oForm = $oForm = $this->createForm(get_class(new AdvertForm()), $this->_oAdvert, [
+			'file_uploader' => $oFileUploaderService,
+			'request' => $oRequest,
+			'uploaddir' => $this->_subdir
+		]);
+ *
+ *	  in buildForm:
+ *		
+ *		$this->_oFileUploader = $options['file_uploader'];
+		$this->_oRequest = $options['request'];
+		$this->_oFileUploader->addAllowMimetype('image/jpeg');
+		$this->_oFileUploader->addAllowMimetype('image/png');
+		$this->_oFileUploader->addAllowMimetype('image/gif');
+		$this->_oFileUploader->setFileInputLabel('Append file!');
+		$this->_oFileUploader->setMimeWarningMessage('Choose allowed file type');
+		$this->_oFileUploader->setMaxImageHeight(480);
+		$this->_oFileUploader->setMaxImageWidth(640);
+		$subdir = $options['uploaddir'];
+		$sTargetDirectory = $this->_oRequest->server->get('DOCUMENT_ROOT') . '/' . $subdir;
+		$this->_oFileUploader->setTargetDirectory($sTargetDirectory);
+		$aOptions = $this->_oFileUploader->getFileTypeOptions();
+		$aOptions['translation_domain'] = 'Adform';
+		$oBuilder->add('imagefile', FileType::class, $aOptions);
+ *
+ *
+ * 
+ * save:
+ * 
+ *     controller: 
+ *
+ *
+ * if ($this->_oForm->isValid()) {
+        //save file
+		$oFile = $this->_oForm['imagefile']->getData();
+        if ($oFile) {
+            $sFileName = $this->_oFileUploaderService->upload($oFile);
+            $this->_oAdvert->setImageLink('/' . $this->_subdir . '/' . $sFileName);
+        }
+
+        // ...
+    }
+***/
 
 /**
  *  
@@ -38,6 +76,13 @@ class FileUploaderService
 	
 	/** @property string $_sConstraintClassName */
 	private $_sConstraintClassName = '\Symfony\Component\Validator\Constraints\File';
+	
+	/** @property string $_sError humanly error text */
+	private  $_sError;
+	
+	/** @property string $_sErrorInfo extend info about error*/
+	private $_sErrorInfo;
+	
 	
 	public function __construct(ContainerInterface $container)
 	{
@@ -71,7 +116,7 @@ class FileUploaderService
 	public function addAllowMimetype(string $sMime)
 	{
 		if (strpos($sMime, 'image/') !== false) {
-			$this->_setConstraintsTypeImage();//TODO
+			$this->_setConstraintsTypeImage();
 		}
 		if (!isset($this->_aConstraints['mimeTypes'])) {
 			$this->_aConstraints['mimeTypes'] = [];
@@ -102,55 +147,53 @@ class FileUploaderService
 		$this->_aConstraints['maxHeight'] = $nHeight;
 	}
 	/**
-	 * @param string sWarningMessage
+	 * @param string sWarningMessage no translate message
 	**/
 	public function setMimeWarningMessage(string $s)
 	{
-		$this->_aConstraints['mimeTypesMessage'] = $s;
+		/** @var \Symfony\Component\Translation\DataCollectorTranslator $t */
+		$t = $this->translator;
+		$this->_aConstraints['mimeTypesMessage'] = $t->trans($s, [], 'Adform');
 	}
 	/**
-	 * @param string label
+	 * @param string label no translate message
 	**/
 	public function setFileInputLabel(string $s)
 	{
-		$this->_sFileInputLabel = $s;
+		/** @var \Symfony\Component\Translation\DataCollectorTranslator $t */
+		$t = $this->translator;
+		$this->_sFileInputLabel = $t->trans($s, [], 'Adform');;
 	}
 	
 	public function setTargetDirectory(string $sTargetDirectory)
 	{
 		$this->_sTargetDirectory = $sTargetDirectory;
 	}
-/**
- * 
- * if ($form->isSubmitted() && $form->isValid()) {
-        /** @var UploadedFile $brochureFile *
-        $brochureFile = $form['brochure']->getData();
-        if ($brochureFile) {
-            $brochureFileName = $fileUploader->upload($brochureFile);
-            $product->setBrochureFilename($brochureFileName);
-        }
-
-        // ...
-    }
-	***/
-	public function upload(UploadedFile $file)
+	/**
+	 * Upload action
+	**/
+	public function upload(\Symfony\Component\HttpFoundation\File\UploadedFile $file) : string
 	{
 		$originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-		$safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+		$safeFilename = $this->oContainer->get('App\Service\GazelMeService')->translite_url($originalFilename);
 		$fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
 
 		try {
 			$file->move($this->getTargetDirectory(), $fileName);
 		} catch (FileException $e) {
-			//TODO
-			// ... handle exception if something happens during file upload
+			$t = $this->translator;
+			$this->_sError = $t->trans('Unable upload file', [], 'Adform');
+			$this->_sErrorInfo = $e->getMessage();
+			$fileName = '';
 		}
 		return $fileName;
     }
-
+	/**
+	 * 
+	**/
     public function getTargetDirectory()
     {
-        return $this->targetDirectory;
+        return $this->_sTargetDirectory;
     }
 	/**
 	 * Set Constraints type Image
@@ -159,4 +202,27 @@ class FileUploaderService
 	{
 		$this->_sConstraintClassName = str_replace('\File', '\Image', $this->_sConstraintClassName);
 	}
+	
+	 /**
+     * Write a thumbnail image using the LiipImagineBundle
+     * 
+     * @param Document $document an Entity that represents an image in the database
+     * @param string $filter the Imagine filter to use
+     */
+    private function writeThumbnail($path, $filter) {
+        //$path = $document->getWebPath();                                // domain relative path to full sized image
+        $tpath = $path;//$document->getRootDir().$document->getThumbPath();     // absolute path of saved thumbnail
+
+        $container = $this->oContainer;                                  // the DI container
+        $dataManager = $container->get('liip_imagine.data.manager');    // the data manager service
+        $filterManager = $container->get('liip_imagine.filter.manager');// the filter manager service
+
+        $image = $dataManager->find($filter, $path);                    // find the image and determine its type
+        $response = $filterManager->get($this->getRequest(), $filter, $image, $path); // run the filter 
+        $thumb = $response->getContent();                               // get the image from the response
+
+        $f = fopen($tpath, 'w');                                        // create thumbnail file
+        fwrite($f, $thumb);                                             // write the thumbnail
+        fclose($f);                                                     // close the file
+    }
 }

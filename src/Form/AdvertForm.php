@@ -19,6 +19,9 @@ class AdvertForm extends AbstractType
 	/** @property \App\Service\FileUploaderService $_oFileUploader */
 	private $_oFileUploader;
 	
+	/** @property  \Symfony\Component\HttpFoundation\Request $_oRequest */
+	private $_oRequest;
+	
 	
 	public function buildForm(FormBuilderInterface $oBuilder, array $options)
 	{
@@ -92,18 +95,25 @@ class AdvertForm extends AbstractType
 		]);
 		
 		$this->_oFileUploader = $options['file_uploader'];
+		$this->_oRequest = $options['request'];
 		$this->_oFileUploader->addAllowMimetype('image/jpeg');
 		$this->_oFileUploader->addAllowMimetype('image/png');
 		$this->_oFileUploader->addAllowMimetype('image/gif');
 		$this->_oFileUploader->setFileInputLabel('Append file!');
-		$this->_oFileUploader->setMimeWarningMessage('Choose allowed file type, jpg, gif or png');
+		$this->_oFileUploader->setMimeWarningMessage('Choose allowed file type');
+		//$oConf = $options['container'];
 		$this->_oFileUploader->setMaxImageHeight(480);
-		$this->_oFileUploader->setMaxImageWidth(320);
+		$this->_oFileUploader->setMaxImageWidth(640);//640 - ok, 320 - у менея есть изображения меньше
+		$subdir = $options['uploaddir'];
+		$sTargetDirectory = $this->_oRequest->server->get('DOCUMENT_ROOT') . '/' . $subdir;
+		
+		$this->_oFileUploader->setTargetDirectory($sTargetDirectory);
 		
 		$aOptions = $this->_oFileUploader->getFileTypeOptions();
 		$aOptions['attr'] = [
 			'style' => 'width:173px;'
 		];
+		$aOptions['translation_domain'] = 'Adform';
 		$oBuilder->add('imagefile', \Symfony\Component\Form\Extension\Core\Type\FileType::class, $aOptions);
 	}
 	
@@ -114,5 +124,7 @@ class AdvertForm extends AbstractType
 	public function configureOptions(\Symfony\Component\OptionsResolver\OptionsResolver $resolver)
     {
         $resolver->setRequired('file_uploader');
+        $resolver->setRequired('request');
+        $resolver->setRequired('uploaddir');
     }
 }

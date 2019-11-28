@@ -114,6 +114,9 @@
             "config/packages/google_recaptcha.yaml"
         ]
     },
+    "imagine/imagine": {
+        "version": "1.2.2"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
@@ -125,6 +128,15 @@
     },
     "landlib/treealgorithms": {
         "version": "dev-master"
+    },
+    "liip/imagine-bundle": {
+        "version": "1.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.8",
+            "ref": "1d42bc3f713130582e6e0c475c49bc327ab0a2a2"
+        }
     },
     "monolog/monolog": {
         "version": "1.25.1"

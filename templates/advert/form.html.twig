@@ -47,10 +47,8 @@
 				<table>
 					<tr>
 						<td>
-							<!--input type="file" id="image" name="image" style="width:173px"/-->
 							{{ form_widget(form.imagefile) }}
-							
-							<div class="red" id="imerr"></div>
+							{{ form_errors(form.imagefile) }}
 						</td>
 						<td>
 							<img src="/images/l-w.gif" id="upLdr" class="hide"/>
