@@ -280,7 +280,7 @@ class GazelMeService
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
 	*/
-	public function setCityConditionAndInitCyrValues(\Doctrine\Common\Collections\Criteria $oCriteria, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity) : void
+	public function setCityConditionAndInitCyrValues(\Doctrine\Common\Collections\Criteria $oCriteria, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity, &$nCityId, &$nRegionId) : void
 	{
 		if ($sRegion) {
 			//всегда сначала загружаем по региону
@@ -295,6 +295,7 @@ class GazelMeService
 				if ($oRegion) {
 					//$aWhere['region'] = $oRegion->getId();
 					$e = Criteria::expr();
+					$nRegionId = $oRegion->getId();
 					$oCriteria->andWhere( $e->eq('region', $oRegion->getId()) );
 					$sCyrRegionName = $oRegion->getRegionName();
 					if ($sCity) {
@@ -304,6 +305,7 @@ class GazelMeService
 							if ($oCity->getCodename() == $sCity) {
 								$sCyrCityName = $oCity->getCityName();
 								//$aWhere['city'] = $oCity->getId();
+								$nCityId = $oCity->getId();
 								$oCriteria->andWhere( $e->eq('city', $oCity->getId()) );
 								break;
 							}

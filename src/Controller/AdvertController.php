@@ -79,8 +79,10 @@ class AdvertController extends Controller
 		
 		$sCyrRegionName = '';
 		$sCyrCityName = '';
+		$nCityId = 0;
+		$nRegionId = 0;
 		$oCriteria = Criteria::create();
-		$oGazelMeService->setCityConditionAndInitCyrValues($oCriteria , $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
+		$oGazelMeService->setCityConditionAndInitCyrValues($oCriteria , $sCyrRegionName, $sCyrCityName, $sRegion, $sCity, $nCityId, $nRegionId);
 		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
 		$aData['title'] = $oGazelMeService->getTiltle($oRequest, $sCyrRegionName, $sCyrCityName);
 		$aData['h1'] = $oGazelMeService->getMainHeading($oRequest, $sCyrRegionName, $sCyrCityName, $advert->getTitle());
@@ -107,7 +109,7 @@ class AdvertController extends Controller
 	 * Форма подачи объявления
 	 * @Route("/podat_obyavlenie", name="podat_obyavlenie")
 	*/
-	public function add(Request $oRequest, ViewDataService $oViewDataService, \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder, \App\Service\GazelMeService $oGazelMeService)
+	public function add(Request $oRequest, ViewDataService $oViewDataService, \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder, \App\Service\GazelMeService $oGazelMeService, \App\Service\RegionsService $oRegionService)
 	{
 		$this->_oAdvert = new Advert();
 		$this->_oEncoder =  $oEncoder;
@@ -126,9 +128,6 @@ class AdvertController extends Controller
 				if ($this->_isAdditionalValid()) {	//TODO
 					$this->_saveAdvertData($oForm, $oGazelMeService);
 				}
-		
-				//$oError = new \Symfony\Component\Form\FormError('User already exists');
-				//$vd = $oForm->get('phone')->addError($oError);
 			} else {
 				/** @var \Symfony\Component\Form\FormErrorIterator $errs */
 				$errs = $oForm->getErrors(true);
@@ -137,6 +136,12 @@ class AdvertController extends Controller
 		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
 		$aData['form'] = $oForm->createView();
 		$aData['image'] = 'images/gazel.jpg';
+		$aData['aRegionId'] = [
+			'value' => $oRegionService->getRegionIdFromSession($oRequest)
+		];
+		$aData['aCityId'] = [
+			'value' => $oRegionService->getCityIdFromSession($oRequest)
+		];
 		return $this->render('advert/form.html.twig', $aData);
 	}
 	/**

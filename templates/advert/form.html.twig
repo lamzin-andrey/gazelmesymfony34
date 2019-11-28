@@ -6,8 +6,8 @@
 	<hr id="add_hr"/>
 		{{  form_start(form, {'action': path('podat_obyavlenie'), 'attr': {'enctype': 'multipart/form-data'} }) }}
 		<div>
-			{{ form_label(form.region) }} {{ form_widget(form.region) }}{{ form_errors(form.region) }}
-			{{ form_label(form.city) }} {{ form_widget(form.city) }}{{ form_errors(form.city) }}
+			{{ form_label(form.region) }} {{ form_widget(form.region, aRegionId) }}{{ form_errors(form.region) }}
+			{{ form_label(form.city) }} {{ form_widget(form.city, aCityId) }}{{ form_errors(form.city) }}
 		</div>
 			<div class="prmf">
 				<div class="checkblock">

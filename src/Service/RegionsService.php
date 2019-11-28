@@ -226,6 +226,24 @@ class RegionsService  {
 		return $oSession->get('sRegionCodename', '');
 	}
 	/**
+	 * Получает из сессии выбранный пользователем регион или мегаполис (идентификатор)
+	 * @param Request $oRequest
+	*/
+	public function getRegionIdFromSession(Request $oRequest) : string
+	{
+		$oSession = $oRequest->getSession();
+		return intval($oSession->get('nRegionId', 0) );
+	}
+	/**
+	 * Получает из сессии выбранный пользователем регион или мегаполис (идентификатор)
+	 * @param Request $oRequest
+	*/
+	public function getCityIdFromSession(Request $oRequest) : string
+	{
+		$oSession = $oRequest->getSession();
+		return intval($oSession->get('nCityId', 0) );
+	}
+	/**
 	 * Получает из сессии выбранный пользователем населенный пункт (имя латинскими буквами в нижнем регистре)
 	 * @param Request $oRequest
 	*/
@@ -248,10 +266,12 @@ class RegionsService  {
 	 * @param string $sRegion кодовое имя региона (латинскими буквами (это не стандартный транслит!) )
 	 * @param string $sCity кодовое имя города (латинскими буквами (это не стандартный транслит!) )
 	 * @param Request $oRequest
+	 * @param int $nRegionId
+	 * @param int $nCityId
 	 * @param string $sCyrRegionName
 	 * @param string $sCyrCityName
 	*/
-	public function saveSelectedLocation(string $sRegion, string $sCity, Request $oRequest, string $sCyrRegionName, string $sCyrCityName = '') : void
+	public function saveSelectedLocation(string $sRegion, string $sCity, Request $oRequest, int $nRegionId, int $nCityId, string $sCyrRegionName, string $sCyrCityName = '') : void
 	{
 		$sReferer = $oRequest->server->get('HTTP_REFERER');
 		$sUrl = explode('?', $oRequest->server->get('REQUEST_URI') )[0];
@@ -266,15 +286,21 @@ class RegionsService  {
 				if ($nSz == 3) {
 					$oSession->set('sRegionCodename', $aReqUrl[1]);
 					$oSession->set('sCityCodename', $aReqUrl[2]);
+					$oSession->set('nRegionId', $nRegionId);
+					$oSession->set('nCityId', $nCityId);
 					$this->_setCyrLocationValue($oSession, $aReqUrl[1], $aReqUrl[2], $sCyrRegionName, $sCyrCityName);
 				} else if ($nSz == 2) {
 					$oSession->set('sRegionCodename', $aReqUrl[1]);
 					$oSession->set('sCityCodename', '');
+					$oSession->set('nRegionId', $nRegionId);
+					$oSession->set('nCityId', 0);
 					$this->_setCyrLocationValue($oSession, $aReqUrl[1], '', $sCyrRegionName, $sCyrCityName);
 				} else {
 					$oSession->set('sRegionCodename', '/');
 					$oSession->set('sCityCodename', '');
 					$oSession->set('sCyrLocation', '');
+					$oSession->set('nRegionId', 0);
+					$oSession->set('nCityId', 0);
 				}
 			}
 		}
@@ -284,24 +310,35 @@ class RegionsService  {
 	 * @param string $sRegion кодовое имя региона (латинскими буквами (это не стандартный транслит!) )
 	 * @param string $sCity кодовое имя города (латинскими буквами (это не стандартный транслит!) )
 	 * @param Request $oRequest
+	 * 
+	 * @param int $nRegionId
+	 * @param int $nCityId
+	 * 
 	 * @param string $sCyrRegionName
 	 * @param string $sCyrCityName
 	*/
-	public function setLocationUrl(string $sRegion, string $sCity, Request $oRequest, string $sCyrRegionName, string $sCyrCityName = '') : void
+	public function setLocationUrl(string $sRegion, string $sCity, Request $oRequest, $nRegionId, $nCityId, string $sCyrRegionName, string $sCyrCityName = '') : void
 	{
 		$oSession = $oRequest->getSession();
 		if ($sRegion && $sCity && $sCyrRegionName && $sCyrCityName) {
 			$oSession->set('sRegionCodename', $sRegion);
 			$oSession->set('sCityCodename', $sCity);
+			$oSession->set('nRegionId', $nRegionId);
+			$oSession->set('nCityId', $nCityId);
+			$oSession->set('sCityCodename', $sCity);
 			$this->_setCyrLocationValue($oSession, $sRegion, $sCity, $sCyrRegionName, $sCyrCityName);
 		} else if ($sRegion && $sCyrRegionName) {
 			$oSession->set('sRegionCodename', $sRegion);
 			$oSession->set('sCityCodename', '');
+			$oSession->set('nRegionId', $nRegionId);
+			$oSession->set('nCityId', 0);
 			$this->_setCyrLocationValue($oSession, $sRegion, '', $sCyrRegionName, '');
 		} else {
 			$oSession->set('sRegionCodename', '/');
 			$oSession->set('sCityCodename', '');
 			$oSession->set('sCyrLocation', '');
+			$oSession->set('nRegionId', 0);
+			$oSession->set('nCityId', 0);
 		}
 	}
 	/**
@@ -314,9 +351,11 @@ class RegionsService  {
 	*/
 	private function _setCyrLocationValue($oSession, string $sRegion, string $sCity = '', $sCyrRegionName = '', $sCyrCityName = '') : void
 	{
+		$nCityId = 0;
+		$nRegionId = 0;
 		if (!$sCyrRegionName) {
 			$a = [];
-			$this->oGazelMeService->setCityConditionAndInitCyrValues($a, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
+			$this->oGazelMeService->setCityConditionAndInitCyrValues($a, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity, $nCityId, $nRegionId);
 		}	
 		if ($sCyrRegionName) {
 			if ($sCyrCityName) {

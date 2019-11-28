@@ -34,6 +34,7 @@ use Symfony\Component\Validator\Constraints\Image;
 		$this->_oFileUploader->setMimeWarningMessage('Choose allowed file type');
 		$this->_oFileUploader->setMaxImageHeight(480);
 		$this->_oFileUploader->setMaxImageWidth(640);
+		$this->_oFileUploader->addLiipBundleFilter('my_thumb');
 		$subdir = $options['uploaddir'];
 		$sTargetDirectory = $this->_oRequest->server->get('DOCUMENT_ROOT') . '/' . $subdir;
 		$this->_oFileUploader->setTargetDirectory($sTargetDirectory);
@@ -82,6 +83,9 @@ class FileUploaderService
 	
 	/** @property string $_sErrorInfo extend info about error*/
 	private $_sErrorInfo;
+	
+	/** @property array $_aLiipImageFilters @see addLiipBundleFilter */
+	private $_aLiipImageFilters = [];
 	
 	
 	public function __construct(ContainerInterface $container)
@@ -179,7 +183,11 @@ class FileUploaderService
 		$fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
 
 		try {
-			$file->move($this->getTargetDirectory(), $fileName);
+			$sFolder = $this->getTargetDirectory();
+			$file->move($sFolder, $fileName);
+			foreach ($this->_aLiipImageFilters as $sFilterName) {
+				$this->_applyFilter($sFolder . '/' . $fileName, $sFilterName);
+			}
 		} catch (FileException $e) {
 			$t = $this->translator;
 			$this->_sError = $t->trans('Unable upload file', [], 'Adform');
@@ -188,6 +196,14 @@ class FileUploaderService
 		}
 		return $fileName;
     }
+	/**
+	 * It require use \Liip\ImagineBundle\LiipImagineBundle in your project
+	 * @param string $sFilterName filter 
+	**/
+    public function addLiipBundleFilter(string $sFilterName)
+	{
+		$this->_aLiipImageFilters[] = $sFilterName;
+	}
 	/**
 	 * 
 	**/
@@ -204,21 +220,26 @@ class FileUploaderService
 	}
 	
 	 /**
-     * Write a thumbnail image using the LiipImagineBundle
+     * Apply LiipImagineBundle filter
      * 
-     * @param Document $document an Entity that represents an image in the database
-     * @param string $filter the Imagine filter to use
+     * @param string $path absolute path to image file
+     * @param string $filter the Imagine filter to (use Bundle LiipImagineBundle);
      */
-    private function writeThumbnail($path, $filter) {
-        //$path = $document->getWebPath();                                // domain relative path to full sized image
+    private function _applyFilter($path, $filter)
+	{
         $tpath = $path;//$document->getRootDir().$document->getThumbPath();     // absolute path of saved thumbnail
-
-        $container = $this->oContainer;                                  // the DI container
+		$container = $this->oContainer;                                  // the DI container
+		$oRequest = $container->get('request_stack')->getCurrentRequest();
+		$sDr = $oRequest->server->get('DOCUMENT_ROOT');
+		$path = str_replace($sDr, '', $tpath);
+        
         $dataManager = $container->get('liip_imagine.data.manager');    // the data manager service
-        $filterManager = $container->get('liip_imagine.filter.manager');// the filter manager service
-
+        /** @var \Liip\ImagineBundle\Imagine\Filter\FilterManager $filterManager  */
+		$filterManager = $container->get('liip_imagine.filter.manager');// the filter manager service
+		
         $image = $dataManager->find($filter, $path);                    // find the image and determine its type
-        $response = $filterManager->get($this->getRequest(), $filter, $image, $path); // run the filter 
+		$response = $filterManager->applyFilter($image, $filter);
+        //$response = $filterManager->get($this->getRequest(), $filter, $image, $path); // run the filter 
         $thumb = $response->getContent();                               // get the image from the response
 
         $f = fopen($tpath, 'w');                                        // create thumbnail file

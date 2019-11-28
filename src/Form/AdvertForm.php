@@ -27,17 +27,11 @@ class AdvertForm extends AbstractType
 	{
 		$oBuilder->add('region', TextType::class, [
 			'required' => false,
-			'translation_domain' => 'Adform',
-			'attr' => [
-				'value' => 1
-			]
+			'translation_domain' => 'Adform'
 		]);
 		$oBuilder->add('city', TextType::class, [
 			'required' => false,
-			'translation_domain' => 'Adform',
-			'attr' => [
-				'value' => 0
-			]
+			'translation_domain' => 'Adform'
 		]);
 		$oBuilder->add('people', CheckboxType::class, [
 			'required' => false
@@ -101,9 +95,10 @@ class AdvertForm extends AbstractType
 		$this->_oFileUploader->addAllowMimetype('image/gif');
 		$this->_oFileUploader->setFileInputLabel('Append file!');
 		$this->_oFileUploader->setMimeWarningMessage('Choose allowed file type');
+		$this->_oFileUploader->addLiipBundleFilter('max_width');
 		//$oConf = $options['container'];
-		$this->_oFileUploader->setMaxImageHeight(480);
-		$this->_oFileUploader->setMaxImageWidth(640);//640 - ok, 320 - у менея есть изображения меньше
+		//$this->_oFileUploader->setMaxImageHeight(480);
+		//$this->_oFileUploader->setMaxImageWidth(640);//640 - ok, 320 - у менея есть изображения меньше
 		$subdir = $options['uploaddir'];
 		$sTargetDirectory = $this->_oRequest->server->get('DOCUMENT_ROOT') . '/' . $subdir;
 		

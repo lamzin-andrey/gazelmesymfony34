@@ -58,7 +58,7 @@ class RegionsController extends Controller
 			$oRepository = $this->getDoctrine()->getRepository('App:Regions');
 			$oRegion = $oRepository->find($nRegionId);
 			if ($oRegion) {
-				$oRegionsService->setLocationUrl($oRegion->getCodename(), '', $oRequest, $oRegion->getRegionName());
+				$oRegionsService->setLocationUrl($oRegion->getCodename(), '', $oRequest, $nRegionId, 0, $oRegion->getRegionName());
 				return new RedirectResponse('/' . $oRegion->getCodename());
 			}
 			return $this->redirectToRoute('home');
@@ -70,15 +70,16 @@ class RegionsController extends Controller
 			if ($oCity) {
 				$oRegion = $oCity->getRegionObject();
 				if ($oCity && $oRegion) {
-					$oRegionsService->setLocationUrl($oRegion->getCodename(), $oCity->getCodename(), $oRequest,
-					$oRegion->getRegionName(), $oCity->getCityName());
+					$oRegionsService->setLocationUrl($oRegion->getCodename(), $oCity->getCodename(), $oRequest, 
+														$oRegion->getId(), $nCityId,
+														$oRegion->getRegionName(), $oCity->getCityName());
 					return new RedirectResponse('/' . $oRegion->getCodename() . '/' . $oCity->getCodename());
 				}
 			}
 			return $this->redirectToRoute('home');
 		}
 		$sE = '';
-		$oRegionsService->setLocationUrl($sE, $sE, $oRequest,$sE, $sE);
+		$oRegionsService->setLocationUrl($sE, $sE, $oRequest, 0, 0, $sE, $sE);
 		return $this->redirectToRoute('home');
 	}
 	/**

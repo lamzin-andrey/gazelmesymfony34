@@ -25,6 +25,11 @@ class AdvertlistController extends Controller
 	/** @property string _sCyrRegionName кирилическое имя локации */
 	private $_sCyrRegionName = '';
 	
+	/** @property int  _nCityId идентификатор города */
+	private $_nCityId  = '';
+	
+	/** @property int  _nRegionId идентификатор региона или крупного города */
+	private $_nRegionId  = '';
 
 	/**
       * @Route("/", name="home")
@@ -75,7 +80,7 @@ class AdvertlistController extends Controller
 		
 		
 		$adverts = $this->_loadAdvList($sRegion, $sCity, $oRequest);
-		$oRegionsService->saveSelectedLocation($sRegion, $sCity, $oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
+		$oRegionsService->saveSelectedLocation($sRegion, $sCity, $oRequest, $this->_nRegionId, $this->_nCityId, $this->_sCyrRegionName, $this->_sCyrCityName);
 
 		//for links
 		$s = $oRequest->server->get('REQUEST_URI');
@@ -214,9 +219,13 @@ class AdvertlistController extends Controller
 		$oGazelMeService = $this->get('App\Service\GazelMeService');
 		$sCyrRegionName = '';
 		$sCyrCityName = '';
-		$oGazelMeService->setCityConditionAndInitCyrValues($oCriteria, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity);
+		$nCityId = 0;
+		$nRegionId = 0;
+		$oGazelMeService->setCityConditionAndInitCyrValues($oCriteria, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity, $nCityId, $nRegionId);
 		$this->_sCyrRegionName = $sCyrRegionName;
 		$this->_sCyrCityName = $sCyrCityName;
+		$this->_nCityId = $nCityId;
+		$this->_nRegionId = $nRegionId;
 	}
 	
 }
