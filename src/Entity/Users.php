@@ -40,10 +40,17 @@ class Users extends BaseUser
 
     /**
      * @var string|null
-     *
+	 * 
      * @ORM\Column(name="phone", type="string", length=15, nullable=true, options={"comment"="Номер телефона"})
      */
     protected $phone;
+	
+	/**
+     * @var array
+	 * 
+     * @ORM\OneToMany(targetEntity="Main", mappedBy="userObject")
+     */
+    protected $advertsByUsername;
 
     /**
      * @var string|null

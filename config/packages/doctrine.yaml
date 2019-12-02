@@ -29,13 +29,13 @@ doctrine:
 
         second_level_cache:
            #enabled: true
-           regions:
-                global:
-                    lifetime: 900
-                    cache_driver:
-                        type: memcache
-                        host: localhost
-                        port: 11211
+           #regions:
+           #     global:
+           #         lifetime: 900
+           #         cache_driver:
+           #             type: memcache
+           #             host: localhost
+           #             port: 11211
                 
                         
         #query_cache_driver:

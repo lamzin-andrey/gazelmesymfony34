@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{# block title %}My cool blog posts{% endblock #}
+{# block title %}My title{% endblock #}
 
 {% block content %}
 {% if (nCountAdverts) %}
@@ -56,16 +56,7 @@
 	{#{ include('list/usermenu.html.twig', {'item' : item}) }#}
 	<div>&nbsp;</div>
 	<div class="block bggray text-center">
-		<div class="center slogan">
-			<span class="ib">Населенный пункт: </span>
-				{% if (nIsSetLocaton == 0) %}
-					<span class="regions_page_link">{{ 'Not set'|trans }}</span>
-				{% else %}
-					<span class="ib regions_page_link" id="hDisplayLocation">{{ sDisplayLocation }}</span>
-				{% endif %}
-			<a href="{{ path('regions') }}" class="regions_page_link" @click="onClickChangeRegion">{{ 'Change'|trans }}</a>
-		</div>
-		<cityfilter ref="cityfilter" ><cityfilter/>{# vue2 component #}
+		{% include 'widgets/locationform.html.twig' %}
 	</div>
 	<a class="block bggray text-center" href="{{ path('showfilter') }}" @click="onClickSwapFilter">Фильтр</a>
 	<typefilter ref="typefilter" formaction="{{ sLocationUrl }}" querystring="{{ sFilterQueryString }}"></typefilter>{# vue2 component #}

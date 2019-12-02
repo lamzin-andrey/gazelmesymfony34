@@ -122,6 +122,10 @@ class AdvertController extends Controller
 			'uploaddir' => $this->_subdir
 		]);
 		
+		$oSession = $oRequest->getSession();
+		
+		/** @var \Symfony\Component\HttpFoundation\Session\Session $oSession **/
+		
 		if ($oRequest->getMethod() == 'POST') {
 			$oForm->handleRequest($oRequest);
 			if ($oForm->isValid()) {
@@ -132,6 +136,9 @@ class AdvertController extends Controller
 				/** @var \Symfony\Component\Form\FormErrorIterator $errs */
 				$errs = $oForm->getErrors(true);
 			}
+			$oSession->remove('is_add_advert_page');
+		} else {
+			$oSession->set('is_add_advert_page', true);
 		}
 		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
 		$aData['form'] = $oForm->createView();
@@ -142,6 +149,7 @@ class AdvertController extends Controller
 		$aData['aCityId'] = [
 			'value' => $oRegionService->getCityIdFromSession($oRequest)
 		];
+		//$aData['nIsSetLocation'] = $oGazelMeService
 		return $this->render('advert/form.html.twig', $aData);
 	}
 	/**
@@ -153,12 +161,18 @@ class AdvertController extends Controller
 		$this->_oEm = $this->getDoctrine()->getManager();
 		
 		if (!$this->getUser() && $this->_bNeedCreateAccount) {
-			$this->_saveUser();
+			$nUserId = $this->_saveUser();
+		} else if ($this->getUser()){
+			$nUserId = $this->getUser()->getId();
+		} else {
+			$nUserId = $this->_nExistsUserId;
 		}
 		$nRegionId = $this->_oAdvert->getRegion();
 		$nCityId = $this->_oAdvert->getCity();
 		$nRegionId = intval($nRegionId) > 0 ? $nRegionId : null;
 		$nCityId = intval($nCityId) > 0 ? $nCityId : null;
+		
+		$this->_oAdvert->setUserId($nUserId);
 		
 		//транслитировать заголовок объявления
 		$this->_oAdvert->setCodename($oGazelMeService->translite_url($this->_oAdvert->getTitle()));
@@ -177,13 +191,16 @@ class AdvertController extends Controller
 		// хотя при попытке getRegion() перед сохранеием корректное значение (пришедшее из формы).
 		//Поэтому допиливаем апдейтом, что конечно безобразие
 		$nId = $this->_oAdvert->getId();
-		$sDQuery = 'UPDATE App:Main AS m SET m.region = :r, m.city = :c, m.delta = :id WHERE m.id = :id';
+		$sDQuery = 'UPDATE App:Main AS m '
+				. 'SET m.region = :r, m.city = :c, m.delta = :id, m.userId = :uid '
+				. 'WHERE m.id = :id';
 		/** @var \Doctrine\ORM\Query $oQuery */
 		$oQuery = $this->_oEm->createQuery($sDQuery);
 		$oQuery->setParameters([
 			':r' => $nRegionId,
 			':c' => $nCityId,
-			':id' => $nId
+			':id' => $nId,
+			':uid' => $nUserId
 		]);
 		$oQuery->execute();
 		
@@ -257,6 +274,7 @@ class AdvertController extends Controller
 					$this->_addError('User already exists, but password not valid', 'phone');
 					return false;
 				}
+				$this->_nExistsUserId = $oUser->getId();
 			} else {
 				//Нет пользователя с таким логином или паролем - значит надо создать
 				$this->_bNeedCreateAccount = true;

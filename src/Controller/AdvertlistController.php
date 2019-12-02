@@ -82,6 +82,10 @@ class AdvertlistController extends Controller
 		$adverts = $this->_loadAdvList($sRegion, $sCity, $oRequest);
 		
 		$oRegionsService->saveSelectedLocation($sRegion, $sCity, $oRequest, $this->_nRegionId, $this->_nCityId, $this->_sCyrRegionName, $this->_sCyrCityName);
+		if ($oSession->has('is_add_advert_page') && strpos( $oRequest->server->get('HTTP_REFERER'), '/regions' ) !== false) {
+			$oSession->remove('is_add_advert_page');
+			return $this->redirectToRoute('podat_obyavlenie');
+		}
 
 		//for links
 		$s = $oRequest->server->get('REQUEST_URI');
@@ -94,14 +98,6 @@ class AdvertlistController extends Controller
 		$aData['title'] = $oGazelMeService->getTiltle($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
 		$aData['h1'] = $oGazelMeService->getMainHeading($oRequest, $this->_sCyrRegionName, $this->_sCyrCityName);
 		
-		$sCyrLocation = $oRegionsService->getDisplayLocationFromSession($oRequest);
-		if ($sCyrLocation) {
-			$aData['nIsSetLocaton'] = 1;
-			$aData['sDisplayLocation'] = $sCyrLocation;
-		} else {
-			$aData['nIsSetLocaton'] = 0;
-			$aData['sDisplayLocation'] = '';
-		}
 		
 		$aData['list'] = $adverts;
 		$aData['nCountAdverts'] = count($adverts);

@@ -50,6 +50,21 @@ class Main
 	 * @ORM\JoinColumn(name="city", referencedColumnName="id")
 	*/
 	private $cityObject;
+	
+	
+	/**
+     * @var int|null
+     *
+     * @ORM\Column(name="user_id", type="integer", nullable=true, options={"comment"="users.id"})
+     */
+	private $userId;
+	
+	/**
+	 * @var Users
+	 * @ORM\ManyToOne(targetEntity="Users", inversedBy="advertsByUsername")
+	 * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+	*/
+	private $userObject;
 
     /**
      * @var int|null
@@ -471,5 +486,23 @@ class Main
 	{
 		return $this->cityObject;
 	}
+	
+	public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
 
+    public function setUserId(?int $nUserId): self
+    {
+        $this->userId = $nUserId;
+
+        return $this;
+    }
+			
+	public function getUserObject(): ?Users
+    {
+        return $this->userObject;
+    }
+
+    
 }

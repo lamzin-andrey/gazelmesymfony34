@@ -25,11 +25,11 @@ class AdvertForm extends AbstractType
 	
 	public function buildForm(FormBuilderInterface $oBuilder, array $options)
 	{
-		$oBuilder->add('region', TextType::class, [
+		$oBuilder->add('region', HiddenType::class, [
 			'required' => false,
 			'translation_domain' => 'Adform'
 		]);
-		$oBuilder->add('city', TextType::class, [
+		$oBuilder->add('city', HiddenType::class, [
 			'required' => false,
 			'translation_domain' => 'Adform'
 		]);
@@ -78,11 +78,11 @@ class AdvertForm extends AbstractType
 		
 		$oBuilder->add('password', PasswordType::class, [
 			'mapped' => false,
-			'required' => false
+			'translation_domain' => 'Adform'
 		]);
 		$oBuilder->add('email', EmailType::class, [
 			'mapped' => false,
-			'required' => false
+			'translation_domain' => 'Adform'
 		]);
 		$oBuilder->add('agreement', CheckboxType::class, [
 			'mapped' => false

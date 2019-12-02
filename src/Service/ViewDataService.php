@@ -29,7 +29,8 @@ class ViewDataService  {
 		$siteName = $this->oContainer->getParameter('app.site_name', '');
 		$oSession = $oRequest->getSession();
 		$nUid = $this->getUid();
-		return [
+		
+		$aData = [
 			'assetsVersion' => 0,
 			'additionalCss' => '',
 			'additionalJs' => '',
@@ -41,9 +42,18 @@ class ViewDataService  {
 			'sLocationUrl' => $this->_getLocationUrl($oSession),
 			'sFilterQueryString' => $this->_getFilterQueryString($oSession),
 			'isLocalhost' => true
-			/*'' => '',
-			'' => '',*/
 		];
+		
+		$sCyrLocation = $this->oContainer->get('App\Service\RegionsService')->getDisplayLocationFromSession($oRequest);
+		if ($sCyrLocation) {
+			$aData['nIsSetLocaton'] = 1;
+			$aData['sDisplayLocation'] = $sCyrLocation;
+		} else {
+			$aData['nIsSetLocaton'] = 0;
+			$aData['sDisplayLocation'] = '';
+		}
+		
+		return $aData;
 	}
 	
 	//TODO
