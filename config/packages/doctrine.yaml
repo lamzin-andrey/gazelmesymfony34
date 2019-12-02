@@ -23,6 +23,9 @@ doctrine:
         dql:
               string_functions:
                 group_concat: DoctrineExtensions\Query\Mysql\GroupConcat
+                
+              numeric_functions:
+                rand: DoctrineExtensions\Query\Mysql\Rand
 
         second_level_cache:
            #enabled: true

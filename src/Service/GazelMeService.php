@@ -8,7 +8,7 @@ use App\Entity\Main;
 use \Landlib\Text2Png;
 use Doctrine\Common\Collections\Criteria;
 use Landlib\RusLexicon;
-use App\Service\FileUploaderService;
+use Landlib\SymfonyToolsBundle\Service\FileUploaderService;
 
 class GazelMeService
 {

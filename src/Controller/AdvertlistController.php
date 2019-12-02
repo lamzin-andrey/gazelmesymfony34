@@ -26,10 +26,10 @@ class AdvertlistController extends Controller
 	private $_sCyrRegionName = '';
 	
 	/** @property int  _nCityId идентификатор города */
-	private $_nCityId  = '';
+	private $_nCityId  = 0;
 	
 	/** @property int  _nRegionId идентификатор региона или крупного города */
-	private $_nRegionId  = '';
+	private $_nRegionId  = 0;
 
 	/**
       * @Route("/", name="home")
@@ -80,6 +80,7 @@ class AdvertlistController extends Controller
 		
 		
 		$adverts = $this->_loadAdvList($sRegion, $sCity, $oRequest);
+		
 		$oRegionsService->saveSelectedLocation($sRegion, $sCity, $oRequest, $this->_nRegionId, $this->_nCityId, $this->_sCyrRegionName, $this->_sCyrCityName);
 
 		//for links

@@ -16,5 +16,5 @@ return [
     Symfony\Bundle\WebServerBundle\WebServerBundle::class => ['dev' => true],
     FOS\UserBundle\FOSUserBundle::class => ['all' => true],
     Liip\ImagineBundle\LiipImagineBundle::class => ['all' => true],
-    //Landlib\SymfonyToolsBundle\SymfonyToolsBundle::class => ['all' => true],
+    Landlib\SymfonyToolsBundle\SymfonyToolsBundle::class => ['all' => true],
 ];
