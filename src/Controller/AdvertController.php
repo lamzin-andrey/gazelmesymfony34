@@ -32,6 +32,12 @@ class AdvertController extends Controller
 	
 	/** @property string $_subdir Каталог для загрузки файлов из настроек (без DOCUMENT_ROOT и подкаталогов ГОД/МЕСЯЦ ) */
 	private $_subdir;
+
+	/** @property bool $_bNeedUpdatePassword true  когда надо обновить пароль и email пользователя, который подавал ранее объявления не указывая email и пароль */
+	private $_bNeedUpdatePassword = false;
+
+	/** @property ?App\Entity\Users $_oAnonymousUser может содержать объект с данными о пользователе, который подавал ранее объявления не указывая email и пароль */
+	private $_oAnonymousUser = null;
 	
 
     /**
@@ -130,11 +136,12 @@ class AdvertController extends Controller
 			$oForm->handleRequest($oRequest);
 			if ($oForm->isValid()) {
 				if ($this->_isAdditionalValid()) {	//TODO
-					$this->_saveAdvertData($oForm, $oGazelMeService);
+					$this->_saveAdvertData($oForm, $oGazelMeService, $oRequest);
+				} else {
+					$this->addFlash('notice', $this->get('translator')->trans('Advert form has errors'));
 				}
 			} else {
-				/** @var \Symfony\Component\Form\FormErrorIterator $errs */
-				$errs = $oForm->getErrors(true);
+				$this->addFlash('notice', $this->get('translator')->trans('Advert form has errors'));
 			}
 			$oSession->remove('is_add_advert_page');
 		} else {
@@ -156,16 +163,25 @@ class AdvertController extends Controller
 	 * Если пользователь не авторизован создаётся пользователь.
 	 * Данные формы также сохраняются.
 	**/
-	private function _saveAdvertData(\Symfony\Component\Form\FormInterface $oForm, \App\Service\GazelMeService $oGazelMeService)
+	private function _saveAdvertData(\Symfony\Component\Form\FormInterface $oForm, \App\Service\GazelMeService $oGazelMeService, Request $oRequest)
 	{
 		$this->_oEm = $this->getDoctrine()->getManager();
-		
-		if (!$this->getUser() && $this->_bNeedCreateAccount) {
-			$nUserId = $this->_saveUser();
+
+		if (isset($this->_nExistsUserId) ) {
+			$nUserId = $this->_nExistsUserId;
+		}
+
+		if (!$this->getUser()) {
+			if ($this->_bNeedCreateAccount) {
+				$nUserId = $this->_saveUser($oRequest);
+				$nUserId = $this->_nExistsUserId;
+			}
+			if ($this->_bNeedUpdatePassword) {
+				$this->_updateUserPassword();
+				$nUserId = $this->_oAnonymousUser->getId();
+			}
 		} else if ($this->getUser()){
 			$nUserId = $this->getUser()->getId();
-		} else {
-			$nUserId = $this->_nExistsUserId;
 		}
 		$nRegionId = $this->_oAdvert->getRegion();
 		$nCityId = $this->_oAdvert->getCity();
@@ -207,19 +223,30 @@ class AdvertController extends Controller
 		
 	}
 	/**
-	 * TODO что-то не работает, main gott (мскорее всего дело было в пустом пароле)!
 	 * Создаётся пользователь.
 	**/
-	private function _saveUser()
+	private function _saveUser(Request $oRequest)
 	{
 		$aData = $this->_formData();
 		$oUserManager = $this->get('fos_user.user_manager');
 		$oUser = $oUserManager->createUser();
 		$oUser->setUsername($aData['phone']);
-		$oUser->setEmail($aData['email']);
-		$oUser->setPlainPassword($aData['password']);
+		$sEmail = trim($aData['email'] ?? '');
+		if (!$sEmail) {
+			//Установим временный email чтобы FOS не ругались
+			$sEmail = md5( time() . rand(10000, 99999) . $oRequest->server->get('HTTP_USER_AGENT')) . '@mail.ru';
+		}
+		$oUser->setEmail($sEmail);
+		//если не указан пароль, устанавливать setIsAnonymous(true)
+		$sPassword = trim($aData['password'] ?? '');
+		if (!$sPassword) {
+			$sPassword = md5( $sEmail );
+			$oUser->setIsAnonymous(true);
+		}
+		$oUser->setPlainPassword($sPassword);
 		$oUser->setEnabled(true);
 		$oUserManager->updateUser($oUser);
+		$this->_nExistsUserId = $oUser->getId();
 	}
 	/**
 	 * Дополнительная валидация формы подачи объявления. Если пользователь не авторизован, 
@@ -249,30 +276,38 @@ class AdvertController extends Controller
 		$sPhone = $aData['phone'] ?? '';
 		$sEmail = trim($aData['email'] ?? '');
 		$sPassword = trim($aData['password'] ?? '');
-		
+
+		$oCriteria = new Criteria();
+		$oExpr = $oCriteria->expr();
+		$oCriteria->orderBy(['id' => 'ASC']);
+		$oUserRepository = $this->getDoctrine()->getRepository('App:Users');
+		$oCriteria->where(
+			$oExpr->orX(
+				$oExpr->eq('emailCanonical', $sEmail),
+				$oExpr->eq('username', $sPhone)
+			)
+		);
+		$oUser = $oUserRepository->matching($oCriteria)->get(0);
 		if ($sEmail || $sPassword) {
 			if (!$sEmail || !$sPassword ) {
 				$this->_addError('Email and Password required if on from these no empty', 'email');
 				return false;
 			}
 			//TODO test with empty phone (сам по себе, не конкретно случай с паролем ли без - не должна форма приниматсья ни при каких обстоятельствах)
-			$oCriteria = new Criteria();
-			$oExpr = $oCriteria->expr();
-			$oUserRepository = $this->getDoctrine()->getRepository('App:Users');
-			
-			$oCriteria->where( 
-				$oExpr->orX(
-						$oExpr->eq('emailCanonical', $sEmail),
-						$oExpr->eq('username', $sPhone)
-				)
-			 );
-			$oUser = $oUserRepository->matching($oCriteria)->get(0);
+
 			if ($oUser) {
 				//проверяем, не совпал ли пароль
 				$bPasswordValid = $this->_oEncoder->isPasswordValid($oUser, $sPassword);
-				if (!$bPasswordValid) {
+										//и пользователь его устанавливал раньше
+				if (!$bPasswordValid && !$oUser->getIsAnonymous()) {
 					$this->_addError('User already exists, but password not valid', 'phone');
 					return false;
+				}
+				//Еcли пароль не подходит и пользователь его не установил ранее (подавал не вводя email / password)
+				if (!$bPasswordValid) { // & $oUser->getIsAnonymous()
+					$this->_oAnonymousUser = $oUser;
+					$this->_nExistsUserId = $oUser->getId();
+					$this->_bNeedUpdatePassword = true;
 				}
 				$this->_nExistsUserId = $oUser->getId();
 			} else {
@@ -282,6 +317,12 @@ class AdvertController extends Controller
 			
 		} else {
 			//Тут норм, неавторизованым подавать позволяем, всё равно на запрос телефона редирект
+			if ($oUser) {
+				$this->_nExistsUserId = $oUser->getId();
+			} else {
+				//Нет пользователя с таким телефоном - значит надо создать
+				$this->_bNeedCreateAccount = true;
+			}
 		}
 		
 		return true;
@@ -309,5 +350,23 @@ class AdvertController extends Controller
 		//TODO -> in service, third arg form = null and method setForm
 		$oError = new \Symfony\Component\Form\FormError($this->get('translator')->trans($sError));
 		$this->_oForm->get($sField)->addError($oError);
+	}
+	/**
+	 * Обновить пароль пользователя, который ранее уже подавал объявления, но не указал пароль
+	 * TODO _bNeedCreateAccount скорее всего надо логику посмотреть заново
+	**/
+	private function _updateUserPassword()
+	{
+		$aData = $this->_formData();
+		$oUser = $this->_oAnonymousUser;
+		if ($oUser) {
+			$oUser->setEmail($aData['email']);
+			$oUser->setPlainPassword($aData['password']);
+			$oUser->setEnabled(true);
+			$oUser->setIsAnonymous(false);
+			$oUserManager = $this->get('fos_user.user_manager');
+			$oUserManager->updateUser($oUser);
+			$this->_nExistsUserId = $oUser->getId();
+		}
 	}
 }

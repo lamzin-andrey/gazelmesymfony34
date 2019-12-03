@@ -35,7 +35,10 @@ class AdvertControllerTest extends WebTestCase
 		$this->_oEm->createQuery('DELETE FROM App:Main AS m WHERE m.phone = :p')->
 				setParameters([':p' => $sPhone])->
 				execute();
-		
+
+		$this->_oEm->createQuery('DELETE FROM App:Users AS u WHERE u.username = :p')->
+			setParameters([':p' => $sPhone])->
+			execute();
         //Ожидаем что на странице 6 чекбоксов
         /*$aCheckboxes = $crawler->filter('input[type=checkbox]');
         $nCheckboxesCount = $crawler->filter('input[type=checkbox]')->count();
@@ -48,22 +51,26 @@ class AdvertControllerTest extends WebTestCase
 		//Заполняем и отправляем форму
 		//$oCheckbox = $aCheckboxes->first();
         $submitButton = $crawler->selectButton('Подать объявление');
-        $oForm = $submitButton->form([
+        $aFormData = [
 			'advert_form[region]' => 1,
 			'advert_form[city]' => 0,
 			'advert_form[people]' => 1,
+			'advert_form[company_name]' => 'Rogue and Copue',
 			'advert_form[far]' => 1,
 			'advert_form[title]' => 'TestTitle',
 			'advert_form[phone]' => $sPhone,
 			'advert_form[addtext]' => 'Test data',
-			'advert_form[price]' => 250 //это необязательное поле и оно должно быть равно 1 если не заполнено			
-		]);
+			'advert_form[price]' => 250 //это необязательное поле и оно должно быть равно 1 если не заполнено
+		];
+        /*var_dump($aFormData);
+        die;/**/
+        $oForm = $submitButton->form($aFormData);
         $crawler = $client->submit($oForm);
 		
 		//Просто проверяем есть ли данные в базе
 		
 		$oRepository = $this->_oEm->getRepository('App:Main');
-		$oAdvert = $oRepository->findOneBy(['phone' => $sPhone], ['id' => 'DESC']);//->orderBy();
+		$oAdvert = $oRepository->findOneBy(['phone' => $sPhone], ['id' => 'DESC']);
 		$this->assertTrue($oAdvert !== null);
 		$this->assertTrue($oAdvert->getRegion() == 1);
 		$this->assertTrue($oAdvert->getCity() == null);
@@ -113,6 +120,89 @@ class AdvertControllerTest extends WebTestCase
 		//Удалить всех с известным номером (пользователей и объявления)
 		$this->_deleteAllTestAdverts();
 
+		$this->_deleteTestUser();
+
+		//Подать объявление новым пользователем без email и пароля
+		$submitButton = $crawler->selectButton('Подать объявление');
+		$oForm = $submitButton->form([
+			'advert_form[region]' => 1,
+			'advert_form[city]' => 0,
+			'advert_form[people]' => 1,
+			'advert_form[far]' => 1,
+			'advert_form[title]' => 'TestTitle',
+			'advert_form[phone]' => $sPhone,
+			'advert_form[addtext]' => 'Test data',
+			'advert_form[price]' => 250 //это необязательное поле и оно должно быть равно 1 если не заполнено
+		]);
+		$crawler = $client->submit($oForm);
+		//убедиться, что user_id правильный и is_anonymous = 1
+		$oUserRepository = $this->_oEm->getRepository('App:Users');
+		$qB = $oUserRepository->createQueryBuilder('m');
+		$oUser = $qB->where( $qB->expr()->eq('m.username', $sPhone) )->
+			getQuery()->
+			setCacheable(false)->
+			useResultCache(false)->
+			useQueryCache(false)->
+			execute();
+
+		$oMainRepository = $this->_oEm->getRepository('App:Main');
+		$qB = $oMainRepository->createQueryBuilder('m');
+		$oAdvert = $qB->where( $qB->expr()->eq('m.phone', $sPhone) )->
+			getQuery()->
+			setCacheable(false)->
+			useResultCache(false)->
+			useQueryCache(false)->
+			execute();
+
+		$this->assertTrue( $oAdvert[0]->getUserId() == $oUser[0]->getId() );
+		$this->assertTrue( $oUser[0]->getIsAnonymous() === true );
+
+		//Подать объявление новым пользователем с email и паролем
+		$crawler = $client->request('GET', '/podat_obyavlenie');
+		$submitButton = $crawler->selectButton('Подать объявление');
+		$oForm = $submitButton->form([
+			'advert_form[email]' => $sEmail,
+			'advert_form[password]' => $sPassword,
+			'advert_form[region]' => 1,
+			'advert_form[city]' => 0,
+			'advert_form[people]' => 1,
+			'advert_form[far]' => 1,
+			'advert_form[title]' => 'TestTitle',
+			'advert_form[company_name]' => 'RIg',
+			'advert_form[phone]' => $sPhone,
+			'advert_form[addtext]' => 'Test data',
+			'advert_form[price]' => 250 //это необязательное поле и оно должно быть равно 1 если не заполнено
+		]);
+		$crawler = $client->submit($oForm);
+		$s = $crawler->filter('input[type=text]')->first()->attr('value');
+
+		//TODO убедиться, что user_id тот же самый и is_anonymous = 0
+		/*** @var \Doctrine\ORM\EntityRepository $oUserRepository */
+		$oUserRepository = $this->_oEm->getRepository('App:Users');
+		$oUserRepository->clear();
+		$qB = $oUserRepository->createQueryBuilder('k');
+		$oUser = $qB->where( $qB->expr()->eq('k.username', $sPhone) )->
+			getQuery()->
+			setCacheable(false)->
+			useQueryCache(false)->
+			getResult();
+
+		$oMainRepository = $this->_oEm->getRepository('App:Main');
+		$oMainRepository->clear();
+		$qB = $oMainRepository->createQueryBuilder('m');
+		$oAdvert = $qB->where( $qB->expr()->eq('m.phone', $sPhone) )->
+			orderBy('m.id', 'DESC')->
+			getQuery()->
+			setCacheable(false)->
+			useResultCache(false)->
+			useQueryCache(false)->
+			execute();
+
+
+		$this->assertTrue( $oAdvert[0]->getUserId() == $oUser[0]->getId() );
+		$this->assertTrue( $oUser[0]->getIsAnonymous() === false );
+
+		$this->_deleteAllTestAdverts();
 		$this->_deleteTestUser();
 
 		//Подать объявление с новым пользователем с e/p данными (скорее всего должно быть is_deleted true, проверить на продакшене)
@@ -186,6 +276,7 @@ class AdvertControllerTest extends WebTestCase
 			'advert_form[region]' => 1,
 			'advert_form[city]' => 0,
 			'advert_form[people]' => 1,
+			'advert_form[company_name]' => 'Roguie',
 			'advert_form[far]' => 1,
 			'advert_form[title]' => 'TestTitle',
 			'advert_form[phone]' => $sPhone,
@@ -204,6 +295,7 @@ class AdvertControllerTest extends WebTestCase
 		$adverts = $qb->where( $qb->expr()->eq('m.phone', $sPhone) )->orderBy('m.id', 'DESC')
 				->getQuery()
 				->setCacheable(false)
+				->useResultCache(false)
 				->execute();
 		$oAdvert = ($adverts[0] ?? null);
 		$this->assertTrue($oAdvert !== null);

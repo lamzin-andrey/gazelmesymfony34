@@ -106,6 +106,13 @@ class Users extends BaseUser
      * @ORM\Column(name="upcount", type="integer", nullable=true, options={"default"="10"})
      */
     protected $upcount = '10';
+
+	/**
+	 * @var bool|null
+	 *
+	 * @ORM\Column(name="is_anonymous", type="boolean", nullable=true, options={"comment"="1 - когда пользователь подал объявление не вводя пароль и email"})
+	 */
+	protected $is_anonymous = false;
 	
 	/**
 	 * @Assert\NotBlank(message="Display-name-required")
@@ -160,36 +167,6 @@ class Users extends BaseUser
         return $this;
     }
 
-    /*public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-	
-	/**
-     * {@inheritdoc}
-     *
-    public function getUsername()
-    {
-        return $this->getEmail();
-    }
-	
-	/**
-     * {@inheritdoc}
-     *
-    public function setUsername($username)
-    {
-        $this->setEmail($username);
-        $this->username = $username;
-        return $this;
-    }
-
-    public function setEmail($email)
-    {
-        $this->email = $email;
-
-        return $this;
-    }*/
-
     public function getSms(): ?bool
     {
         return $this->sms;
@@ -242,6 +219,17 @@ class Users extends BaseUser
     {
         return $this->lastSmsSendTime;
     }
+
+	public function setIsAnonymous($isAnonymous): self
+	{
+		$this->is_anonymous = (intval($isAnonymous) == 0 ? false : true);
+		return $this;
+	}
+
+	public function getIsAnonymous(): ?bool
+	{
+		return (intval($this->is_anonymous) == 0 ? false : true);
+	}
 
     public function setLastSmsSendTime(?\DateTimeInterface $lastSmsSendTime): self
     {

@@ -13,10 +13,11 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
+
 class AdvertForm extends AbstractType
 {
 	
-	/** @property \App\Service\FileUploaderService $_oFileUploader */
+	/** @property \Landlib\SymfonyToolsBundle\Service\FileUploaderService $_oFileUploader */
 	private $_oFileUploader;
 	
 	/** @property  \Symfony\Component\HttpFoundation\Request $_oRequest */
@@ -78,10 +79,12 @@ class AdvertForm extends AbstractType
 		
 		$oBuilder->add('password', PasswordType::class, [
 			'mapped' => false,
+			'required' => false,
 			'translation_domain' => 'Adform'
 		]);
 		$oBuilder->add('email', EmailType::class, [
 			'mapped' => false,
+			'required' => false,
 			'translation_domain' => 'Adform'
 		]);
 		$oBuilder->add('agreement', CheckboxType::class, [
@@ -89,6 +92,7 @@ class AdvertForm extends AbstractType
 		]);
 		
 		$this->_oFileUploader = $options['file_uploader'];
+		$this->_oFileUploader->setTranslationDomain('Adform');
 		$this->_oRequest = $options['request'];
 		$this->_oFileUploader->addAllowMimetype('image/jpeg');
 		$this->_oFileUploader->addAllowMimetype('image/png');
@@ -96,6 +100,7 @@ class AdvertForm extends AbstractType
 		$this->_oFileUploader->setFileInputLabel('Append file!');
 		$this->_oFileUploader->setMimeWarningMessage('Choose allowed file type');
 		$this->_oFileUploader->addLiipBundleFilter('max_width');
+
 		//$oConf = $options['container'];
 		//$this->_oFileUploader->setMaxImageHeight(480);
 		//$this->_oFileUploader->setMaxImageWidth(640);//640 - ok, 320 - у менея есть изображения меньше
