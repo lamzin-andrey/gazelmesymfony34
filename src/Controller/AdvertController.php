@@ -150,12 +150,16 @@ class AdvertController extends Controller
 		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
 		$aData['form'] = $oForm->createView();
 		$aData['image'] = 'images/gazel.jpg';
+
+		$aData['nRegionId'] = $oRegionService->getRegionIdFromSession($oRequest);
 		$aData['aRegionId'] = [
-			'value' => $oRegionService->getRegionIdFromSession($oRequest)
+			'value' => $aData['nRegionId']
 		];
+		$aData['nCityId'] = $oRegionService->getCityIdFromSession($oRequest);
 		$aData['aCityId'] = [
-			'value' => $oRegionService->getCityIdFromSession($oRequest)
+			'value' => $aData['nCityId']
 		];
+		$aData['nIsCity'] = (intval($aData['nRegionId']) && !intval($aData['nCityId']));
 		//$aData['nIsSetLocation'] = $oGazelMeService
 		return $this->render('advert/form.html.twig', $aData);
 	}

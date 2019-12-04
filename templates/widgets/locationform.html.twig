@@ -6,5 +6,8 @@
 			<span class="ib regions_page_link" id="hDisplayLocation">{{ sDisplayLocation }}</span>
 		{% endif %}
 	<a href="{{ path('regions') }}" class="regions_page_link" @click="onClickChangeRegion">{{ 'Change'|trans }}</a>
+	<div class="adform_cityfilter_wrapper" id="afd">
+		<cityfilter ref="cityfilter" ><cityfilter/>{# vue2 component #}
+	</div>
+
 </div>
-<cityfilter ref="cityfilter" ><cityfilter/>{# vue2 component #}

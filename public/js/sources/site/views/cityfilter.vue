@@ -25,7 +25,7 @@
 	<!-- Save button-->
 	<div class="locationsave-left">
 		<!-- форма с тремя скрытыми инпутами (city_id, region_id, is_city )-->
-		<form action="/setregionjs" method="POST">
+		<form action="/setregionjs" @submit="onSubmitLocationData" method="POST">
 			<input :value="getCityId" type="hidden" id="cityId" name="cityId">
 			<input :value="getRegionId" type="hidden" id="regionId" name="regionId" >
 			<input :value="getIsCity" type="hidden" id="isCity>" name="isCity" >
@@ -40,6 +40,7 @@
 </template>
 <script>
 	import '../css/cityfilter.css';
+	require('./../../landlib/net/httpquerystring');
     export default {
 		name: 'cityfilter',
 
@@ -65,6 +66,13 @@
 			getCityId() {
 				console.log(this.locations[0]);
 				if (this.locations[0] && parseInt(this.locations[0].id) && parseInt(this.locations[0].is_region) != 1) {
+					if ($('#advert_form_city')[0]) {
+						$('#advert_form_city').val(this.locations[0].id);
+						$('#advert_form_region').val(this.locations[0].r_id);
+						if ($('#hDisplayLocation')[0] && this.locations[0].text) {
+							$('#hDisplayLocation').text(this.locations[0].text);
+						}
+					}
 					return this.locations[0].id;
 				}
 				return 0;
@@ -85,6 +93,13 @@
 			*/
 			getRegionId() {
 				if (this.locations[0] && this.locations[0].is_region && parseInt(this.locations[0].id) && parseInt(this.locations[0].is_region)) {
+					if ($('#advert_form_region')[0]) {
+						$('#advert_form_region').val(this.locations[0].id);
+						$('#advert_form_city').val(0);
+						if ($('#hDisplayLocation')[0] && this.locations[0].text) {
+							$('#hDisplayLocation').text(this.locations[0].text);
+						}
+					}
 					return this.locations[0].id;
 				}
 				return 0;
@@ -134,6 +149,39 @@
 		};},
         //
         methods:{
+			onSubmitLocationData(evt){
+				let url = HttpQueryString.requestUri().split('?')[0];
+				if (url == '/podat_obyavlenie') {
+					evt.preventDefault();
+					var nCount = 0, nDir = -1, opMin = 0.2, opMax = 1, o = $('#hDisplayLocation'),
+						op = 'opacity', step = 0.5;
+					var ival = setInterval(() => {
+						var currOp = parseFloat(o.css(op));
+						if (nCount < 3) {
+							if (currOp <= opMin) {
+								nDir *= -1;
+							}
+							if (currOp >= opMax) {
+								nDir *= -1;
+								nCount++;
+							}
+							currOp += step * nDir;
+							if (currOp > opMax) {
+								currOp = opMax;
+							}
+							if (currOp < opMin) {
+								currOp = opMin;
+							}
+							o.css(op, currOp);
+						} else {
+							clearInterval(ival);
+							o.css(op, 1);
+						}
+					}, 140);
+					return false;
+				}
+				return true;
+			},
 			setVisible(v){
 				this.isVisible = v;
 			},
@@ -212,7 +260,7 @@
 				}
 			},
 			/**
-			 * @description Отработает только тогда, когда есть и this.relatedArticles  и this.autocompleteItems
+			 * @description
 			 * @param {String} sCityId
 			 * @param {String} sRegionId
 			 * @param {String} sIsCity
@@ -233,6 +281,7 @@
 				if (nCityId) {
 					o.is_city = 0;
 					o.id = nCityId;
+					o.r_id = nRegionId;
 				} else if (nRegionId) {
 					 o.is_city = nIsCity;
 					 o.id = nRegionId;

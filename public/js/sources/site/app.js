@@ -78,8 +78,6 @@ window.app = new Vue({
 		*/
 		onShowAuthFormClick(ev) {
 			let s = ev.currentTarget.getAttribute('href');
-			console.log(ev.target);
-			console.log(ev.currentTarget);
 			if (s != '/cabinet') {
 				ev.preventDefault();
 				//$('#alayer').toggleClass('hide');

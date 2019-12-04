@@ -1011,3 +1011,28 @@ li {
 #mainsfrormadd form label {
 	margin-right:8px;
 }
+
+
+/*.adform_cityfilter_wrapper ul li {
+	background-color: #FFF;
+	color:white;
+}*/
+.adform_cityfilter_wrapper .ti-tag,
+.adform_cityfilter_wrapper .ti-item:hover,
+.adform_cityfilter_wrapper .ti-selected-item {
+	background-color: #5C6BC0!important;
+	color:white!important;
+}
+#afd .ti-tag,  #afd li.ti-item {
+	background-color: #FFF;
+	color:#000;
+	border: #a0a0a0 solid 1px;
+}
+#afd li.ti-new-tag-input-wrapper, li.ti-tag.ti-valid {
+	padding: 3px 5px!important;
+	background-color: #FFF;
+}
+
+#afd  li.ti-new-tag-input-wrapper {
+	border: #a0a0a0 solid 1px;
+}
