@@ -52,7 +52,8 @@
 					{% include 'users/loginform.html.twig' %}
 				{% endblock %}
 				
-				<div class="maincontent">
+				<div class="maincontent" >
+					<div id="errorPlacer"></div>
 					{% block filterform %}{% endblock %}
 					{% for label, messages in app.flashes %}
 						{% for message in messages %}

@@ -7,6 +7,7 @@ window.cacheClient = new CacheSw();
 
 require('./../../vendor/lazyloadxt1.1.0.min.js');
 require('./../landlib/net/rest.js');
+import FormValidator from './classes/formvalidator.js';
 
 
 //Интернациализация
@@ -47,7 +48,9 @@ window.app = new Vue({
 	* @property Данные приложения
 	*/
 	data: {
-		/** @property {String} name desc  */
+		//Переменные, связанные с отправкой десктоп формы подачи объявления
+		/** @property {String} _advertFormValidator Валидация десктоп - формы отправки объявления  */
+		advertFormValidatorClass : FormValidator,
 	},
 	/**
 	* @description Событие, наступающее после связывания el с этой логикой
@@ -65,6 +68,19 @@ window.app = new Vue({
 	* @property methods эти методы можно указывать непосредственно в @ - атрибутах
 	*/
 	methods:{
+		/**
+		 * @description Отправка формы подачи объявлоения
+		*/
+		onSubmitAdvertForm(evt) {
+			let formValidator = new this.advertFormValidatorClass(this);
+			let b = formValidator.isAdditionalValid();
+			if (!b) {
+				evt.preventDefault();
+				window.scrollTo(0, 0);
+				return false;
+			}
+			return true;
+		},
 		/**
 		 * @description Клик на ссылке Изменить регион
 		*/
