@@ -7,7 +7,7 @@ window.cacheClient = new CacheSw();
 
 require('./../../vendor/lazyloadxt1.1.0.min.js');
 require('./../landlib/net/rest.js');
-import FormValidator from './classes/formvalidator.js';
+import AdvertFormValidator from './classes/advertformvalidator.js';
 
 
 //Интернациализация
@@ -40,9 +40,8 @@ Vue.component('loginform', require('./views/loginform'));
 window.app = new Vue({
     i18n : i18n,
 	el: '#app',
-	
 	delimiters : ['[[', ']]'],
-    
+
 	// router,
 	/**
 	* @property Данные приложения
@@ -50,7 +49,96 @@ window.app = new Vue({
 	data: {
 		//Переменные, связанные с отправкой десктоп формы подачи объявления
 		/** @property {String} _advertFormValidator Валидация десктоп - формы отправки объявления  */
-		advertFormValidatorClass : FormValidator,
+		advertFormValidatorClass : AdvertFormValidator,
+
+		/** @property {Boolean} true когда показана общая ошибка страницы*/
+		pageErrorBlockVisible: false,
+
+		/** @property {String}  общий текст ошибки */
+		pageErrorText : '',
+
+		/** @property {Array} Ошибки для поля ввода типа автомобиля */
+		peopleErrorList : [],
+
+		/** @property {Boolean} Видимость блока ошибки для поля ввода типа автомобиля */
+		peopleErrorsVisible : false,
+
+		/** @property {Array} Ошибки для поля ввода типа дистанции */
+		farErrorList : [],
+
+		/** @property {Boolean} Видимость блока ошибки для поля ввода типа дистанции */
+		farErrorsVisible : false,
+
+		/** @property {Array} Ошибки для поля ввода email */
+		emailErrorList : [],
+
+		/** @property {Boolean} Видимость блока ошибки для поля ввода email */
+		emailErrorsVisible : false,
+
+		/** @property {Boolean} Модель для чекбокса типа автомобиля пассажирская */
+		people : false,
+
+		/** @property {Boolean} Модель для чекбокса типа автомобиля грузовая */
+		box : false,
+
+		/** @property {Boolean} Модель для чекбокса типа автомобиля термобудка */
+		term : false,
+
+		/** @property {Boolean} Модель для чекбокса типа дистанции "Межгород" */
+		far : false,
+
+		/** @property {Boolean} Модель для чекбокса типа дистанции "По городу" */
+		near : false,
+
+		/** @property {Boolean} Модель для чекбокса типа дистанции "Пикник" */
+		piknik : false,
+
+		/** @property {String} Модель для полля ввода email */
+		email : '',
+
+		/** @property {String} Модель для поля ввода password */
+		password : '',
+
+		//Так как в консоли полно варнингов, придётся определить абсолютно ненужные сейчас модели для каждого поля ввода
+		regionErrorList : [],
+		regionErrorsVisible : false,
+
+		cityErrorList : [],
+		cityErrorsVisible : false,
+
+		boxErrorList : [],
+		boxErrorsVisible : false,
+
+		termErrorList : [],
+		termErrorsVisible : false,
+
+		nearErrorList : [],
+		nearErrorsVisible : false,
+
+		piknikErrorList : [],
+		piknikErrorsVisible : false,
+
+		titleErrorList : [],
+		titleErrorsVisible : false,
+
+		addtextErrorList : [],
+		addtextErrorsVisible : false,
+
+		priceErrorList : [],
+		priceErrorsVisible : false,
+
+		imagefileErrorList : [],
+		imagefileErrorsVisible : false,
+
+		company_nameErrorList : [],
+		company_nameErrorsVisible : false,
+
+		passwordErrorList : [],
+		passwordErrorsVisible : false,
+
+		agreementErrorList : [],
+		agreementErrorsVisible : false
+
 	},
 	/**
 	* @description Событие, наступающее после связывания el с этой логикой
@@ -80,6 +168,17 @@ window.app = new Vue({
 				return false;
 			}
 			return true;
+		},
+		/**
+		 * @description Очищаем сообщения полей об ошибках
+		*/
+		clearInputErrors(ev) {
+			this.peopleErrorList.length = 0;
+			this.peopleErrorsVisible = false;
+			this.farErrorList.length = 0;
+			this.arErrorsVisible = false;
+			this.emailErrorList.length = 0;
+			this.emailErrorsVisible = false;
 		},
 		/**
 		 * @description Клик на ссылке Изменить регион

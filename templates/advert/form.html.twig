@@ -89,12 +89,10 @@
 				<p class="register">Если хотите обновлять и редактировать объявление, введите пароль
 				<br/>Адрес электронной почты понадобится вам, если вы его забудете.</p>
 				<p class="pwdmail">
-					{#<?=FV::labinp("pwd", "Пароль", '', 0, 1);?>#}
-					{{ form_row(form.password) }}
+					{{ form_row(form.password, {'attr' : { 'v-model' : 'password' } }) }}
 				</p>
 				<div class="pwdmail">
-					{#<?=FV::labinp("email", "Email");?>#}
-					{{ form_row(form.email) }}
+					{{ form_row(form.email, {'attr' : { 'v-model' : 'email' } }) }}
 				</div>
 			</div>
 			{% endif %}
@@ -145,5 +143,7 @@
 		window.SITE_NAME   = '{{ siteName }}';
 	</script>
 {% endblock %}
-
+{% block vuepageerror %}
+	<div id="mainsfrormerror" v-bind:class="{vis:pageErrorBlockVisible}" v-if="pageErrorBlockVisible">[[ pageErrorText ]]</div>
+{% endblock %}
 

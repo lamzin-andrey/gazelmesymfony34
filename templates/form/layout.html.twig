@@ -8,7 +8,7 @@
 	
 	{% if isCheckbox %}
     <div>
-		{{- form_widget(form) -}}
+		{{- form_widget(form, {'attr' : { 'v-model' : form.vars.name } }) -}}
         {{- form_label(form) -}}
         {{- form_errors(form) -}}
     </div>
@@ -20,3 +20,18 @@
     </div>
 	{% endif %}
 {% endblock %}
+
+
+{%- block form_errors -%}
+	{%- if errors|length > 0 -%}
+		<ul>
+			{%- for error in errors -%}
+				<li>{{ error.message }}</li>
+			{%- endfor -%}
+		</ul>
+	{%- else -%}
+		<ul class="hide" v-bind:class="{ vis:{{ form.vars.name }}ErrorsVisible }" v-if="{{ form.vars.name }}ErrorsVisible">
+			<li v-for="err in {{ form.vars.name }}ErrorList">[[ err ]]</li>
+		</ul>
+	{%- endif -%}
+{%- endblock form_errors -%}

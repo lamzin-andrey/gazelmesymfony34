@@ -1,7 +1,7 @@
 <div class="center slogan">
 	<span class="ib">{{ 'Location'|trans }}: </span>
 		{% if (nIsSetLocaton == 0) %}
-			<span class="regions_page_link">{{ 'Not set'|trans }}</span>
+			<span class="regions_page_link" id="hDisplayLocation">{{ 'Not set'|trans }}</span>
 		{% else %}
 			<span class="ib regions_page_link" id="hDisplayLocation">{{ sDisplayLocation }}</span>
 		{% endif %}
