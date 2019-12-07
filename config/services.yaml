@@ -40,8 +40,8 @@ parameters:
   test:
       phone: '80001112233'
       email: 'ftest_user@host.do'
-      password: '123456'
-      wrong_password: '1234567'
+      password: '123456aA'
+      wrong_password: '1234567Aa'
 
 
 services:

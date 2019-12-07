@@ -29,3 +29,5 @@ fos_group:
         already_used: 'Имя уже используется.'
  
 Display-name-required: Имя продавца или наименование компании обязательно для заполнения
+The email {{ value }} is not valid message: Некорректный email {{ value }}
+Password must containts symbols in upper and lower case and numbers: Пароль должен содержать символы в верхнем и нижнем регистре и цифры

@@ -40,7 +40,7 @@ class Users extends BaseUser
 
     /**
      * @var string|null
-	 * 
+	 *
      * @ORM\Column(name="phone", type="string", length=15, nullable=true, options={"comment"="Номер телефона"})
      */
     protected $phone;
@@ -53,8 +53,18 @@ class Users extends BaseUser
     protected $advertsByUsername;
 
     /**
+	 * @Assert\Length(min=11, max=17)
+	*/
+    protected $username;
+
+	/**
+	 * @Assert\Regex(pattern = "/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/s", message="Password must containts symbols in upper and lower case and numbers")
+	*/
+    protected $password;
+
+    /**
+	 * @Assert\Email(message="The email {{ value }} is not valid message")
      * @var string|null
-     *
      * @ORM\Column(name="email", type="string", length=64, nullable=true, options={"comment"="email"})
      */
 

@@ -12,6 +12,8 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Regex;
 
 
 class AdvertForm extends AbstractType
@@ -80,12 +82,22 @@ class AdvertForm extends AbstractType
 		$oBuilder->add('password', PasswordType::class, [
 			'mapped' => false,
 			'required' => false,
-			'translation_domain' => 'Adform'
+			'translation_domain' => 'Adform',
+			'constraints' => [
+				new Regex([
+					'pattern' => '/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/s',
+					'htmlPattern' => '.*[A-Z]',
+					'message' => 'Password must containts symbols in upper and lower case and numbers'
+				]),
+			]
 		]);
 		$oBuilder->add('email', EmailType::class, [
 			'mapped' => false,
 			'required' => false,
-			'translation_domain' => 'Adform'
+			'translation_domain' => 'Adform',
+			'constraints' => [
+				new Email(['message' => 'The email {{ value }} is not valid message'])
+			]
 		]);
 		$oBuilder->add('agreement', CheckboxType::class, [
 			'mapped' => false
