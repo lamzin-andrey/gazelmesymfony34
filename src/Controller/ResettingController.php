@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the FOSUserBundle package.
- *
- * (c) FriendsOfSymfony <http://friendsofsymfony.github.com/>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace App\Controller;
 
 use FOS\UserBundle\Event\FilterUserResponseEvent;
@@ -25,89 +16,55 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use FOS\UserBundle\Controller\ResettingController as BaseResettingController;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use \Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 use ReCaptcha\ReCaptcha;
-use \Symfony\Component\DependencyInjection\ContainerInterface;
-/**
- * Controller managing the resetting of the password.
- *
- * @author Thibault Duplessis <thibault.duplessis@gmail.com>
- * @author Christophe Coevoet <stof@notk.org>
- */
+
 class ResettingController extends AbstractController
 {
-	/**
-     * @var BaseResettingController
-    */
-    private $resettingController;
-	
-    private $eventDispatcher;
-    private $formFactory;
-    private $userManager;
-    private $tokenGenerator;
-    private $mailer;
-    private $oContainer;
 
-    /**
-     * @var int
-     */
-    private $retryTtl;
-
-    /**
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param FactoryInterface         $formFactory
-     * @param UserManagerInterface     $userManager
-     * @param TokenGeneratorInterface  $tokenGenerator
-     * @param MailerInterface          $mailer
-     * @param int                      $retryTtl
-     * @param ContainerInterface		   $container
-     */
-    public function __construct(BaseResettingController $baseController, EventDispatcherInterface $eventDispatcher, FactoryInterface $formFactory, UserManagerInterface $userManager, TokenGeneratorInterface $tokenGenerator, MailerInterface $mailer, $retryTtl, ContainerInterface $container)
+    public function __construct(BaseResettingController $oBaseController, EventDispatcherInterface $eventDispatcher, FactoryInterface $formFactory, UserManagerInterface $userManager, TokenGeneratorInterface $tokenGenerator, MailerInterface $mailer, $retryTtl, ContainerInterface $oContainer)
     {
-		$this->resettingController = $baseController;
-		$this->eventDispatcher = $eventDispatcher;
-        $this->formFactory = $formFactory;
-        $this->userManager = $userManager;
-        $this->tokenGenerator = $tokenGenerator;
-        $this->mailer = $mailer;
-        $this->retryTtl = $retryTtl;
-		$this->oContainer = $container;
+		$this->_oBaseController = $oBaseController;
+		$this->_eventDispatcher = $eventDispatcher;
+		$this->_formFactory = $formFactory;
+		$this->_userManager = $userManager;
+		$this->_tokenGenerator = $tokenGenerator;
+		$this->_mailer = $mailer;
+		$this->_retryTtl = $retryTtl;
+		$this->_oContainer = $oContainer;
     }
 
-    /**
-     * Request reset user password: show form.
-     */
+
     public function requestAction()
     {
-        //return $this->render('@FOSUser/Resetting/request.html.twig');
-		return $this->resettingController->requestAction();
+        return $this->_oBaseController->requestAction();
     }
 
-    /**
-     * Request reset user password: submit form and send email.
-     *
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function sendEmailAction(Request $oRequest)
-    {	
-		$bCaptchaIsOn = $this->oContainer->getParameter('app.google_recaptcha_on');
+	/**
+	 * Request reset user password: submit form and send email.
+	 *
+	 * @param Request $request
+	 *
+	 * @return Response
+	 */
+	public function sendEmailAction(Request $oRequest)
+	{
+		$bCaptchaIsOn = $this->_oContainer->getParameter('app.google_recaptcha_on');
 		$bCaptchaIsOn = $bCaptchaIsOn == 'false' ? false : $bCaptchaIsOn;
 		if (!$bCaptchaIsOn) {
 			/** @var \Symfony\Component\HttpFoundation\RedirectResponse $oResult */
-			$oResult = $this->resettingController->sendEmailAction($oRequest);
+			$oResult = $this->_oBaseController->sendEmailAction($oRequest);
 			return $oResult;
 		}
 		$sGRecaptchaResponse = $oRequest->get('g-recaptcha-response');
 		$sPhone = $oRequest->get('username');
-		$secret = $this->oContainer->getParameter('app.google_recaptcha_secret_key');
+		$secret = $this->_oContainer->getParameter('app.google_recaptcha_secret_key');
 		$sRemoteIp = $oRequest->server->get('REMOTE_ADDR');
-		$sDomain = $this->oContainer->getParameter('app.domain');
-		
+		$sDomain = $this->_oContainer->getParameter('app.domain');
+
 		//check user by phone
 		$aUsers = $this->getDoctrine()->getRepository('App:Users')->findBy(['username' => $sPhone]);
 		$oUser = $aUsers[0] ?? null;
@@ -117,39 +74,40 @@ class ResettingController extends AbstractController
 		if (!$sGRecaptchaResponse) {
 			return $this->_redirectToFailRoute('missing-input-response');
 		}
-		
+
 		$oRecaptcha = new ReCaptcha($secret);
 		$oResponse = $oRecaptcha->setExpectedHostname($sDomain)
-						  ->verify($sGRecaptchaResponse, $sRemoteIp);
+			->verify($sGRecaptchaResponse, $sRemoteIp);
 		if ($oResponse->isSuccess()) {
 			// Verified!
-			return $this->resettingController->sendEmailAction($oRequest);
+			return $this->_resettingController->sendEmailAction($oRequest);
 		}
 		$aErrors = $oResponse->getErrorCodes();
-		$oTranslator = $this->oContainer->get('translator');
+		$oTranslator = $this->_oContainer->get('translator');
 		$aErrors = array_map(function($sMessage, $oTranslator){
 			return $oTranslator->trans($sMessage);
 		}, $aErrors, [$oTranslator]);
 		return $this->_redirectToFailRoute( '<p>' . join('</p></p>', $aErrors) . '</p>');
-    }
+	}
 
-    /**
-     * Tell the user to check his email provider.
-     *
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function checkEmailAction(Request $request)
-    {
+
+	/**
+	 * Tell the user to check his email provider.
+	 *
+	 * @param Request $request
+	 *
+	 * @return Response
+	 */
+	public function checkEmailAction(Request $request)
+	{
 		/** @var \Symfony\Component\HttpFoundation\Response $oResult */
 		//$oResult = $this->resettingController->checkEmailAction($request);
 		$username = $request->query->get('username');
 
-        if (empty($username)) {
-            // the user does not come from the sendEmail action
-            return new RedirectResponse($this->generateUrl('fos_user_resetting_request'));
-        }
+		if (empty($username)) {
+			// the user does not come from the sendEmail action
+			return new RedirectResponse($this->generateUrl('fos_user_resetting_request'));
+		}
 
 		$oRepository = $this->getDoctrine()->getRepository('App:Users');
 		$aUsers = $oRepository->findBy(['username' => $username]);
@@ -159,35 +117,29 @@ class ResettingController extends AbstractController
 		}
 		$aEmail = explode('@', $oUser->getEmail());
 		$sEmail = $aEmail[0][0] . '******' . '@'  . $aEmail[1];
-        return $this->render('@FOSUser/Resetting/check_email.html.twig', [
-            'tokenLifetime' => ceil($this->retryTtl / 3600),
+		return $this->render('@FOSUser/Resetting/check_email.html.twig', [
+			'tokenLifetime' => ceil($this->retryTtl / 3600),
 			'email' => $sEmail
-        ]);
-    }
+		]);
+	}
 
-    /**
-     * Reset user password.
-     *
-     * @param Request $request
-     * @param string  $token
-     *
-     * @return Response
-     */
+
     public function resetAction(Request $request, $token)
     {
-        return $this->resettingController->resetAction($request, $token);
+        return $this->_oBaseController->resetAction($request, $token);
     }
+
 	/**
-     * Redirect in to resetting_request and set flash with error text
-     *
-     * @param string  $sMessage - with error text
-     *
-     * @return Redirect
-     */
+	 * Redirect in to resetting_request and set flash with error text
+	 *
+	 * @param string  $sMessage - with error text
+	 *
+	 * @return Redirect
+	 */
 	private function _redirectToFailRoute(string $sMessage)
 	{
 		$sFailRoute = 'fos_user_resetting_request';
-		$sMessage = $this->oContainer->get('translator')->trans($sMessage);
+		$sMessage = $this->_oContainer->get('translator')->trans($sMessage);
 		$this->addFlash('notice', $sMessage);
 		return $this->redirectToRoute($sFailRoute);
 	}
