@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Form\AjaxFileUploadFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -112,6 +113,49 @@ class AdvertController extends Controller
 		return ('/' . $sRegion . '/' . $sCity);
 	}
 	/**
+	 * Ajax загрузка фото
+	 * @Route("/fileupload.json", name="upload_auto_photo")
+	*/
+	public function uploadPhoto(Request $oRequest,  \App\Service\GazelMeService $oGazelMeService)
+	{
+		$this->_subdir = $this->getParameter('app.uploadfiledir') . '/' . date('Y/m');
+		$aTData = [];
+		$oForm = $this->createForm(get_class(new AjaxFileUploadFormType()), $aTData, [
+			'app_service' => $oGazelMeService,
+			'request' => $oRequest,
+			'uploaddir' => $this->_subdir
+		]);
+		$aData = [];
+		if ($oRequest->getMethod() == 'POST') {
+			$oForm->handleRequest($oRequest);
+			//$oForm->submit($oRequest->request->get($oForm->getName()));
+
+			if ($oForm->isValid()) {
+				//TODO get file path
+				$oFile = $oForm['autophotoFileImmediately']->getData();
+				if ($oFile) {
+					$sFileName = $oGazelMeService->getFileUploaderService()->upload($oFile);
+					$aData['path'] = '/' . $this->_subdir . '/' . $sFileName;
+					$aData['status'] = 'success';
+				} else {
+					$aData['status'] = 'error';
+					$aData['message'] = 'NoN FiLe';
+				}
+			} else {
+				//$oForm->
+				$aData['status'] = 'error';
+				$aData['message'] = 'Invalid file';
+				$aData['info'] = $oForm->getErrors(true)->current();
+				var_dump($aData['info']);
+				var_dump($oForm->isSubmitted());
+				die;
+			}
+		}
+		$oResponse = new Response( json_encode($aData) );
+		$oResponse->headers->set('Content-Type', 'application/json');
+		return $oResponse;
+	}
+	/**
 	 * Форма подачи объявления
 	 * @Route("/podat_obyavlenie", name="podat_obyavlenie")
 	*/
@@ -123,7 +167,7 @@ class AdvertController extends Controller
 		$this->_subdir = $this->getParameter('app.uploadfiledir') . '/' . date('Y/m');
 		//TODO define _oForm
 		$this->_oForm = $oForm = $this->createForm(get_class(new AdvertForm()), $this->_oAdvert, [
-			'file_uploader' => $oGazelMeService->getFileUploaderService(),
+			'app_service' => $oGazelMeService,
 			'request' => $oRequest,
 			'uploaddir' => $this->_subdir
 		]);

@@ -1,0 +1,45 @@
+/* Progress view */
+/*
+text in circle
+.upload-process-text {
+	position: absolute;
+	z-index: 31;
+	font-size: 8px;
+	top: 5px;
+	text-align: center;
+	width: 20px;
+	font-family:Arial;
+}/**/
+
+.upload-process-text {
+	font-size: 32px;
+	font-family:Arial;
+}
+
+.upload-process-token-image {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 30;
+}
+.upload-token-anim-color {
+	background-color: #42BCB1;
+}
+.upload-process-left-side, .upload-process-right-side {
+	width: 10px;
+}
+.upload-process-right-side {
+	margin-left: 10px;
+}
+.upload-token-anim-block {
+	height: 20px;
+	background-color: gray;
+	width: 20px;
+	display:inline-block;
+	position:relative;
+}
+.upload-label {
+	line-height: 20px!important;
+	vertical-align: top;
+}
+/* /Progress view */

@@ -1,4 +1,7 @@
 {
+    "base-reality/php-to-javascript": {
+        "version": "0.2.2"
+    },
     "beberlei/doctrineextensions": {
         "version": "v1.2.3"
     },

@@ -7,7 +7,12 @@ window.cacheClient = new CacheSw();
 
 require('./../../vendor/lazyloadxt1.1.0.min.js');
 require('./../landlib/net/rest.js');
+
+//Form validation
 import AdvertFormValidator from './classes/advertformvalidator.js';
+
+//File upload
+Vue.component('inputfile', require('./views/inputfile/inputfile'));
 
 
 //Интернациализация
@@ -137,8 +142,42 @@ window.app = new Vue({
 		passwordErrorsVisible : false,
 
 		agreementErrorList : [],
-		agreementErrorsVisible : false
+		agreementErrorsVisible : false,
 
+		/** @property {Object} fileUploadListeners обработчик успешной загрузки файла*/
+		fileUploadListeners: {
+			onSuccess:{
+				f:this.onSuccessUploadFilePreview,
+				context:this
+			},
+			onFail: {
+				f:this.onFailUploadFilePreview,
+				context:this
+			}
+		},
+		//Custom progress bar params
+		/** @property {Object} progressbarListener прогресса загрузки файла*/
+		progressbarListener:{
+			onProgress: {
+				f: this.onProgressUploadFilePreview,
+				context:this
+			},
+			onStart: {
+				f: this.onStartUploadFilePreview,
+				context:this
+			}
+		},
+
+		/** @property {Boolean} isUploadImageProcess отвечает за отображение "прогресс-бара" */
+		isUploadImageProcess : false,
+
+		/** @property {String} imageurl model for imageupload */
+		imageurl : '',
+
+		/** @property {Boolean} vueFileInputIsEnabled отвечает за отображение no-js */
+		vueFileInputIsEnabled : true,
+
+		appTokenCsrf: 'vistelre'
 	},
 	/**
 	* @description Событие, наступающее после связывания el с этой логикой
@@ -156,6 +195,29 @@ window.app = new Vue({
 	* @property methods эти методы можно указывать непосредственно в @ - атрибутах
 	*/
 	methods:{
+		/**
+		 * @description 
+		*/
+		onStartUploadFilePreview() {
+			this.isUploadImageProcess = true;
+		},
+		/**
+		 * @description 
+		*/
+		onProgressUploadFilePreview() {},
+		/**
+		 * @description Обработка не успешной загрузки файла
+		*/
+		onFailUploadFilePreview() {
+			this.isUploadImageProcess = false;
+			//TODO set error text
+		},
+		/**
+		 * @description Обработка успешной загрузки файла
+		*/
+		onSuccessUploadFilePreview(sPath) {
+			this.isUploadImageProcess = false;
+		},
 		/**
 		 * @description Отправка формы подачи объявлоения
 		*/

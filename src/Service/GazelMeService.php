@@ -2,6 +2,7 @@
 namespace App\Service;
 
 use \Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 use App\Entity\Main;
@@ -320,5 +321,33 @@ class GazelMeService
 	{
 		$oUser = $this->oContainer->get('security.token_storage')->getToken()->getUser();
 		return $oUser;
+	}
+	/**
+	 * Добавляет $oBuilder поле для загрузки файла со всеми необъодимыми параметрами
+	*/
+	public function addAdvertPhotoField(string $sUploadDirectory, FormBuilder $oBuilder, string $sFieldName = 'imagefile')
+	{
+		$oFileUploader = $this->getFileUploaderService();
+		$oFileUploader->setTranslationDomain('Adform');
+		$oRequest = $this->oContainer->get('request_stack')->getCurrentRequest();
+		$oFileUploader->addAllowMimetype('image/jpeg');
+		$oFileUploader->addAllowMimetype('image/png');
+		$oFileUploader->addAllowMimetype('image/gif');
+		$oFileUploader->setFileInputLabel('Append file!');
+		$oFileUploader->setMimeWarningMessage('Choose allowed file type');
+		$oFileUploader->addLiipBundleFilter('max_width');
+
+		$subdir = $sUploadDirectory;
+		$sTargetDirectory = $oRequest->server->get('DOCUMENT_ROOT') . '/' . $subdir;
+
+		$oFileUploader->setTargetDirectory($sTargetDirectory);
+
+		$aOptions = $oFileUploader->getFileTypeOptions();
+		$aOptions['attr'] = [
+			'style' => 'width:173px;',
+			'v-if'  => '!vueFileInputIsEnabled'
+		];
+		$aOptions['translation_domain'] = 'Adform';
+		$oBuilder->add($sFieldName, \Symfony\Component\Form\Extension\Core\Type\FileType::class, $aOptions);
 	}
 }

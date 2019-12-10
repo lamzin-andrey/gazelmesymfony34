@@ -52,10 +52,22 @@
 					<tr>
 						<td>
 							{{ form_widget(form.imagefile) }}
+							<inputfile
+									v-model="imageurl"
+									url="/fileupload.json"
+									tokenImagePath="/images/l-w.gif"
+									ken="{{ csrf_token }}"
+									v-bind:listeners="fileUploadListeners"
+									v-bind:progressListener="progressbarListener"
+									v-bind:label="$t('app.SelectLogo')"
+									id="autophoto" ></inputfile>
 							{{ form_errors(form.imagefile) }}
+
+
+
 						</td>
 						<td>
-							<img src="/images/l-w.gif" id="upLdr" class="hide"/>
+							<img v-if="isUploadImageProcess" src="/images/l-w.gif" id="upLdr" class="hide" v-bind:class="{vis:vueFileInputIsEnabled}" />
 						</td>
 					</tr>
 				</table>

@@ -124,6 +124,7 @@ services:
             - '@fos_user.user_manager'
             - '@security.token_storage'
             - '@service_container'
+
   
     app.form.profile:
         class: App\Form\ProfileFormType

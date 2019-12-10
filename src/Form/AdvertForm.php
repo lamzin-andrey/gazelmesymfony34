@@ -102,31 +102,7 @@ class AdvertForm extends AbstractType
 		$oBuilder->add('agreement', CheckboxType::class, [
 			'mapped' => false
 		]);
-		
-		$this->_oFileUploader = $options['file_uploader'];
-		$this->_oFileUploader->setTranslationDomain('Adform');
-		$this->_oRequest = $options['request'];
-		$this->_oFileUploader->addAllowMimetype('image/jpeg');
-		$this->_oFileUploader->addAllowMimetype('image/png');
-		$this->_oFileUploader->addAllowMimetype('image/gif');
-		$this->_oFileUploader->setFileInputLabel('Append file!');
-		$this->_oFileUploader->setMimeWarningMessage('Choose allowed file type');
-		$this->_oFileUploader->addLiipBundleFilter('max_width');
-
-		//$oConf = $options['container'];
-		//$this->_oFileUploader->setMaxImageHeight(480);
-		//$this->_oFileUploader->setMaxImageWidth(640);//640 - ok, 320 - у менея есть изображения меньше
-		$subdir = $options['uploaddir'];
-		$sTargetDirectory = $this->_oRequest->server->get('DOCUMENT_ROOT') . '/' . $subdir;
-		
-		$this->_oFileUploader->setTargetDirectory($sTargetDirectory);
-		
-		$aOptions = $this->_oFileUploader->getFileTypeOptions();
-		$aOptions['attr'] = [
-			'style' => 'width:173px;'
-		];
-		$aOptions['translation_domain'] = 'Adform';
-		$oBuilder->add('imagefile', \Symfony\Component\Form\Extension\Core\Type\FileType::class, $aOptions);
+		$options['app_service']->addAdvertPhotoField($options['uploaddir'], $oBuilder);
 	}
 	
 	public function getName() : string
@@ -135,7 +111,7 @@ class AdvertForm extends AbstractType
 	}
 	public function configureOptions(\Symfony\Component\OptionsResolver\OptionsResolver $resolver)
     {
-        $resolver->setRequired('file_uploader');
+        $resolver->setRequired('app_service');
         $resolver->setRequired('request');
         $resolver->setRequired('uploaddir');
     }

@@ -5,6 +5,7 @@
         "php": "^7.0.8",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "base-reality/php-to-javascript": "^0.2.2",
         "beberlei/doctrineextensions": "^1.2",
         "friendsofsymfony/user-bundle": "~2.0",
         "google/recaptcha": "^1.2",
