@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Form\AjaxFileUploadFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -120,11 +121,7 @@ class AdvertController extends Controller
 	{
 		$this->_subdir = $this->getParameter('app.uploadfiledir') . '/' . date('Y/m');
 		$aTData = [];
-		$oForm = $this->createForm(get_class(new AjaxFileUploadFormType()), $aTData, [
-			'app_service' => $oGazelMeService,
-			'request' => $oRequest,
-			'uploaddir' => $this->_subdir
-		]);
+		$oForm = $this->_getAjaxForm($oGazelMeService);
 		$aData = [];
 		if ($oRequest->getMethod() == 'POST') {
 			$oForm->handleRequest($oRequest);
@@ -145,10 +142,10 @@ class AdvertController extends Controller
 				//$oForm->
 				$aData['status'] = 'error';
 				$aData['message'] = 'Invalid file';
-				$aData['info'] = $oForm->getErrors(true)->current();
-				var_dump($aData['info']);
-				var_dump($oForm->isSubmitted());
-				die;
+				$aData['count_errors'] = $oForm->getErrors(true)->count();
+				if ($aData['count_errors'] > 0) {
+					$aData['message'] = $oForm->getErrors(true)->current()->getMessage();
+				}
 			}
 		}
 		$oResponse = new Response( json_encode($aData) );
@@ -171,6 +168,8 @@ class AdvertController extends Controller
 			'request' => $oRequest,
 			'uploaddir' => $this->_subdir
 		]);
+
+		$oAjaxForm = $this->_getAjaxForm($oGazelMeService);
 		
 		$oSession = $oRequest->getSession();
 		
@@ -193,6 +192,7 @@ class AdvertController extends Controller
 		}
 		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
 		$aData['form'] = $oForm->createView();
+		$aData['ajax_form'] = $oAjaxForm->createView();
 		$aData['image'] = 'images/gazel.jpg';
 
 		$aData['nRegionId'] = $oRegionService->getRegionIdFromSession($oRequest);
@@ -416,5 +416,15 @@ class AdvertController extends Controller
 			$oUserManager->updateUser($oUser);
 			$this->_nExistsUserId = $oUser->getId();
 		}
+	}
+	/*
+	 * @return FormInterface форма для обработки ajax загрузки файла
+	*/
+	private function _getAjaxForm( $oGazelMeService) : FormInterface
+	{
+		return $this->createForm(get_class(new AjaxFileUploadFormType()), null, [
+			'app_service' => $oGazelMeService,
+			'uploaddir' => $this->_subdir
+		]);
 	}
 }

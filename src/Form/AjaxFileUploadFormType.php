@@ -25,10 +25,6 @@ class AjaxFileUploadFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
 		$resolver->setRequired('app_service');
-		$resolver->setRequired('request');
 		$resolver->setRequired('uploaddir');
-		$resolver->setDefaults(array(
-			'csrf_protection' => false,
-		));
     }
 }

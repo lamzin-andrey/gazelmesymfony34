@@ -151,8 +151,12 @@ window.app = new Vue({
 		/** @property {String} imageurl model for imageupload */
 		imageurl : '',
 
-		/** @property {Boolean} vueFileInputIsEnabled отвечает за отображение no-js */
-		vueFileInputIsEnabled : true
+		/** @property {Boolean} vueFileInputIsEnabled отвечает за отображение no-js инпута загрузки файлов */
+		vueFileInputIsEnabled : true,
+
+		/** @property {String} uploadImageError модель Для вывода текста ошибки загрузки файла */
+		uploadImageError : ''
+		
 	},
 	/**
 	* @description Событие, наступающее после связывания el с этой логикой
@@ -174,6 +178,7 @@ window.app = new Vue({
 		 * @description 
 		*/
 		onStartUploadFilePreview() {
+			this.uploadImageError = '';
 			this.isUploadImageProcess = true;
 		},
 		/**
@@ -183,16 +188,16 @@ window.app = new Vue({
 		/**
 		 * @description Обработка не успешной загрузки файла
 		*/
-		onFailUploadFilePreview() {
+		onFailUploadFilePreview(data) {
 			this.isUploadImageProcess = false;
-			//TODO set error text
+			this.uploadImageError = data.message;
 		},
 		/**
 		 * @description Обработка успешной загрузки файла
 		*/
 		onSuccessUploadFilePreview(sPath) {
 			this.isUploadImageProcess = false;
-			
+			this.$refs.filepreview.setAttribute('src', sPath);
 		},
 		/**
 		 * @description Отправка формы подачи объявлоения

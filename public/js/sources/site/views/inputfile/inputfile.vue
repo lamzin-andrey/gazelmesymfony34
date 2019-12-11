@@ -61,10 +61,13 @@
 			'immediateleyUploadOff' : {type:String},
 			//Для прелоадера по умолчанию необходимо изображение token.png. Через этот атрибут можно указать путь к нему
 			'tokenImagePath' : {type:String, default : '/js/inputfileb4/images/token.png'},
-			'oken' : {type:String},
+			'csrf_token' : {type:String},
+			//Для использования например с Symfony, если передан, то все поля будут отправляться как fieldwrapper[fieldname]
+			'fieldwrapper': {type:String, default: ''},
 			'uploadButtonLabel' : {type:String, default : 'Upload'},
 			//Отправляем дополнительно данные перечисленных инпутов
 			'sendInputs' : {type:Array, default : () => { return []; }},
+			'token_field_name' : {type:String, default : '_token'},
 			'className' : {type:String}
 		},
 		name: 'inputfile',
@@ -96,13 +99,16 @@
 			*/
 			sendFile(iFile) {
 				let xhr = new XMLHttpRequest(), form = new FormData(), t, that = this, i, s, inp;
-				form.append('ajax_file_upload_form[' + iFile.id + ']', iFile.files[0]);
+
+				s = this.wrap(iFile.id);
+				form.append(s, iFile.files[0]);
 				//form.append("isFormData", 1);
 				form.append("path", this.url);
-				t = this.oken;
+				t = this.csrf_token;
 				if (t) {
-					console.log('Add token ' + t);
-					form.append("ajax_file_upload_form[_token]", t);
+					//console.log('Add token ' + t);
+					s = this.wrap(this.token_field_name);
+					form.append(s, t);
 				}
 			
 
@@ -156,8 +162,8 @@
 				if (d && d.status == 'ok') {
 					this.$emit('input', d.path);
 					this.$emit('uploadcomplete', d.path);
-				} else if(d.status == 'error' && d.errors && d.errors.file && String(d.errors.file)){
-					this.$emit('uploadapperror', String(d.errors.file));
+				} else if(d.status == 'error'){
+					this.$emit('uploadapperror', d);
 				}
 			},
 			onFail() {
@@ -171,31 +177,15 @@
 				this.$emit('uploadprogress', nPercents, loadedBytes, total);
 			},
 			/**
-			 * @see onProgress
-			 * @param {Number} nPercents
+			 * @description Заворачивает имя переменной в fieldwrapper если fieldwrapper не пуст
+			 * @param {String} fieldName
+			 * @return String
 			*/
-			showFileprogress(a) {
-				let h = 'height', m = 'margin-top', l = 'margin-left',
-					r = $('#uploadProcessRightSide' + this.id),
-					L = $('#uploadProcessLeftSide' + this.id);
-					$('#uploadBtn' + this.id).addClass('hide');
-				$('#uploadProcessView' + this.id)[0].style.display = null;
-				r.css(h, '0px');
-				L.css(h, '0px');
-				L.css(m, '0px');
-				r.css(l, '10px')
-				var t = a, bar = a < 50 ? r : L,
-					mode = a < 50 ? 1 : 2, v;
-				a = a < 50 ? a : a - 50;
-				a *= 2;
-				v = (a / 5);
-				bar.css(h, v + 'px');
-				if (mode == 2) {
-					bar.css(m, (20 - v) + 'px');
-					r.css(h, '20px')
-					r.css(l, '0px')
+			wrap(s) {
+				if (this.fieldwrapper) {
+					return this.fieldwrapper + '[' + s + ']';
 				}
-				$('#uploadProcessText' + this.id).text(t);
+				return s;
 			},
 			/**
 			 * @see onProgress
@@ -216,7 +206,7 @@
         }, //end methods
         //вызывается после data, поля из data видны "напрямую" как this.fieldName
         mounted() {
-			console.log('this.csrfToken', this.oken);
+			console.log('this.csrfToken', this.csrf_token);
 			//let self = this;
 			
             /*this.$root.$on('showMenuEvent', function(evt) {

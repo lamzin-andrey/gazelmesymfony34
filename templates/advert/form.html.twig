@@ -56,7 +56,8 @@
 									v-model="imageurl"
 									url="/fileupload.json"
 									tokenImagePath="/images/l-w.gif"
-									ken="{{ csrf_token }}"
+									csrf_token="{{ ajax_form._token.vars.value }}"
+									fieldwrapper="ajax_file_upload_form"
 									v-bind:label="$t('app.SelectLogo')"
 									v-on:startupload="onStartUploadFilePreview"
 									v-on:uploadcomplete="onSuccessUploadFilePreview"
@@ -64,9 +65,7 @@
 									v-on:uploadneterror="onFailUploadFilePreview"
 									id="autophoto" ></inputfile>
 							{{ form_errors(form.imagefile) }}
-
-
-
+							<div data-sign="DGN" class="hide red" v-bind:class="{vis:uploadImageError}" id="imerr">[[uploadImageError]]</div>
 						</td>
 						<td>
 							<img v-if="isUploadImageProcess" src="/images/l-w.gif" id="upLdr" class="hide" v-bind:class="{vis:vueFileInputIsEnabled}" />
