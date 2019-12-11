@@ -29,7 +29,10 @@ parameters:
   # Ключи для re-captcha
   app.google_recaptcha_site_key: '%env(resolve:GOOGLE_RECAPTCHA_SITEKEY)%'
   app.google_recaptcha_secret_key: '%env(resolve:GOOGLE_RECAPTCHA_SECRETKEY)%'
-  
+
+  # Ключи для отправки sms
+  app.smspilotkey: '%env(resolve:SMSPILOTKEY)%'
+
   #Включена ли вообще re-captcha
   app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
   #app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'
@@ -144,5 +147,6 @@ twig:
     city_zero_id: "%app.city_zero_id%"
     recapcthasitekey: "%app.google_recaptcha_site_key%"
     google_recaptcha_on: "%app.google_recaptcha_on%"
+    redirectToConfirmPhone: "0"
 
 

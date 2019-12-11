@@ -169,6 +169,10 @@ window.app = new Vue({
 		this.$refs.cityfilter.setLocation(cityId, regionId, isCity);
 		$('#bttimg').css('display', 'block');
 		Rest._get((data) => { this.onSuccessGetIsAuth(data); }, '/getauthstate', () => {});
+
+		if (window.redirectToConfirmPhone === '1') {
+			location.href = '/smsverify';
+		}
 	},
 	/**
 	* @property methods эти методы можно указывать непосредственно в @ - атрибутах
@@ -198,6 +202,7 @@ window.app = new Vue({
 		onSuccessUploadFilePreview(sPath) {
 			this.isUploadImageProcess = false;
 			this.$refs.filepreview.setAttribute('src', sPath);
+			this.imageurl = sPath;
 		},
 		/**
 		 * @description Отправка формы подачи объявлоения

@@ -54,6 +54,7 @@ class Users extends BaseUser
 
     /**
 	 * @Assert\Length(min=11, max=17)
+	 * @Assert\NotBlank()
 	*/
     protected $username;
 

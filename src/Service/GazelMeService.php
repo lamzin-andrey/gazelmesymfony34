@@ -3,6 +3,7 @@ namespace App\Service;
 
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormBuilder;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 use App\Entity\Main;
@@ -13,6 +14,9 @@ use Landlib\SymfonyToolsBundle\Service\FileUploaderService;
 
 class GazelMeService
 {
+
+	/** @property FormInterface $_oForm Сюда можно передать форму для более простой работы с ними */
+	private $_oForm;
 
 	public function __construct(ContainerInterface $container, ViewDataService $oViewDataService, FileUploaderService $oFileUploaderService)
 	{
@@ -349,5 +353,73 @@ class GazelMeService
 		];
 		$aOptions['translation_domain'] = 'Adform';
 		$oBuilder->add($sFieldName, \Symfony\Component\Form\Extension\Core\Type\FileType::class, $aOptions);
+	}
+	/**
+	 * @param string $sError
+	 * @param string $sField
+	 * @param FormInterface $oForm
+	 **/
+	public function addFormError(string $sError, string $sField, ?FormInterface $oForm = null)
+	{
+		if ($oForm) {
+			$this->setForm($oForm);
+		}
+		$oError = new \Symfony\Component\Form\FormError($this->translator->trans($sError));
+		$this->_oForm->get($sField)->addError($oError);
+	}
+	/**
+	 * @param string $sError
+	 * @param string $sField
+	 * @param FormInterface $oForm
+	 **/
+	public function setForm(FormInterface $oForm)
+	{
+		$this->_oForm = $oForm;
+	}
+	/**
+	 * Получить ассоциативный массив сообщений об ошибках
+	 * @param FormInterface $oForm
+	 * @return array
+	*/
+	public function getFormErrorsAsArray(FormInterface $oForm) : array
+	{
+		$aResult = [];
+		$nSz = $oForm->getErrors(true)->count();
+		if ($nSz) {
+			$oCurrentError = $oForm->getErrors(true)->current();
+			$sKey = $oCurrentError->getOrigin()->getConfig()->getName();
+			$sMessage = $oCurrentError->getMessage();
+			$aResult[$sKey] = $sMessage;
+		}
+		for ($i = 0; $i < $nSz - 1; $i ++) {
+			$oCurrentError = $oForm->getErrors(true)->next();
+			$sKey = $oCurrentError->getOrigin()->getConfig()->getName();
+			$sMessage = $oCurrentError->getMessage();
+			$aResult[$sKey] = $sMessage;
+		}
+		return $aResult;
+	}
+	/**
+	 * Удаляет из номера телефона всё, кроме цифр. Ведущий +7 меняет на 8.
+	 * @param string $sPhone
+	 * @return string
+	*/
+	public function normalizePhone(string $sPhone) : string
+	{
+		$phone = trim($sPhone);
+		$plus = 0;
+		if (isset($phone[0]) && $phone[0] == '+') {
+			$plus = 1;
+		}
+		$s = trim(preg_replace("#[\D]#", "", $phone));
+		if ($plus && strlen($s) > 10) {
+			$code = substr($s, 0, strlen($s) - 10 );
+			$tail = substr($s, strlen($s) - 10 );
+			$code++;
+			$s = $code . $tail;
+		} elseif($plus) {
+			$s = '';
+		}
+		return $s;
 	}
 }

@@ -140,6 +140,7 @@ class Main
     /**
      * @var string|null
      * @Assert\Length(min=11, max=17)
+     * @Assert\NotBlank()
      * @ORM\Column(name="phone", type="string", length=15, nullable=true, options={"comment"="Номер телефона"})
      */
     private $phone;

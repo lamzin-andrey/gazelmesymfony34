@@ -40,7 +40,15 @@ class AdvertController extends Controller
 
 	/** @property ?App\Entity\Users $_oAnonymousUser может содержать объект с данными о пользователе, который подавал ранее объявления не указывая email и пароль */
 	private $_oAnonymousUser = null;
-	
+
+	/** @property FormInterface $_oForm = $this->>createForm( new AdvertForm() ) */
+	private $_oForm = null;
+
+	/** @property bool $_bNeedCreateAccount true  когда надо создавать запись в users (объявление подаёт ранее никогда не публиковавшийся пользователь) */
+	private $_bNeedCreateAccount = false;
+
+	/** @property GazelMeService $_oGazelMeService сервис приложения, содержит методы общие для всех контроллеров */
+	private $_oGazelMeService = null;
 
     /**
       * @param string $sRegion
@@ -128,7 +136,6 @@ class AdvertController extends Controller
 			//$oForm->submit($oRequest->request->get($oForm->getName()));
 
 			if ($oForm->isValid()) {
-				//TODO get file path
 				$oFile = $oForm['autophotoFileImmediately']->getData();
 				if ($oFile) {
 					$sFileName = $oGazelMeService->getFileUploaderService()->upload($oFile);
@@ -139,7 +146,6 @@ class AdvertController extends Controller
 					$aData['message'] = 'NoN FiLe';
 				}
 			} else {
-				//$oForm->
 				$aData['status'] = 'error';
 				$aData['message'] = 'Invalid file';
 				$aData['count_errors'] = $oForm->getErrors(true)->count();
@@ -162,24 +168,23 @@ class AdvertController extends Controller
 		$this->_oEncoder =  $oEncoder;
 		$this->_oGazelMeService = $oGazelMeService;
 		$this->_subdir = $this->getParameter('app.uploadfiledir') . '/' . date('Y/m');
-		//TODO define _oForm
 		$this->_oForm = $oForm = $this->createForm(get_class(new AdvertForm()), $this->_oAdvert, [
 			'app_service' => $oGazelMeService,
-			'request' => $oRequest,
 			'uploaddir' => $this->_subdir
 		]);
-
 		$oAjaxForm = $this->_getAjaxForm($oGazelMeService);
-		
 		$oSession = $oRequest->getSession();
-		
+
 		/** @var \Symfony\Component\HttpFoundation\Session\Session $oSession **/
-		
+		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
 		if ($oRequest->getMethod() == 'POST') {
 			$oForm->handleRequest($oRequest);
 			if ($oForm->isValid()) {
-				if ($this->_isAdditionalValid()) {	//TODO
+				if ($this->_isAdditionalValid()) {
 					$this->_saveAdvertData($oForm, $oGazelMeService, $oRequest);
+					$this->addFlash('success', $this->get('translator')->trans('You need to confirm your phone number. You will now be redirected to the confirmation page'));
+					$oRequest->getSession()->set('activePhone', $this->_oAdvert->getPhone());
+					$aData['redirectToConfirmPhone'] = '1';
 				} else {
 					$this->addFlash('notice', $this->get('translator')->trans('Advert form has errors'));
 				}
@@ -190,7 +195,7 @@ class AdvertController extends Controller
 		} else {
 			$oSession->set('is_add_advert_page', true);
 		}
-		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
+
 		$aData['form'] = $oForm->createView();
 		$aData['ajax_form'] = $oAjaxForm->createView();
 		$aData['image'] = 'images/gazel.jpg';
@@ -246,7 +251,13 @@ class AdvertController extends Controller
         if ($oFile) {
             $sFileName = $this->_oGazelMeService->getFileUploaderService()->upload($oFile);
             $this->_oAdvert->setImage('/' . $this->_subdir . '/' . $sFileName);
-        }
+        } else {
+        	$s = trim($oRequest->get('advert_form')['imgpath']);
+        	if ($s) {
+				$this->_oAdvert->setImage($s);
+			}
+		}
+		$this->_oAdvert->setPhone( $this->_oGazelMeService->normalizePhone( $this->_oAdvert->getPhone() ) );
 		
 		$this->_oEm->persist($this->_oAdvert);
 		$this->_oEm->flush();
@@ -318,7 +329,7 @@ class AdvertController extends Controller
 			return false;
 		}
 		//валидация логина и пароля, который может быть введён
-		$this->_bNeedCreateAccount = false; //TODO add it define
+		$this->_bNeedCreateAccount = false;
 		//Если введён email то должен быть введён и пароль
 		//Таких данных в базе быть не должно, с учётом телефона
 		$sPhone = $aData['phone'] ?? '';
@@ -341,8 +352,6 @@ class AdvertController extends Controller
 				$this->_addError('Email and Password required if on from these no empty', 'email');
 				return false;
 			}
-			//TODO test with empty phone (сам по себе, не конкретно случай с паролем ли без - не должна форма приниматсья ни при каких обстоятельствах)
-
 			if ($oUser) {
 				//проверяем, не совпал ли пароль
 				$bPasswordValid = $this->_oEncoder->isPasswordValid($oUser, $sPassword);
@@ -395,13 +404,10 @@ class AdvertController extends Controller
 	**/
 	private function _addError(string $sError, string $sField)
 	{
-		//TODO -> in service, third arg form = null and method setForm
-		$oError = new \Symfony\Component\Form\FormError($this->get('translator')->trans($sError));
-		$this->_oForm->get($sField)->addError($oError);
+		$this->_oGazelMeService->addFormError($sError, $sField, $this->_oForm);
 	}
 	/**
 	 * Обновить пароль пользователя, который ранее уже подавал объявления, но не указал пароль
-	 * TODO _bNeedCreateAccount скорее всего надо логику посмотреть заново
 	**/
 	private function _updateUserPassword()
 	{

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9b7cbae23d5edb9388078057d127b2a3",
+    "content-hash": "2841a9d7df13c90bb9f918f8fbea64a1",
     "packages": [
         {
             "name": "base-reality/php-to-javascript",
@@ -5721,6 +5721,42 @@
             "time": "2019-11-11T16:52:09+00:00"
         },
         {
+            "name": "vantoozz/smspilot",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vantoozz/smspilot.git",
+                "reference": "8ec4ebc4645e95b9610f655cdbb67e25c2fb54ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vantoozz/smspilot/zipball/8ec4ebc4645e95b9610f655cdbb67e25c2fb54ef",
+                "reference": "8ec4ebc4645e95b9610f655cdbb67e25c2fb54ef",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Smspilot": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Ivan Nikitin",
+                    "email": "vantoozz@gmail.com"
+                }
+            ],
+            "description": "http://www.smspilot.ru",
+            "keywords": [
+                "smspilot"
+            ],
+            "time": "2014-02-03T12:39:44+00:00"
+        },
+        {
             "name": "webmozart/assert",
             "version": "1.6.0",
             "source": {
@@ -6636,7 +6672,8 @@
         "landlib/ruslexicon": 20,
         "landlib/symfonytoolsbundle": 20,
         "landlib/text2png": 20,
-        "landlib/treealgorithms": 20
+        "landlib/treealgorithms": 20,
+        "vantoozz/smspilot": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

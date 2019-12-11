@@ -103,6 +103,13 @@ class AdvertForm extends AbstractType
 			'mapped' => false
 		]);
 		$options['app_service']->addAdvertPhotoField($options['uploaddir'], $oBuilder);
+		$oBuilder->add('imgpath', HiddenType::class, [
+			'mapped' => false,
+			'required' => false,
+			'attr' => [
+				'v-model' => 'imageurl'
+			]
+		]);
 	}
 	
 	public function getName() : string
@@ -112,7 +119,6 @@ class AdvertForm extends AbstractType
 	public function configureOptions(\Symfony\Component\OptionsResolver\OptionsResolver $resolver)
     {
         $resolver->setRequired('app_service');
-        $resolver->setRequired('request');
         $resolver->setRequired('uploaddir');
     }
 }

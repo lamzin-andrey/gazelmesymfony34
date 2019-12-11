@@ -72,7 +72,7 @@
 						</td>
 					</tr>
 				</table>
-				<input type="hidden" id="ipath" name="ipath" value="<?=@$addForm->image ?>"/>
+				{{ form_widget(form.imgpath) }}
 			</p>
 			<div class="both"></div>
 			<div class="authorname py-4">
@@ -154,6 +154,7 @@
 		var isCity = '{{ nIsCity }}';
 		var regionId = '{{ nRegionId }}';
 		window.SITE_NAME   = '{{ siteName }}';
+		window.redirectToConfirmPhone = '{{ redirectToConfirmPhone }}';
 	</script>
 {% endblock %}
 {% block vuepageerror %}

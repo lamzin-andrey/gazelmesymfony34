@@ -516,6 +516,9 @@
     "twig/twig": {
         "version": "v2.12.0"
     },
+    "vantoozz/smspilot": {
+        "version": "dev-master"
+    },
     "webmozart/assert": {
         "version": "1.5.0"
     },
