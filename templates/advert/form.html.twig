@@ -47,19 +47,21 @@
 				{{ form_row(form.price) }}
 			</p>
 			<p class="image ">
-				<img src="{{ asset(image) }}" class="ii" id="imgview"/> <label for="image">Загрузите изображение</label><br/>
+				<img ref="filepreview" src="{{ asset(image) }}" class="ii" id="imgview"/> <label for="image">Загрузите изображение</label><br/>
 				<table>
 					<tr>
-						<td>
+						<td class="fileuploaderinputwrapper">
 							{{ form_widget(form.imagefile) }}
 							<inputfile
 									v-model="imageurl"
 									url="/fileupload.json"
 									tokenImagePath="/images/l-w.gif"
 									ken="{{ csrf_token }}"
-									v-bind:listeners="fileUploadListeners"
-									v-bind:progressListener="progressbarListener"
 									v-bind:label="$t('app.SelectLogo')"
+									v-on:startupload="onStartUploadFilePreview"
+									v-on:uploadcomplete="onSuccessUploadFilePreview"
+									v-on:uploadapperror="onFailUploadFilePreview"
+									v-on:uploadneterror="onFailUploadFilePreview"
 									id="autophoto" ></inputfile>
 							{{ form_errors(form.imagefile) }}
 

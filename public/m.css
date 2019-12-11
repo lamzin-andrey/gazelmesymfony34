@@ -1036,3 +1036,6 @@ li {
 #afd  li.ti-new-tag-input-wrapper {
 	border: #a0a0a0 solid 1px;
 }
+.fileuploaderinputwrapper input[type=file] {
+	width: 173px;
+}

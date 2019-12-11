@@ -32,17 +32,6 @@
 			</div>
 		</div>
 
-		<!-- Default Progressbar -->
-		<div v-if="!progressListener" class="text-center" :id="'uploadProcessView' + id" style="display:none">
-			<div :id="'uploadProcessText' + id" class="upload-process-text d-inline-block ml-1">9</div>
-			<div  class="relative upload-token-anim-block uploadrocess-view  ">
-				<div :id="'uploadProcessLeftSide' + id" class="float-left upload-token-anim-color upload-process-left-side">&nbsp;</div>
-				<div :id="'uploadProcessRightSide' + id" class="float-left upload-token-anim-color upload-process-right-side">&nbsp;</div>
-				<div class="clearfix"></div>
-				<img :id="'uploadProcessTokenImage' + id" :src="tokenImagePath" class="upload-process-token-image d-inline-block">
-			</div>
-		</div>
-		<!-- / Default Progressbar -->
 
 		<!-- Input with path to uploaded image file -->
 		<input type="hidden" :id="id" :name="id"
@@ -72,10 +61,6 @@
 			'immediateleyUploadOff' : {type:String},
 			//Для прелоадера по умолчанию необходимо изображение token.png. Через этот атрибут можно указать путь к нему
 			'tokenImagePath' : {type:String, default : '/js/inputfileb4/images/token.png'},
-			//Кастомные функции {onSuccess, onFail}. Формат каждого свойства {f:Function, context:Object}
-			'listeners' : {type:Object},
-			//Кастомная функция {onProgress}. Формат onProgress такой же как у свойств listeners
-			'progressListener' : {type:Object},
 			'oken' : {type:String},
 			'uploadButtonLabel' : {type:String, default : 'Upload'},
 			//Отправляем дополнительно данные перечисленных инпутов
@@ -152,23 +137,14 @@
 							try {
 								s = JSON.parse(t.responseText);
 							} catch(e){;}
-							if (!that.listeners || !that.listeners.onSuccess) {
-								that.onSuccess(s);
-							} else {
-								that.onSuccess(s);
-								that.listeners.onSuccess.f.call(that.listeners.onSuccess.context, s);
-							}
+							that.onSuccess(s);
 						} else {
 							that.onFail(t.status, arguments);
-							//$emit('uploadfail', t.status, arguments);
 						}
 					}
 				};
 				xhr.open("POST", this.url);
-
-				if (that.progressListener) {
-					that.progressListener.onStart.f.call(that.progressListener.onStart.context);
-				}
+				this.$emit('startupload');
 				xhr.send(form);
 			},
 			/**
@@ -179,37 +155,20 @@
 				this.hideFileprogress();
 				if (d && d.status == 'ok') {
 					this.$emit('input', d.path);
-					if (this.listeners && this.listeners.onSuccess) {
-						this.listeners.onSuccess.f.call(this.listeners.onSuccess.context, d.path);
-					}
+					this.$emit('uploadcomplete', d.path);
 				} else if(d.status == 'error' && d.errors && d.errors.file && String(d.errors.file)){
-					//this.$root.alert(String(d.errors.file));
 					this.$emit('uploadapperror', String(d.errors.file));
 				}
 			},
 			onFail() {
-				this.hideFileprogress();
-				if (!this.listeners || !this.listeners.onFail) {
-					//this.$root.alert(this.$root.$t('app.DefaultError'));
-					$emit('uploadneterror', this.$root.$t('app.DefaultError'));
-				} else {
-					this.listeners.onFail.f.call(this.listeners.onFail.context, this.$root.$t('app.DefaultError'));
-				}
+				this.$emit('uploadneterror', this.$root.$t('app.DefaultError'));
 			},
 			/**
 			 * @description Обработка процесса загрузки файлов по умолчанию
 			 * @param {Number} nPercents
 			*/
 			onProgress(nPercents, loadedBytes, total) {
-				if (!this.progressListener) {
-					if (nPercents <= 100 && nPercents > 0) {
-						this.showFileprogress(nPercents);
-					} else if (nPercents == 0){
-						this.hideFileprogress();
-					}
-				} else {
-					this.progressListener.onProgress.f.call(this.progressListener.onProgress.context, nPercents, loadedBytes, total);
-				}
+				this.$emit('uploadprogress', nPercents, loadedBytes, total);
 			},
 			/**
 			 * @see onProgress
@@ -257,8 +216,6 @@
         }, //end methods
         //вызывается после data, поля из data видны "напрямую" как this.fieldName
         mounted() {
-			console.log('this.tokenImagePath', this.tokenImagePath);
-			console.log('this.listeners', this.listeners);
 			console.log('this.csrfToken', this.oken);
 			//let self = this;
 			

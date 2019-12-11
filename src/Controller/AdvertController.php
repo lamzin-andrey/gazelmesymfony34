@@ -136,7 +136,7 @@ class AdvertController extends Controller
 				if ($oFile) {
 					$sFileName = $oGazelMeService->getFileUploaderService()->upload($oFile);
 					$aData['path'] = '/' . $this->_subdir . '/' . $sFileName;
-					$aData['status'] = 'success';
+					$aData['status'] = 'ok';
 				} else {
 					$aData['status'] = 'error';
 					$aData['message'] = 'NoN FiLe';

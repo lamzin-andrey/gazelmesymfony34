@@ -144,29 +144,6 @@ window.app = new Vue({
 		agreementErrorList : [],
 		agreementErrorsVisible : false,
 
-		/** @property {Object} fileUploadListeners обработчик успешной загрузки файла*/
-		fileUploadListeners: {
-			onSuccess:{
-				f:this.onSuccessUploadFilePreview,
-				context:this
-			},
-			onFail: {
-				f:this.onFailUploadFilePreview,
-				context:this
-			}
-		},
-		//Custom progress bar params
-		/** @property {Object} progressbarListener прогресса загрузки файла*/
-		progressbarListener:{
-			onProgress: {
-				f: this.onProgressUploadFilePreview,
-				context:this
-			},
-			onStart: {
-				f: this.onStartUploadFilePreview,
-				context:this
-			}
-		},
 
 		/** @property {Boolean} isUploadImageProcess отвечает за отображение "прогресс-бара" */
 		isUploadImageProcess : false,
@@ -175,9 +152,7 @@ window.app = new Vue({
 		imageurl : '',
 
 		/** @property {Boolean} vueFileInputIsEnabled отвечает за отображение no-js */
-		vueFileInputIsEnabled : true,
-
-		appTokenCsrf: 'vistelre'
+		vueFileInputIsEnabled : true
 	},
 	/**
 	* @description Событие, наступающее после связывания el с этой логикой
@@ -217,6 +192,7 @@ window.app = new Vue({
 		*/
 		onSuccessUploadFilePreview(sPath) {
 			this.isUploadImageProcess = false;
+			
 		},
 		/**
 		 * @description Отправка формы подачи объявлоения
