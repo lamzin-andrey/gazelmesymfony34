@@ -247,6 +247,7 @@ class AdvertController extends Controller
 		$nCityId = intval($nCityId) > 0 ? $nCityId : null;
 		
 		$this->_oAdvert->setUserId($nUserId);
+		$this->_oAdvert->setIsDeleted(1);
 		
 		//транслитировать заголовок объявления
 		$this->_oAdvert->setCodename($oGazelMeService->translite_url($this->_oAdvert->getTitle()));

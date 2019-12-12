@@ -65,8 +65,6 @@ class SmsController extends Controller
 						$oMainRepository = $this->getDoctrine()->getRepository('App:Main');
 						$oAdvert = $oMainRepository->find($id);
 						if ($oAdvert) {
-							//TODO при подаче объявления ставим это в 1, само не ставится!
-
 							// и обновляем по id строку в main сделав объявление не удаленным
 							//query("UPDATE main SET is_deleted = 0 WHERE id = {$id}");
 							$oAdvert->setIsDeleted(0);
@@ -109,12 +107,6 @@ class SmsController extends Controller
 	*/
 	public function getsms(Request $oRequest,  ViewDataService $oViewDataService, GazelMeService $oGazelMeService)
 	{
-		$sApiKey = $this->getParameter('app.smspilotkey');
-		$oSmsPilot = new Smspilot($sApiKey);
-		$oRequest->getSession()->set('smscode', rand(1000, 9999));
-		//$oSmsPilot->send($sPhoneNumber, $this->_getSmsText());
-		//------
-
 		$sPhoneNumber = $oRequest->getSession()->get('activePhone', '');
 		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
 		$this->_setInfoMessage($aData, $oGazelMeService, $sPhoneNumber);

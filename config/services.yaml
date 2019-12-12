@@ -32,10 +32,12 @@ parameters:
 
   # Ключи для отправки sms
   app.smspilotkey: '%env(resolve:SMSPILOTKEY)%'
+  app.smspilot_sendername: '%env(resolve:SMSPILOT_SENDERNAME)%'
   # Интервал между возможностью отпарвки сообщений
   app.sms_interval: 63
   # Надо ли вообще отправлять sms
   app.sms_service_on: true
+
 
   #Включена ли вообще re-captcha
   app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'

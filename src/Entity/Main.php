@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints AS Assert;
  *
  * @ORM\Table(name="main", indexes={@ORM\Index(name="city", columns={"city"}), @ORM\Index(name="box", columns={"box"}), @ORM\Index(name="far", columns={"far"}), @ORM\Index(name="piknik", columns={"piknik"}), @ORM\Index(name="region", columns={"region"}), @ORM\Index(name="people", columns={"people"}), @ORM\Index(name="term", columns={"term"}), @ORM\Index(name="near", columns={"near"}), @ORM\Index(name="phone", columns={"phone"})})
  * @ORM\Entity
- * @ORM\Cache(usage="READ_ONLY", region="global")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE", region="global")
  */
 class Main
 {

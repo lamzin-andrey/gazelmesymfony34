@@ -2,7 +2,7 @@
         <p>{{ infoMessage|raw }}</p>
         <form action="{{ path('smsverify_getsms') }}" method="POST">
             <p class="tright">
-                <input type="submit" value="Получить смс" id="getSms" name="getSms">
+                <input type="submit" value="{{ 'Get SMS'|trans }}" id="getSms" name="getSms">
                 <input type="hidden" name="token" value="{{ csrf_token }}">
             </p>
         </form>
