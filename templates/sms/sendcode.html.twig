@@ -3,10 +3,22 @@
     <div class="form getsmsform">
         <p>{{ infoMessage }}</p>
         <form action="{{ path('smsverify_sendcode') }}" method="POST">
-            TODO
+            <span>Вам отправлено смс с кодом, введите код в это поле </span><input type="number" value="" id="smsCode" name="smsCode">
+            <div class="iblock">
+                <span class="red">{{invalidCodeMessage}}</span>
+            </div>
+            {# TODO use formtype #}
+            <?=FV::sub('n', 'Отправить код из sms')?>
+
         </form>
     </div>
-
+    {% include('sms/getsmsbutton_content.html.twig') %}
+    {#<!-- //показываем надпись Повторная отправка смс возможна через 15 минут (вычисляемое значение) -->#}
+    {%  if timeoutMinutes > 0  %}
+    <div class="form getsmsform slogan">
+        <span>Повторная отправка смс возможна через <span>{{timeoutMinutes}}</span></span>
+    </div>
+    {%  endif %}
 {% endblock content %}
 
 

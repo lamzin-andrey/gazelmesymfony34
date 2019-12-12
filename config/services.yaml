@@ -32,6 +32,7 @@ parameters:
 
   # Ключи для отправки sms
   app.smspilotkey: '%env(resolve:SMSPILOTKEY)%'
+  app.sms_interval: 63
 
   #Включена ли вообще re-captcha
   app.google_recaptcha_on: '%env(resolve:GOOGLE_RECAPTCHA_ON)%'

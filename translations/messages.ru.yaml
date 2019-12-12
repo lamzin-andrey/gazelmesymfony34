@@ -53,3 +53,5 @@ Location: Населенный пункт
 Advert form has errors: Форма подачи объявления заполнена с ошибками, смотрите подробнее поля формы
 You need to confirm your phone number. You will now be redirected to the confirmation page: Вам надо подтвердить номер вашего телефона. Сейчас вы будете перенаправлены на страницу подтверждения
 Confirm that the number %phone% is really yours. To do this, click on the "Get SMS" button: Подтвердите, что номер %phone% действительно ваш. Для этого нажмите на кнопку «Получить смс»
+Did not receive sms? After %_timeoutMinutes%, click on the &laquo;Receive SMS&raquo; button to send SMS to number %phone% to confirm that it is really yours:     Не пришло sms? Через %_timeoutMinutes% нажмите на кнопку &laquo;Получить смс&raquo;, чтобы отправить sms на номер %phone% для подтверждения, что он действительно ваш
+Invalid code: Код не совпал

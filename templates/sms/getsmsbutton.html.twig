@@ -1,15 +1,6 @@
 {% extends "base.html.twig" %}
 {% block content %}
-    <div class="form getsmsform">
-        <p>{{ infoMessage }}</p>
-        <form action="{{ path('smsverify_getsms') }}" method="POST">
-            <p class="tright">
-                <input type="submit" value="Получить смс" id="getSms" name="getSms">
-                <input type="hidden" name="token" value="{{ csrf_token }}">
-            </p>
-        </form>
-    </div>
-
+   {% include('sms/getsmsbutton_content.html.twig') %}
 {% endblock content %}
 
 
