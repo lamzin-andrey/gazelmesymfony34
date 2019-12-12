@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Form\AjaxFileUploadFormType;
+use App\Service\AdvertEditorService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -125,11 +126,11 @@ class AdvertController extends Controller
 	 * Ajax загрузка фото
 	 * @Route("/fileupload.json", name="upload_auto_photo")
 	*/
-	public function uploadPhoto(Request $oRequest,  \App\Service\GazelMeService $oGazelMeService)
+	public function uploadPhoto(Request $oRequest,  \App\Service\GazelMeService $oGazelMeService, AdvertEditorService $oAdvertEditorService)
 	{
 		$this->_subdir = $this->getParameter('app.uploadfiledir') . '/' . date('Y/m');
 		$aTData = [];
-		$oForm = $this->_getAjaxForm($oGazelMeService);
+		$oForm = $this->_getAjaxForm($oGazelMeService, $oAdvertEditorService);
 		$aData = [];
 		if ($oRequest->getMethod() == 'POST') {
 			$oForm->handleRequest($oRequest);
@@ -162,59 +163,11 @@ class AdvertController extends Controller
 	 * Форма подачи объявления
 	 * @Route("/podat_obyavlenie", name="podat_obyavlenie")
 	*/
-	public function add(Request $oRequest, ViewDataService $oViewDataService, \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder, \App\Service\GazelMeService $oGazelMeService, \App\Service\RegionsService $oRegionService)
+	public function add(Request $oRequest, \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder, AdvertEditorService $oAdvertEditorService)
 	{
 		$this->_oAdvert = new Advert();
-		$this->_oEncoder =  $oEncoder;
-		$this->_oGazelMeService = $oGazelMeService;
-		$this->_subdir = $this->getParameter('app.uploadfiledir') . '/' . date('Y/m');
-		$this->_oForm = $oForm = $this->createForm(get_class(new AdvertForm()), $this->_oAdvert, [
-			'app_service' => $oGazelMeService,
-			'uploaddir' => $this->_subdir
-		]);
-		$oAjaxForm = $this->_getAjaxForm($oGazelMeService);
-		$oSession = $oRequest->getSession();
-
-		/** @var \Symfony\Component\HttpFoundation\Session\Session $oSession **/
-		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
-		if ($oRequest->getMethod() == 'POST') {
-			$oForm->handleRequest($oRequest);
-			if ($oForm->isValid()) {
-				if ($this->_isAdditionalValid()) {
-					$this->_saveAdvertData($oForm, $oGazelMeService, $oRequest);
-					$this->addFlash('success', $this->get('translator')->trans('You need to confirm your phone number. You will now be redirected to the confirmation page'));
-					$oRequest->getSession()->set('activePhone', $this->_oAdvert->getPhone());
-					$oRequest->getSession()->set('verified_adv_id', $this->_oAdvert->getId());
-					$aData['redirectToConfirmPhone'] = '1';
-				} else {
-					$this->addFlash('notice', $this->get('translator')->trans('Advert form has errors'));
-				}
-			} else {
-				$this->addFlash('notice', $this->get('translator')->trans('Advert form has errors'));
-			}
-			$oSession->remove('is_add_advert_page');
-		} else {
-			$oSession->set('is_add_advert_page', true);
-		}
-
-		$aData['form'] = $oForm->createView();
-		$aData['ajax_form'] = $oAjaxForm->createView();
-		$aData['image'] = 'images/gazel.jpg';
-
-		$aData['nRegionId'] = $oRegionService->getRegionIdFromSession($oRequest);
-		$aData['aRegionId'] = [
-			'value' => $aData['nRegionId'],
-			'attr' => [
-				'class' => 'hide'
-			]
-
-		];
-		$aData['nCityId'] = $oRegionService->getCityIdFromSession($oRequest);
-		$aData['aCityId'] = [
-			'value' => $aData['nCityId']
-		];
-		$aData['nIsCity'] = (intval($aData['nRegionId']) && !intval($aData['nCityId']));
-		//$aData['nIsSetLocation'] = $oGazelMeService
+		$oAdvertEditorService->setController($this);
+		$aData = $oAdvertEditorService->pageAdvertForm($oRequest, $oEncoder, $this->_oAdvert);
 		return $this->render('advert/form.html.twig', $aData);
 	}
 	/**
@@ -443,11 +396,9 @@ class AdvertController extends Controller
 	/*
 	 * @return FormInterface форма для обработки ajax загрузки файла
 	*/
-	private function _getAjaxForm( $oGazelMeService) : FormInterface
+	private function _getAjaxForm( $oGazelMeService, $oAdvertEditorService) : FormInterface
 	{
-		return $this->createForm(get_class(new AjaxFileUploadFormType()), null, [
-			'app_service' => $oGazelMeService,
-			'uploaddir' => $this->_subdir
-		]);
+		$oAdvertEditorService->setController($this);
+		return $oAdvertEditorService->getAjaxForm();
 	}
 }

@@ -46,8 +46,7 @@ class Users extends BaseUser
     protected $phone;
 	
 	/**
-     * @var array
-	 * 
+     * @var array of Main
      * @ORM\OneToMany(targetEntity="Main", mappedBy="userObject")
      */
     protected $advertsByUsername;
@@ -284,4 +283,9 @@ class Users extends BaseUser
 
         return $this;
     }
+
+    public function getAdvertsByUsername()
+	{
+		return $this->advertsByUsername;
+	}
 }

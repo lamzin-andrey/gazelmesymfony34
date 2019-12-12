@@ -4,7 +4,7 @@
 		<img src="/images/l-w.gif" width="16" class="ldr">
 		<span ><div>{{ $t('app.PleaseAdvMe') }}</div><div>{{ siteName }}</div></span>
 		<img :src="computedSrc" @load="onImageLoaded" />
-		<div>
+		<div v-if="isPublicPage">
 			<span>{{ $t('app.PleaseSocnet') }}</span>
 		</div>
 		<div>&nbsp;</div>
@@ -27,6 +27,13 @@
 			//Так как нужно значение из конфига Symfony, приходится использовать вычисляемое свойство
 			siteName() {
 				return window.SITE_NAME;
+			},
+			//Не показываем сообщение "Нашли перевозчика..." в кабинете подателя сэго
+			isPublicPage(){
+				if (!~location.href.indexOf('/cabinet')) {
+					return true;
+				}
+				return false;
 			}
 		},
 

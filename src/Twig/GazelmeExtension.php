@@ -1,6 +1,7 @@
 <?php
 namespace App\Twig;
 
+use App\Entity\Cities;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use App\Service\GazelMeService;
 use Landlib\RusLexicon;
@@ -53,7 +54,26 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 		}
 		return ('/' . $sRegionCodename . $sCity . '/' . $sAdvCodename . '/' . $nId);
 	}
-	
+
+	/**
+	 * Выводит имя локации (например, "Тверская область Тверь" или "Москва")
+	 * @param string $sRegionName
+	 * @param Cities $oCity
+	 * @return string
+	 */
+	public function locationName(string $sRegionName, ?Cities $oCity) : string
+	{
+		$sCity = '';
+		$globals = $this->container->get('twig');
+		$vars = $globals->getGlobals();
+		$nSpecialCityId = $vars['city_zero_id'];
+		$sCityName = $oCity ? $oCity->getCityName() : '';
+		$nCityId = $oCity ? $oCity->getId() : 0;
+		if ($nCityId != $nSpecialCityId && $sCityName) {
+			$sCity = (' ' . $sCityName);
+		}
+		return ($sRegionName . $sCity);
+	}
 	/**
 	 * @param float $v
 	 * @return string
@@ -82,24 +102,6 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 		}
 		$v = join('', $a);
 		return $v . $sRouble;
-	}
-	/**
-	 * Выводит имя локации (например, "Тверская область Тверь" или "Москва")
-	 * @param int string $sRegionName
-	 * @param int string $sCityName
-	 * @param int int $nCityId
-	 * @return string
-	*/
-    public function locationName(string $sRegionName, string $sCityName, int $nCityId) : string
-    {
-		$sCity = '';
-		$globals = $this->container->get('twig');
-		$vars = $globals->getGlobals();
-		$nSpecialCityId = $vars['city_zero_id'];
-		if ($nCityId != $nSpecialCityId && $sCityName) {
-			$sCity = (' ' . $sCityName);
-		}
-		return ($sRegionName . $sCity);
 	}
 	/**
 	 * Выводит тип перевозки (например, "Грузовая, термобудка" или "Пассажирская")
