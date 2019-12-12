@@ -28,7 +28,7 @@ class AdvertForm extends AbstractType
 	
 	public function buildForm(FormBuilderInterface $oBuilder, array $options)
 	{
-		$oBuilder->add('region', HiddenType::class, [
+		$oBuilder->add('region', TextType::class, [
 			'required' => false,
 			'translation_domain' => 'Adform'
 		]);

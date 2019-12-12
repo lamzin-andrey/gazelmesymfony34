@@ -54,6 +54,7 @@ window.app = new Vue({
 	data: {
 		//Переменные, связанные с отправкой десктоп формы подачи объявления
 		/** @property {String} _advertFormValidator Валидация десктоп - формы отправки объявления  */
+		//TODO js valid phone
 		advertFormValidatorClass : AdvertFormValidator,
 
 		/** @property {Boolean} true когда показана общая ошибка страницы*/
@@ -166,9 +167,14 @@ window.app = new Vue({
 		if (this.$refs.loginform) {
 			Rest._token = Rest._token = this.$refs.loginform.getCsrf();
 		}
-		this.$refs.cityfilter.setLocation(cityId, regionId, isCity);
+		if (this.$refs.cityfilter) {
+			this.$refs.cityfilter.setLocation(cityId, regionId, isCity);
+		}
+		
 		$('#bttimg').css('display', 'block');
 		Rest._get((data) => { this.onSuccessGetIsAuth(data); }, '/getauthstate', () => {});
+		//TODO Rest.doNextRequestAsync();
+		Rest._get(() => {  }, '/worker?action=automoderate', () => {});//TODO async
 
 		if (window.redirectToConfirmPhone === '1') {
 			location.href = '/smsverify';

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\SmsCode;
+use App\Form\SmsCodeFormType;
 use App\Service\GazelMeService;
 use App\Service\ViewDataService;
 use Doctrine\Common\Collections\Criteria;
@@ -35,6 +36,72 @@ class SmsController extends Controller
 	 */
 	public function verifysms(Request $oRequest,  ViewDataService $oViewDataService, GazelMeService $oGazelMeService)
 	{
+		$oForm = $this->createForm(get_class(new SmsCodeFormType()), null);
+		$aData = $oViewDataService->getDefaultTemplateData();
+		$aData['invalidCodeMessage'] = '';
+		$aData['timeoutMinutes'] = '';
+		$oSession = $oRequest->getSession();
+		$sPhone = $oSession->get('activePhone');
+		$this->_setInfoMessage($aData, $oGazelMeService, $sPhone);
+		$aData['form'] = $oForm->createView();
+		$id = $oSession->get('verified_adv_id');
+		if (!$sPhone || !$id) {
+			$sMsg = 'Sorry, we can’t determine the phone number that you provided when submitting the ad. The browser may have cookies disabled. Turn on cookies and try again';
+			$this->addFlash('notice', $this->get('translator')->trans($sMsg));
+			return $this->render('sms/sendcode.html.twig', $aData);
+		}
+		if ($oRequest->getMethod() == 'POST') {
+			$oForm->handleRequest($oRequest);
+			if ($oForm->isValid()) {
+				$reqCode = $oForm['code']->getData();
+				if ($oSession->get('smscode') == $reqCode) {
+					$oEm = $this->getDoctrine()->getManager();
+
+					/* Мутная логика if (sess('up_adv_flag') == true) {
+						query("UPDATE users SET is_sms_verify = 1 WHERE phone = {$phone}");
+						$status = CUpAction::up($id);
+						utils_302("/cabinet?status={$status}");
+					} else {*/
+						$oMainRepository = $this->getDoctrine()->getRepository('App:Main');
+						$oAdvert = $oMainRepository->find($id);
+						if ($oAdvert) {
+							//TODO при подаче объявления ставим это в 1, само не ставится!
+
+							// и обновляем по id строку в main сделав объявление не удаленным
+							//query("UPDATE main SET is_deleted = 0 WHERE id = {$id}");
+							$oAdvert->setIsDeleted(0);
+							$oUser = $oAdvert->getUserObject();
+							$oEm->persist($oAdvert);
+							if ($oUser) {
+								// и обновляем по номеру телефона запись в users.is_verify = 1
+								//query("UPDATE users SET is_sms_verify = 1 WHERE phone = {$phone}");
+								$oUser->setIsSmsVerify(true);
+								$oEm->persist($oUser);
+								$oEm->flush();
+								//показываем сообщение как на странице подачи объявления сейчас
+								$this->addFlash('success', $this->get('translator')->trans('Your ad has been added and will be placed on the site after verification'));
+							}
+						} else {
+							//написать что что-то пошло не так
+							$this->addFlash('notice', $this->get('translator')->trans('You entered the correct code, but something went wrong, enable cookies and try submitting the ad again'));
+							return $this->redirectToRoute('podat_obyavlenie');
+						}
+					//}
+				} else {
+					// иначе пишем что код не совпал и показываем все как в getsms
+					if ($reqCode){
+						$aData['invalidCodeMessage'] = $this->get('translator')->trans('Invalid code');
+					}
+					$this->_timeout($oRequest); //установить кол-во минут для надписи, сколько еще нужно ждать.
+					$aData['timeoutMinutes'] = $this->_timeoutMinutes;
+				}
+			} else {
+				$aErrors = $oGazelMeService->getFormErrorsAsArray($oForm);
+				if (count($aErrors)) {
+					$aData['invalidCodeMessage'] = current($aErrors);
+				}
+			}
+		}
 		return $this->render('sms/sendcode.html.twig', $aData);
 	}
     /**
@@ -43,16 +110,23 @@ class SmsController extends Controller
 	public function getsms(Request $oRequest,  ViewDataService $oViewDataService, GazelMeService $oGazelMeService)
 	{
 		$sApiKey = $this->getParameter('app.smspilotkey');
-
-
 		$oSmsPilot = new Smspilot($sApiKey);
 		$oRequest->getSession()->set('smscode', rand(1000, 9999));
 		//$oSmsPilot->send($sPhoneNumber, $this->_getSmsText());
-
 		//------
+
+		$sPhoneNumber = $oRequest->getSession()->get('activePhone', '');
 		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
-		$sPhoneNumber = $oRequest->getSession()->get('activePhone');
-		//$sPhoneNumber = preg_replace("#^8#", '7', $sPhoneNumber);
+		$this->_setInfoMessage($aData, $oGazelMeService, $sPhoneNumber);
+		$aData['timeoutMinutes'] = $this->_timeoutMinutes;
+		$aData['invalidCodeMessage'] = '';
+		$oForm = $this->createForm(get_class(new SmsCodeFormType()), null);
+		$aData['form'] = $oForm->createView();
+		if (!$sPhoneNumber) {
+			$sMsg = 'Sorry, we can’t determine the phone number that you provided when submitting the ad. The browser may have cookies disabled. Turn on cookies and try again';
+			$this->addFlash('notice', $this->get('translator')->trans($sMsg));
+			return $this->render('sms/sendcode.html.twig', $aData);
+		}
 		//если интервал после последнего запроса прошел,
 		if ($this->_timeout($oRequest->getSession())) {
 			if ($oRequest) {
@@ -65,14 +139,8 @@ class SmsController extends Controller
 				$this->_timeout($oRequest->getSession());
 			}
 		}
-		$sMsg = 'Did not receive sms? After %_timeoutMinutes%, click on the &laquo;Receive SMS&raquo; button to send SMS to number %phone% to confirm that it is really yours';
-		$aData['infoMessage'] = $this->get('translator')->trans($sMsg, [
-			'%_timeoutMinutes%' => $this->_timeoutMinutes,
-			'%phone%' => $oGazelMeService->formatPhone($sPhoneNumber)
-		]);
 		$aData['timeoutMinutes'] = $this->_timeoutMinutes;
-		//$aData['invalidCodeMessage'] = $this->get('translator')->trans('Invalid code');
-		$aData['invalidCodeMessage'] = '';
+
 		//показываем кнопку получить смc
 		//показываем надпись Вам отправлено смс с кодом, введите код в это поле
 		//показываем надпись Повторная отправка смс возможна через 15 минут (вычисляемое значение)
@@ -84,6 +152,20 @@ class SmsController extends Controller
 	private function _getSmsText()
 	{
 		return '';
+	}
+	/**
+	 * @param array &$aData viewData
+	 * @param GazelMeService $oGazelMeService
+	 * @param string $sPhoneNumber
+	 * @return void
+	 */
+	private function _setInfoMessage(array &$aData, GazelMeService $oGazelMeService, string $sPhoneNumber) : void
+	{
+		$sMsg = 'Did not receive sms? After %_timeoutMinutes%, click on the &laquo;Receive SMS&raquo; button to send SMS to number %phone% to confirm that it is really yours';
+		$aData['infoMessage'] = $this->get('translator')->trans($sMsg, [
+			'%_timeoutMinutes%' => $this->_timeoutMinutes,
+			'%phone%' => $oGazelMeService->formatPhone($sPhoneNumber)
+		]);
 	}
 	/**
 	 * Устанавливает timeoutMinutes в минутах или секундах, если секунд менее 60-ти. Также устанавливает ед. измерения.
@@ -116,7 +198,7 @@ class SmsController extends Controller
 		$oEm = $this->getDoctrine()->getManager();
 		$oCriteria = new Criteria();
 		$oExpr = Criteria::expr();
-		$oCriteria->where( $oExpr->eq('code', $sCode) );
+		$oCriteria->where( $oExpr->eq('phone', $sPhone) );
 		$oRepository = $this->getDoctrine()->getRepository('App:SmsCode');
 		$oCode = $oRepository->matching($oCriteria)->get(0);
 		if (!$oCode) {

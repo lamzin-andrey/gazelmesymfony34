@@ -184,6 +184,7 @@ class AdvertController extends Controller
 					$this->_saveAdvertData($oForm, $oGazelMeService, $oRequest);
 					$this->addFlash('success', $this->get('translator')->trans('You need to confirm your phone number. You will now be redirected to the confirmation page'));
 					$oRequest->getSession()->set('activePhone', $this->_oAdvert->getPhone());
+					$oRequest->getSession()->set('verified_adv_id', $this->_oAdvert->getId());
 					$aData['redirectToConfirmPhone'] = '1';
 				} else {
 					$this->addFlash('notice', $this->get('translator')->trans('Advert form has errors'));
@@ -202,7 +203,11 @@ class AdvertController extends Controller
 
 		$aData['nRegionId'] = $oRegionService->getRegionIdFromSession($oRequest);
 		$aData['aRegionId'] = [
-			'value' => $aData['nRegionId']
+			'value' => $aData['nRegionId'],
+			'attr' => [
+				'class' => 'hide'
+			]
+
 		];
 		$aData['nCityId'] = $oRegionService->getCityIdFromSession($oRequest);
 		$aData['aCityId'] = [
@@ -328,6 +333,15 @@ class AdvertController extends Controller
 			$this->_addError('Distance required', 'far');
 			return false;
 		}
+
+		//Должен быть выбран регион и он не должен быть is_city = 1
+		$nRegion = $aData['region'];
+		$nCity = $aData['city'];
+		if (!$nRegion) {
+			$this->_addError('Need select location', 'region');
+			return false;
+		}
+
 		//валидация логина и пароля, который может быть введён
 		$this->_bNeedCreateAccount = false;
 		//Если введён email то должен быть введён и пароль
@@ -381,7 +395,9 @@ class AdvertController extends Controller
 				$this->_bNeedCreateAccount = true;
 			}
 		}
-		
+
+
+
 		return true;
 	}
 	/**

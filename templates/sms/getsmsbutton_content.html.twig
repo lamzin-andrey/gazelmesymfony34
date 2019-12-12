@@ -1,5 +1,5 @@
     <div class="form getsmsform">
-        <p>{{ infoMessage }}</p>
+        <p>{{ infoMessage|raw }}</p>
         <form action="{{ path('smsverify_getsms') }}" method="POST">
             <p class="tright">
                 <input type="submit" value="Получить смс" id="getSms" name="getSms">

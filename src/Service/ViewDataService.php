@@ -24,8 +24,11 @@ class ViewDataService  {
 	/**
 	 * Возвращает переменные, которые есть в мастер шаблоне (то есть они есть практически на каждой странице)
 	*/
-	public function getDefaultTemplateData(Request $oRequest) : array
+	public function getDefaultTemplateData(?Request $oRequest = null) : array
 	{
+		if (!$oRequest) {
+			$oRequest = $this->oContainer->get('request_stack')->getCurrentRequest();
+		}
 		$siteName = $this->oContainer->getParameter('app.site_name', '');
 		$oSession = $oRequest->getSession();
 		$nUid = $this->getUid();

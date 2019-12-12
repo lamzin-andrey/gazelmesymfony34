@@ -1,39 +1,35 @@
 {% extends "base.html.twig" %}
 {% block content %}
     <div class="form getsmsform">
-        <p>{{ infoMessage }}</p>
-        <form action="{{ path('smsverify_sendcode') }}" method="POST">
-            <span>Вам отправлено смс с кодом, введите код в это поле </span><input type="number" value="" id="smsCode" name="smsCode">
+        {{   form_start(form, {'action': path('smsverify_sendcode'), 'method': 'POST'}) }}
+            <span>{{ 'SMS with a code has been sent to you, enter the code in this field'|trans }} </span>
+            {{ form_widget(form.code) }}
             <div class="iblock">
                 <span class="red">{{invalidCodeMessage}}</span>
             </div>
-            {# TODO use formtype #}
-            <?=FV::sub('n', 'Отправить код из sms')?>
+            <input type="submit" value="{{ 'Send code from SMS'|trans }}" >
 
-        </form>
+        {{ form_end(form) }}
     </div>
     {% include('sms/getsmsbutton_content.html.twig') %}
     {#<!-- //показываем надпись Повторная отправка смс возможна через 15 минут (вычисляемое значение) -->#}
     {%  if timeoutMinutes > 0  %}
     <div class="form getsmsform slogan">
-        <span>Повторная отправка смс возможна через <span>{{timeoutMinutes}}</span></span>
+        <span>{{ 'Re-sending SMS is possible through'|trans }} <span>{{timeoutMinutes}}</span></span>
     </div>
     {%  endif %}
 {% endblock content %}
 
 
-{#% block js %}
+{% block js %}
     <script type="text/javascript" src="/js/L.js?{{assetsVersion}}" async></script>
     <script type="text/javascript">
         var token = '{{ csrf_token }}';
         var uid   = '{{ uid }}';
-        var cityId = '{{ nCityId }}';
-        var isCity = '{{ nIsCity }}';
-        var regionId = '{{ nRegionId }}';
         window.SITE_NAME   = '{{ siteName }}';
-        window.redirectToConfirmPhone = '{{ redirectToConfirmPhone }}';
+        //window.redirectToConfirmPhone = '{#{ redirectToConfirmPhone }#}';
     </script>
-{% endblock %#}
+{% endblock %}
 {#% block vuepageerror %}
     <div id="mainsfrormerror" v-bind:class="{vis:pageErrorBlockVisible}" v-if="pageErrorBlockVisible">[[ pageErrorText ]]</div>
 

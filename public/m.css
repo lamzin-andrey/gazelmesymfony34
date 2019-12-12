@@ -911,8 +911,8 @@ li {
 .tj{text-align:justify;}
 .tdn{text-decoration:none;}
 
-#smsCode {
-	margin: 0 0 15px 0;
+#sms_code_form_code {
+	margin: 15px 0px;
 }
 .fcomment{
 	font-size:11px;
@@ -1038,4 +1038,9 @@ li {
 }
 .fileuploaderinputwrapper input[type=file] {
 	width: 173px;
+}
+input[type=number] {
+	height: 34px;
+	font-size: 24pt;
+	max-width:138px;
 }
