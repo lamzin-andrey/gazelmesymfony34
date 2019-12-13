@@ -50,7 +50,14 @@ class AdvertEditorService
 		$this->_oGazelMeService = $oGazelMeService;
 		$this->_oRegionsService = $oRegionsService;
 	}
-	//TODO access to advert control
+	/**
+	 * Общая логика обработки формы подачи объявления для анонимуса и для авторизованого фага
+	 * @param Request $oRequest
+	 * @param \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder
+	 * @param \App\Entity\Main $oAdvert
+	 * @param bool $bModeEdit = false
+	 * @return array
+	*/
 	public function pageAdvertForm(Request $oRequest, \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder, \App\Entity\Main $oAdvert, bool $bModeEdit = false) : array
 	{
 		if (!$this->_oController) {
@@ -76,6 +83,12 @@ class AdvertEditorService
 		$aData['aPhone'] = [];
 		$aData['aCompanyName'] = [];
 		$aData['agreeAttrs'] = [];
+
+		/*if ($oAdvert && $this->getUser() && $this->getUser()->getId() != $oAdvert->getUserId()) {
+			$aData = $this->_oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
+			$this->addFlash('notice', 'You have not access to thid advert');
+			return $aData;
+		}*/
 
 		if ($this->getUser()) {
 			$aData['aCompanyName']['disabled'] = $aData['aPhone']['disabled']  = 'disabled';

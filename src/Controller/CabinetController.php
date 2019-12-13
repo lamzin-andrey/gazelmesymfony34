@@ -42,7 +42,12 @@ class CabinetController extends Controller implements IAdvertController
 	public function editAdvert(int $nAdvertId, Request $oRequest, \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder, GazelMeService $oGazelMeService, AdvertEditorService $oAdvertEditorService)
 	{
 		$oAdvertRepository = $this->getDoctrine()->getRepository('App:Main');
-		$this->_oAdvert = $oAdvertRepository->find($nAdvertId);
+		$oAdvert = $this->_oAdvert = $oAdvertRepository->find($nAdvertId);
+		if ($oAdvert && $this->getUser()->getId() != $oAdvert->getUserId()) {
+			$t = $this->get('translator');
+			$this->addFlash('notice', $t->trans('You have not access to thid advert'));
+			return $this->redirectToRoute('home');
+		}
 		$oAdvertEditorService->setController($this);
 		$aData = $oAdvertEditorService->pageAdvertForm($oRequest, $oEncoder, $this->_oAdvert, true);
 		return $this->render('advert/form.html.twig', $aData);
