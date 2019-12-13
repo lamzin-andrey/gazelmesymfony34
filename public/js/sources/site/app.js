@@ -191,16 +191,41 @@ window.app = new Vue({
 		this.safeCheckboxAttribute('far');
 		this.safeCheckboxAttribute('near');
 		this.safeCheckboxAttribute('piknik');
+
+		//Если существуетзагруженное изображение, отметить это, чтобы изображения не изменялись при выборе чекбоксов
+		this.imageurl = this.$refs.filepreview.getAttribute('src');
+		this.imageUrlIsSet = (this.imageurl.split('/').length > 3 );
 	},
 	/**
 	* @property methods эти методы можно указывать непосредственно в @ - атрибутах
 	*/
 	methods:{
+		//TODO когда фото загружено учесть потом
+		onChangeCarTypeCheckbox(){
+			if (this.imageUrlIsSet) {
+				return;
+			}
+			let n = this.people + this.box + this.term, url = '/images/gazel.jpg';
+			if (n == 1) {
+				if (this.people == 1) {
+					url = '/images/gpasy.jpeg';
+				}
+				if (this.term == 1) {
+					url = '/images/term.jpg';
+				}
+				this.$refs.filepreview.setAttribute('src', url);
+				this.imageurl = url;
+			}
+		},
 		/**
 		 * Восстанавливает значение 
 		*/
 		safeCheckboxAttribute(sId){
-			let c = 'checked', s = $('#advert_form_' + sId)[0].getAttribute(c);
+			let o = $('#advert_form_' + sId)[0], c = 'checked', s;
+			if (!o) {
+				return;
+			}
+			s = o.getAttribute(c);
 			if (s == c) {
 				this[sId] = true;
 			} else {
@@ -232,6 +257,7 @@ window.app = new Vue({
 			this.isUploadImageProcess = false;
 			this.$refs.filepreview.setAttribute('src', sPath);
 			this.imageurl = sPath;
+			this.imageUrlIsSet = true;
 		},
 		/**
 		 * @description Отправка формы подачи объявлоения

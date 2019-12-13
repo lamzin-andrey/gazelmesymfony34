@@ -50,7 +50,7 @@ class AdvertEditorService
 		$this->_oGazelMeService = $oGazelMeService;
 		$this->_oRegionsService = $oRegionsService;
 	}
-
+	//TODO access to advert control
 	public function pageAdvertForm(Request $oRequest, \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $oEncoder, \App\Entity\Main $oAdvert, bool $bModeEdit = false) : array
 	{
 		if (!$this->_oController) {
@@ -70,15 +70,25 @@ class AdvertEditorService
 		$oViewDataService = $this->_oGazelMeService->getViewDataService();
 		/** @var \Symfony\Component\HttpFoundation\Session\Session $oSession **/
 		$aData = $oViewDataService->getDefaultTemplateData($oRequest);
-		$aData['sCompanyName'] = '';
-		$aData['sCompanyNameDisabled'] = '';
 		$aData['redirectToCabinedId'] = '';
 		$aData['sActionPath'] = 'podat_obyavlenie';
 		$aData['actionPathAttributes'] = [];
-		//$aData['nModeIsEdit'] = 0;
+		$aData['aPhone'] = [];
+		$aData['aCompanyName'] = [];
 		$aData['agreeAttrs'] = [];
+
+		if ($this->getUser()) {
+			$aData['aCompanyName']['disabled'] = $aData['aPhone']['disabled']  = 'disabled';
+			$aData['agreeAttrs'] = [
+				'checked' => 'checked'
+			];
+			$aData['aPhone']['value'] = $this->getUser()->getUsername();
+			$aData['aCompanyName']['value'] = $this->getUser()->getDisplayName();
+		}
+		//$aData['nModeIsEdit'] = 0;
+
 		if ($oRequest->getMethod() == 'POST') {
-			if ($bModeEdit) {
+			if ($this->getUser()) {
 				$this->_patchRequestForEditMode($oForm);
 			} else {
 				$oForm->handleRequest($oRequest);
@@ -90,7 +100,7 @@ class AdvertEditorService
 					$oRequest->getSession()->set('verified_adv_id', $this->_oAdvert->getId());
 					$aData['redirectToConfirmPhone'] = '1';
 					$sMsg = 'You need to confirm your phone number. You will now be redirected to the confirmation page';
-					if ($bModeEdit && $this->getUser()->getIsSmsVerify() == 1) {
+					if ($this->getUser() && $this->getUser()->getIsSmsVerify() == 1) {
 						$aData['redirectToConfirmPhone'] = '0';
 						$aData['redirectToCabinedId'] = $this->_oAdvert->getId();
 						$sMsg = 'Data saved';
@@ -118,11 +128,6 @@ class AdvertEditorService
 		} else {
 			$aData['nRegionId'] = $oAdvert->getRegion();
 			$aData['image'] = $oAdvert->getImage();
-			$aData['sCompanyName'] = $oAdvert->getUserObject()->getDisplayName();
-			$aData['sCompanyNameDisabled'] = 'disabled';
-			$aData['agreeAttrs'] = [
-				'checked' => 'checked'
-			];
 			$aData['sActionPath'] = 'cabinet_edit_adv';
 			$aData['actionPathAttributes'] = ['nAdvertId' => $oAdvert->getId()];
 		}
@@ -145,6 +150,12 @@ class AdvertEditorService
 
 		$aData['aCityId'] = [
 			'value' => $aData['nCityId']
+		];
+		$aData['aCarTypeProps'] = [
+			'attr' => [
+				'v-on:change' => 'onChangeCarTypeCheckbox'
+			]
+
 		];
 		$aData['nIsCity'] = (intval($aData['nRegionId']) && !intval($aData['nCityId']));
 		return $aData;

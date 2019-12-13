@@ -15,13 +15,13 @@
 		</div>
 			<div class="prmf">
 				<div class="checkblock">
-					 {{ form_row(form.people) }}
+					 {{ form_row(form.people, aCarTypeProps) }}
 				</div>
 				<div class="checkblock">
-					 {{ form_row(form.box) }}
+					 {{ form_row(form.box, aCarTypeProps) }}
 				</div>
 				<div class="checkblock">
-					 {{ form_row(form.term) }}
+					 {{ form_row(form.term, aCarTypeProps) }}
 				</div>
 				<div class="checkblock">
 					 {{ form_row(form.far) }}
@@ -77,14 +77,14 @@
 			<div class="both"></div>
 			<div class="authorname py-4">
 				{# <?=FV::labinp("person", "Введите ваше имя или название компании *", @$addForm->name, 0, 0, $authorized);?> #}
-				{{ form_row(form.company_name, {'value': sCompanyName, 'disabled' : sCompanyNameDisabled}) }}
+				{{ form_row(form.company_name, aCompanyName) }}
 			</div>
 			
 			<div class="adphone py-5">
 				{#<?=FV::labinp("phone", "Введите номер сотового телефона *", @$addForm->phone, 0, 0, $authorized);?> #}
 				{# form_row(form.phone) #}
 				{{ form_label(form.phone) }}
-				{{ form_widget(form.phone, {'disabled' : sCompanyNameDisabled}) }}
+				{{ form_widget(form.phone, aPhone) }}
 				{%- if form.phone.vars.errors|length > 0 -%}
 				<ul>
 					{%- for error in form.phone.vars.errors -%}

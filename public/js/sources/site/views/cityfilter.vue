@@ -267,7 +267,8 @@
 			 * @param {String} sLocationName
 			*/
 			setLocation(sCityId, sRegionId, sIsCity, sLocationName) {
-				if (!$('#hDisplayLocation')[0]) {
+				
+				if (!sLocationName) {
 					return;
 				}
 				if (sLocationName) {
@@ -282,6 +283,9 @@
 						id : 0,
 						text : $('#hDisplayLocation').text()
 					};
+				if (!sLocationName) {
+					o.text = '';
+				}
 				if (nCityId) {
 					o.is_city = 0;
 					o.id = nCityId;

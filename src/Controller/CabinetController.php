@@ -18,7 +18,6 @@ use Symfony\Bundle\SwiftmailerBundle;
 
 class CabinetController extends Controller implements IAdvertController
 {
-	//TODO access_control in security!
     /**
      * @Route("/cabinet", name="cabinet")
     */
