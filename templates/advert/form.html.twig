@@ -4,7 +4,7 @@
 <div id="mainsfrormadd">
 	<div id="add_legend">Добавить свое объявление</div>
 	<hr id="add_hr"/>
-		{{  form_start(form, {'action': path('podat_obyavlenie'), 'attr': {'enctype': 'multipart/form-data', 'v-on:submit' : 'onSubmitAdvertForm'} }) }}
+		{{  form_start(form, {'action': path(sActionPath, actionPathAttributes), 'attr': {'enctype': 'multipart/form-data', 'v-on:submit' : 'onSubmitAdvertForm'} }) }}
 		<div>
 			{% include 'widgets/locationform.html.twig' %}
 			{{ form_widget(form.region, aRegionId) }}
@@ -65,26 +65,26 @@
 									v-on:uploadneterror="onFailUploadFilePreview"
 									id="autophoto" ></inputfile>
 							{{ form_errors(form.imagefile) }}
-							<div data-sign="DGN" class="hide red" v-bind:class="{vis:uploadImageError}" id="imerr">[[uploadImageError]]</div>
+							<div class="hide red" v-bind:class="{vis:uploadImageError}" id="imerr">[[uploadImageError]]</div>
 						</td>
 						<td>
 							<img v-if="isUploadImageProcess" src="/images/l-w.gif" id="upLdr" class="hide" v-bind:class="{vis:vueFileInputIsEnabled}" />
 						</td>
 					</tr>
 				</table>
-				{{ form_widget(form.imgpath) }}
+				{{ form_widget(form.imgpath, {'value' : image} ) }}
 			</p>
 			<div class="both"></div>
 			<div class="authorname py-4">
 				{# <?=FV::labinp("person", "Введите ваше имя или название компании *", @$addForm->name, 0, 0, $authorized);?> #}
-				{{ form_row(form.company_name) }}
+				{{ form_row(form.company_name, {'value': sCompanyName, 'disabled' : sCompanyNameDisabled}) }}
 			</div>
 			
 			<div class="adphone py-5">
 				{#<?=FV::labinp("phone", "Введите номер сотового телефона *", @$addForm->phone, 0, 0, $authorized);?> #}
 				{# form_row(form.phone) #}
 				{{ form_label(form.phone) }}
-				{{ form_widget(form.phone) }}
+				{{ form_widget(form.phone, {'disabled' : sCompanyNameDisabled}) }}
 				{%- if form.phone.vars.errors|length > 0 -%}
 				<ul>
 					{%- for error in form.phone.vars.errors -%}
@@ -96,9 +96,8 @@
 			<p class="fcomment green">
 				Например, 8 917 000 11 22 или +7 917 000 11 22, + перед семеркой обязателен! (пробелы и скобки по желанию)
 			</p>
-			
-			{% if (app.user is null) %}
-			<div id="grb">
+
+			<div id="grb" {% if (app.user is not null) %} class="hide"{% endif %}>
 				<p class="register">Если хотите обновлять и редактировать объявление, введите пароль
 				<br/>Адрес электронной почты понадобится вам, если вы его забудете.</p>
 				<p class="pwdmail">
@@ -108,13 +107,13 @@
 					{{ form_row(form.email, {'attr' : { 'v-model' : 'email' } }) }}
 				</div>
 			</div>
-			{% endif %}
+
 			
 			
 			<div class="both"></div>
 			
 			<div class="agreearea">
-				{{ form_widget(form.agreement) }}
+				{{ form_widget(form.agreement, agreeAttrs) }}
 				<label for="advert_form_agreement">Я прочитал и согласен с <a href="{{ politicDoc }}" target="_blank">Политикой конфидециальности</a> и <a href="{{ path('agreement') }}" target="_blank">Условиями использования</a></label>
 				{{ form_errors(form.agreement) }}
 			</div>
@@ -153,8 +152,10 @@
 		var cityId = '{{ nCityId }}';
 		var isCity = '{{ nIsCity }}';
 		var regionId = '{{ nRegionId }}';
+		var locationDisplayName = '{{ sDisplayLocation }}';
 		window.SITE_NAME   = '{{ siteName }}';
 		window.redirectToConfirmPhone = '{{ redirectToConfirmPhone }}';
+		window.redirectToCabinedId = '{{ redirectToCabinedId }}';
 	</script>
 {% endblock %}
 {% block vuepageerror %}

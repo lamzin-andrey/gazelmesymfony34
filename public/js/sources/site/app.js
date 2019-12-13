@@ -168,7 +168,7 @@ window.app = new Vue({
 			Rest._token = Rest._token = this.$refs.loginform.getCsrf();
 		}
 		if (this.$refs.cityfilter) {
-			this.$refs.cityfilter.setLocation(cityId, regionId, isCity);
+			this.$refs.cityfilter.setLocation(cityId, regionId, isCity, locationDisplayName);
 		}
 		
 		$('#bttimg').css('display', 'block');
@@ -179,11 +179,34 @@ window.app = new Vue({
 		if (window.redirectToConfirmPhone === '1') {
 			location.href = '/smsverify';
 		}
+
+		if (parseInt(window.redirectToCabinedId) > 0) {
+			location.href = '/cabinet/edit/' + parseInt(window.redirectToCabinedId);
+		}
+
+		//Восстановить значения чекнутых чекбоксов (vue иногда такое vue)
+		this.safeCheckboxAttribute('term');
+		this.safeCheckboxAttribute('box');
+		this.safeCheckboxAttribute('people');
+		this.safeCheckboxAttribute('far');
+		this.safeCheckboxAttribute('near');
+		this.safeCheckboxAttribute('piknik');
 	},
 	/**
 	* @property methods эти методы можно указывать непосредственно в @ - атрибутах
 	*/
 	methods:{
+		/**
+		 * Восстанавливает значение 
+		*/
+		safeCheckboxAttribute(sId){
+			let c = 'checked', s = $('#advert_form_' + sId)[0].getAttribute(c);
+			if (s == c) {
+				this[sId] = true;
+			} else {
+				this[sId] = false;
+			}
+		},
 		/**
 		 * @description 
 		*/

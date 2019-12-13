@@ -365,4 +365,25 @@ class RegionsService  {
 			}
 		}
 	}
+	/**
+	 * Получить отображаемую локацию из объекта App\Entuty\Main as Advert
+	 * @param Main $oAdvert
+	 * @return string
+	*/
+	public function getDisplayLocationFromAdvertEntity(Main $oAdvert) : string
+	{
+		$oRegion = $oAdvert->getRegionObject();
+		$oCity = $oAdvert->getCityObject();
+		if (!$oRegion) {
+			return '';
+		}
+		if ($oCity && $oCity->getId() == $this->oContainer->getParameter('app.city_zero_id')) {
+			$oCity = null;
+		}
+		if (!$oCity) {
+			return $oAdvert->getRegionObject()->getRegionName();
+		}
+
+		return $oAdvert->getRegionObject()->getRegionName() . ', ' . $oAdvert->getCityObject()->getCityName();
+	}
 }

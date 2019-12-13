@@ -8,8 +8,14 @@
 				<header><h2 class="a b">{{ advert.title }}</h2></header>
 				<div class="text">
 					<div class="vprice b"><span class="name">Цена:</span>  {{ advert.price|rouble }}</div>
-					<div class="name"><span class="dd">Местоположение</span> {{ advert.regionObject.regionName|location_name(advert.cityObject.cityName, advert.city) }}</div>
-					<div class="name"><span class="dd">Контактное лицо</span> {{ advert.name }}</div>
+					<div class="name"><span class="dd">Местоположение</span> {{ advert.regionObject.regionName|location_name(advert.cityObject) }}</div>
+					<div class="name"><span class="dd">Контактное лицо</span>
+						{% if (advert.userObject) %}
+							{{ advert.userObject.displayName }}
+						{% else %}
+							{{ advert.id }}
+						{% endif %}
+					</div>
 					<div class="name"><span class="dd">Тип</span> {{ advert|type_transfer }}</div>
 					<div class="name"><span class="dd">Расстояние</span> {{ advert|distance }}</div>
 					<div class="phone">
@@ -60,7 +66,7 @@
 
 <script type="text/javascript" src="/js/L.js?{{assetsVersion}}" async></script>
 <script type="text/javascript">
-	var token = '{{ csrf }}';
+	var token = '{{ csrf_token }}';
 	var uid   = '{{ uid }}';
 	window.SITE_NAME   = '{{ siteName }}'; //TODO it need?
 </script>

@@ -264,10 +264,14 @@
 			 * @param {String} sCityId
 			 * @param {String} sRegionId
 			 * @param {String} sIsCity
+			 * @param {String} sLocationName
 			*/
-			setLocation(sCityId, sRegionId, sIsCity) {
+			setLocation(sCityId, sRegionId, sIsCity, sLocationName) {
 				if (!$('#hDisplayLocation')[0]) {
 					return;
+				}
+				if (sLocationName) {
+					$('#hDisplayLocation').text(sLocationName);
 				}
 				let nCityId = parseInt(sCityId),
 					nRegionId = parseInt(sRegionId),

@@ -67,7 +67,7 @@ class Main
 	private $userObject;
 
     /**
-     * @var int|null
+     * @var bool|null
      *
      * @ORM\Column(name="people", type="smallint", nullable=true, options={"comment"="1 - если газель пассажирская"})
      */
@@ -81,35 +81,35 @@ class Main
     private $price = 1.00;
 
     /**
-     * @var int|null
+     * @var bool|null
      *
      * @ORM\Column(name="box", type="smallint", nullable=true, options={"comment"="1 - если грузовая"})
      */
     private $box;
 
     /**
-     * @var int|null
+     * @var bool|null
      *
      * @ORM\Column(name="term", type="smallint", nullable=true, options={"comment"="1 - если термобудка"})
      */
     private $term;
 
     /**
-     * @var int|null
+     * @var bool|null
      *
      * @ORM\Column(name="far", type="smallint", nullable=true, options={"comment"="1 - если межгород"})
      */
     private $far;
 
     /**
-     * @var int|null
+     * @var bool|null
      *
      * @ORM\Column(name="near", type="smallint", nullable=true, options={"comment"="1 - если по городу"})
      */
     private $near;
 
     /**
-     * @var int|null
+     * @var bool|null
      *
      * @ORM\Column(name="piknik", type="smallint", nullable=true, options={"comment"="1 - если по пикник"})
      */
@@ -237,12 +237,12 @@ class Main
         return $this;
     }
 
-    public function getPeople(): ?int
+    public function getPeople(): ?bool
     {
         return $this->people;
     }
 
-    public function setPeople(?int $people): self
+    public function setPeople(?bool $people): self
     {
         $this->people = $people;
 
@@ -261,60 +261,60 @@ class Main
         return $this;
     }
 
-    public function getBox(): ?int
+    public function getBox(): ?bool
     {
         return $this->box;
     }
 
-    public function setBox(?int $box): self
+    public function setBox(?bool $box): self
     {
         $this->box = $box;
 
         return $this;
     }
 
-    public function getTerm(): ?int
+    public function getTerm(): ?bool
     {
         return $this->term;
     }
 
-    public function setTerm(?int $term): self
+    public function setTerm(?bool $term): self
     {
         $this->term = $term;
 
         return $this;
     }
 
-    public function getFar(): ?int
+    public function getFar(): ?bool
     {
         return $this->far;
     }
 
-    public function setFar(?int $far): self
+    public function setFar(?bool $far): self
     {
         $this->far = $far;
 
         return $this;
     }
 
-    public function getNear(): ?int
+    public function getNear(): ?bool
     {
         return $this->near;
     }
 
-    public function setNear(?int $near): self
+    public function setNear(?bool $near): self
     {
         $this->near = $near;
 
         return $this;
     }
 
-    public function getPiknik(): ?int
+    public function getPiknik(): ?bool
     {
         return $this->piknik;
     }
 
-    public function setPiknik(?int $piknik): self
+    public function setPiknik(?bool $piknik): self
     {
         $this->piknik = $piknik;
 

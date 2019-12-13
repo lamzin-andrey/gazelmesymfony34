@@ -22,31 +22,16 @@ use Doctrine\Common\Collections\Criteria;
 
 use App\Form\AdvertForm;
 
-class AdvertController extends Controller
+class AdvertController extends Controller  implements IAdvertController
 {
-	/** @property \Doctrine\ORM\EntityManager $_oEm */
-	private $_oEm;
-	
+
 	/** @property \App\Entity\Advert $_oAdvert */
 	private $_oAdvert;
-	
-	/** @property \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $_oEncoder */
-	private $_oEncoder;
-	
+
 	/** @property string $_subdir Каталог для загрузки файлов из настроек (без DOCUMENT_ROOT и подкаталогов ГОД/МЕСЯЦ ) */
 	private $_subdir;
 
-	/** @property bool $_bNeedUpdatePassword true  когда надо обновить пароль и email пользователя, который подавал ранее объявления не указывая email и пароль */
-	private $_bNeedUpdatePassword = false;
 
-	/** @property ?App\Entity\Users $_oAnonymousUser может содержать объект с данными о пользователе, который подавал ранее объявления не указывая email и пароль */
-	private $_oAnonymousUser = null;
-
-	/** @property FormInterface $_oForm = $this->>createForm( new AdvertForm() ) */
-	private $_oForm = null;
-
-	/** @property bool $_bNeedCreateAccount true  когда надо создавать запись в users (объявление подаёт ранее никогда не публиковавшийся пользователь) */
-	private $_bNeedCreateAccount = false;
 
 	/** @property GazelMeService $_oGazelMeService сервис приложения, содержит методы общие для всех контроллеров */
 	private $_oGazelMeService = null;
@@ -170,229 +155,6 @@ class AdvertController extends Controller
 		$aData = $oAdvertEditorService->pageAdvertForm($oRequest, $oEncoder, $this->_oAdvert);
 		return $this->render('advert/form.html.twig', $aData);
 	}
-	/**
-	 * Если пользователь не авторизован создаётся пользователь.
-	 * Данные формы также сохраняются.
-	**/
-	private function _saveAdvertData(\Symfony\Component\Form\FormInterface $oForm, \App\Service\GazelMeService $oGazelMeService, Request $oRequest)
-	{
-		$this->_oEm = $this->getDoctrine()->getManager();
-
-		if (isset($this->_nExistsUserId) ) {
-			$nUserId = $this->_nExistsUserId;
-		}
-
-		if (!$this->getUser()) {
-			if ($this->_bNeedCreateAccount) {
-				$nUserId = $this->_saveUser($oRequest);
-				$nUserId = $this->_nExistsUserId;
-			}
-			if ($this->_bNeedUpdatePassword) {
-				$this->_updateUserPassword();
-				$nUserId = $this->_oAnonymousUser->getId();
-			}
-		} else if ($this->getUser()){
-			$nUserId = $this->getUser()->getId();
-		}
-		$nRegionId = $this->_oAdvert->getRegion();
-		$nCityId = $this->_oAdvert->getCity();
-		$nRegionId = intval($nRegionId) > 0 ? $nRegionId : null;
-		$nCityId = intval($nCityId) > 0 ? $nCityId : null;
-		
-		$this->_oAdvert->setUserId($nUserId);
-		$this->_oAdvert->setIsDeleted(1);
-		
-		//транслитировать заголовок объявления
-		$this->_oAdvert->setCodename($oGazelMeService->translite_url($this->_oAdvert->getTitle()));
-		
-		//save file
-		$oFile = $this->_oForm['imagefile']->getData();
-        if ($oFile) {
-            $sFileName = $this->_oGazelMeService->getFileUploaderService()->upload($oFile);
-            $this->_oAdvert->setImage('/' . $this->_subdir . '/' . $sFileName);
-        } else {
-        	$s = trim($oRequest->get('advert_form')['imgpath']);
-        	if ($s) {
-				$this->_oAdvert->setImage($s);
-			}
-		}
-		$this->_oAdvert->setPhone( $this->_oGazelMeService->normalizePhone( $this->_oAdvert->getPhone() ) );
-		
-		$this->_oEm->persist($this->_oAdvert);
-		$this->_oEm->flush();
-		
-		//Тут непонятный баг, region и city не устанавливаются, 
-		// хотя при попытке getRegion() перед сохранеием корректное значение (пришедшее из формы).
-		//Поэтому допиливаем апдейтом, что конечно безобразие
-		$nId = $this->_oAdvert->getId();
-		$sDQuery = 'UPDATE App:Main AS m '
-				. 'SET m.region = :r, m.city = :c, m.delta = :id, m.userId = :uid '
-				. 'WHERE m.id = :id';
-		/** @var \Doctrine\ORM\Query $oQuery */
-		$oQuery = $this->_oEm->createQuery($sDQuery);
-		$oQuery->setParameters([
-			':r' => $nRegionId,
-			':c' => $nCityId,
-			':id' => $nId,
-			':uid' => $nUserId
-		]);
-		$oQuery->execute();
-		
-		
-	}
-	/**
-	 * Создаётся пользователь.
-	**/
-	private function _saveUser(Request $oRequest)
-	{
-		$aData = $this->_formData();
-		$oUserManager = $this->get('fos_user.user_manager');
-		$oUser = $oUserManager->createUser();
-		$oUser->setUsername($aData['phone']);
-		$sEmail = trim($aData['email'] ?? '');
-		if (!$sEmail) {
-			//Установим временный email чтобы FOS не ругались
-			$sEmail = md5( time() . rand(10000, 99999) . $oRequest->server->get('HTTP_USER_AGENT')) . '@mail.ru';
-		}
-		$oUser->setEmail($sEmail);
-		//если не указан пароль, устанавливать setIsAnonymous(true)
-		$sPassword = trim($aData['password'] ?? '');
-		if (!$sPassword) {
-			$sPassword = md5( $sEmail );
-			$oUser->setIsAnonymous(true);
-		}
-		$oUser->setPlainPassword($sPassword);
-		$oUser->setEnabled(true);
-		$oUserManager->updateUser($oUser);
-		$this->_nExistsUserId = $oUser->getId();
-	}
-	/**
-	 * Дополнительная валидация формы подачи объявления. Если пользователь не авторизован, 
-	 *	проверяется, не существует ли аккаунт с такими данными.
-	 * Проверяется, выбран ли хотя бы один  тип транспорта и хотя бы одно расстояние
-	**/
-	private function _isAdditionalValid() : bool
-	{
-		$aData = $this->_formData();
-		//валидация заполненности хотя бы одного из чекбоксов
-		//Тип авто
-		$nType = intval($aData['people'] ?? 0) + intval($aData['box'] ?? 0) + intval($aData['term'] ?? 0);
-		if (!$nType) {
-			$this->_addError('Type auto required', 'people');
-			return false;
-		}
-		//Тип дистанции
-		$nDistance = intval($aData['far'] ?? 0) + intval($aData['near'] ?? 0) + intval($aData['piknik'] ?? 0);
-		if (!$nDistance) {
-			$this->_addError('Distance required', 'far');
-			return false;
-		}
-
-		//Должен быть выбран регион и он не должен быть is_city = 1
-		$nRegion = $aData['region'];
-		$nCity = $aData['city'];
-		if (!$nRegion) {
-			$this->_addError('Need select location', 'region');
-			return false;
-		}
-
-		//валидация логина и пароля, который может быть введён
-		$this->_bNeedCreateAccount = false;
-		//Если введён email то должен быть введён и пароль
-		//Таких данных в базе быть не должно, с учётом телефона
-		$sPhone = $aData['phone'] ?? '';
-		$sEmail = trim($aData['email'] ?? '');
-		$sPassword = trim($aData['password'] ?? '');
-
-		$oCriteria = new Criteria();
-		$oExpr = $oCriteria->expr();
-		$oCriteria->orderBy(['id' => 'ASC']);
-		$oUserRepository = $this->getDoctrine()->getRepository('App:Users');
-		$oCriteria->where(
-			$oExpr->orX(
-				$oExpr->eq('emailCanonical', $sEmail),
-				$oExpr->eq('username', $sPhone)
-			)
-		);
-		$oUser = $oUserRepository->matching($oCriteria)->get(0);
-		if ($sEmail || $sPassword) {
-			if (!$sEmail || !$sPassword ) {
-				$this->_addError('Email and Password required if on from these no empty', 'email');
-				return false;
-			}
-			if ($oUser) {
-				//проверяем, не совпал ли пароль
-				$bPasswordValid = $this->_oEncoder->isPasswordValid($oUser, $sPassword);
-										//и пользователь его устанавливал раньше
-				if (!$bPasswordValid && !$oUser->getIsAnonymous()) {
-					$this->_addError('User already exists, but password not valid', 'phone');
-					return false;
-				}
-				//Еcли пароль не подходит и пользователь его не установил ранее (подавал не вводя email / password)
-				if (!$bPasswordValid) { // & $oUser->getIsAnonymous()
-					$this->_oAnonymousUser = $oUser;
-					$this->_nExistsUserId = $oUser->getId();
-					$this->_bNeedUpdatePassword = true;
-				}
-				$this->_nExistsUserId = $oUser->getId();
-			} else {
-				//Нет пользователя с таким логином или паролем - значит надо создать
-				$this->_bNeedCreateAccount = true;
-			}
-			
-		} else {
-			//Тут норм, неавторизованым подавать позволяем, всё равно на запрос телефона редирект
-			if ($oUser) {
-				$this->_nExistsUserId = $oUser->getId();
-			} else {
-				//Нет пользователя с таким телефоном - значит надо создать
-				$this->_bNeedCreateAccount = true;
-			}
-		}
-
-
-
-		return true;
-	}
-	/**
-	 * @return Request
-	**/
-	private function _request() : Request
-	{
-		return $this->get('request_stack')->getCurrentRequest();
-	}
-	/**
-	 * @return array
-	**/
-	private function _formData() : array
-	{
-		return $this->_request()->get('advert_form');
-	}
-	/**
-	 * @param string $sError
-	 * @param string $sField
-	**/
-	private function _addError(string $sError, string $sField)
-	{
-		$this->_oGazelMeService->addFormError($sError, $sField, $this->_oForm);
-	}
-	/**
-	 * Обновить пароль пользователя, который ранее уже подавал объявления, но не указал пароль
-	**/
-	private function _updateUserPassword()
-	{
-		$aData = $this->_formData();
-		$oUser = $this->_oAnonymousUser;
-		if ($oUser) {
-			$oUser->setEmail($aData['email']);
-			$oUser->setPlainPassword($aData['password']);
-			$oUser->setEnabled(true);
-			$oUser->setIsAnonymous(false);
-			$oUserManager = $this->get('fos_user.user_manager');
-			$oUserManager->updateUser($oUser);
-			$this->_nExistsUserId = $oUser->getId();
-		}
-	}
 	/*
 	 * @return FormInterface форма для обработки ajax загрузки файла
 	*/
@@ -400,5 +162,15 @@ class AdvertController extends Controller
 	{
 		$oAdvertEditorService->setController($this);
 		return $oAdvertEditorService->getAjaxForm();
+	}
+
+	public function createFormEx(string $sFormTypeClass, $oEntity, array $aOptions)
+	{
+		return $this->createForm($sFormTypeClass, $oEntity, $aOptions);
+	}
+
+	public function addFlashEx(string $sType, string $sMessage)
+	{
+		return $this->addFlash($sType, $sMessage);
 	}
 }
