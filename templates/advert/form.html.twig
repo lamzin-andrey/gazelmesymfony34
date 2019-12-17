@@ -33,20 +33,20 @@
 					 {{ form_row(form.piknik) }}
 				</div>
 			</div>
-			<p class="adtitle">
+			<div class="adtitle">
 				{{ form_label(form.title) }} <span class="red">*</span> {{ form_widget(form.title) }}
 				{{ form_errors(form.title) }}
-			</p>
-			<p class="add_text">
+			</div>
+			<div class="add_text">
 				{{ form_label(form.addtext) }}<span class="red">*</span>
 				{{ form_widget(form.addtext) }}
 				<span class="right praf" id="afctrl">955 / 1000</span>
 				{{ form_errors(form.addtext) }}
-			</p>
-			<p class="price">
+			</div>
+			<div class="price">
 				{{ form_row(form.price) }}
-			</p>
-			<p class="image ">
+			</div>
+			<div class="image ">
 				<img ref="filepreview" src="{{ asset(image) }}" class="ii" id="imgview"/> <label for="image">Загрузите изображение</label><br/>
 				<table>
 					<tr>
@@ -73,7 +73,7 @@
 					</tr>
 				</table>
 				{{ form_widget(form.imgpath, {'value' : image} ) }}
-			</p>
+			</div>
 			<div class="both"></div>
 			<div class="authorname py-4">
 				{# <?=FV::labinp("person", "Введите ваше имя или название компании *", @$addForm->name, 0, 0, $authorized);?> #}
@@ -99,10 +99,10 @@
 
 			<div id="grb" {% if (app.user is not null) %} class="hide"{% endif %}>
 				<p class="register">Если хотите обновлять и редактировать объявление, введите пароль
-				<br/>Адрес электронной почты понадобится вам, если вы его забудете.</p>
-				<p class="pwdmail">
+					<br/>Адрес электронной почты понадобится вам, если вы его забудете.</p>
+				<div class="pwdmail">
 					{{ form_row(form.password, {'attr' : { 'v-model' : 'password' } }) }}
-				</p>
+				</div>
 				<div class="pwdmail">
 					{{ form_row(form.email, {'attr' : { 'v-model' : 'email' } }) }}
 				</div>
