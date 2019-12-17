@@ -1,0 +1,28 @@
+{% extends "base.html.twig" %}
+
+{% trans_default_domain 'Payform' %}
+
+{% block content %}
+    {% set nIspage100Percents = 1 %}
+
+    <div class="aformwrap upformwrap inrelative payformwr">
+        {{  form_start(setpaysumForm, { 'action' : path('setpaysum') }) }}
+        <div id="hPaysumGr">
+            <p class="b please tj payformmsg">{{ 'The time for free ad-raising on Gazel.Me is over. <br> You can pay the raises'|trans|raw }}</p>
+            <div>
+                <img src="/images/p/m.png" class="pblabel">
+                <input type="submit" class="paysum" id="s60" name="s60" value="{{ 'Up one time - 60 RUR'|trans }}">
+            </div>
+            <div>
+                <img src="/images/p/m.png" class="pblabel">
+                <input type="submit" class="paysum" id="s200" name="s200" value="{{ 'Up five times - 200 RUR'|trans }}">
+            </div>
+            <div>
+                <img src="/images/p/m.png" class="pblabel">
+                <input type="submit" class="paysum" id="s700" name="s700" value="{{ 'Up 31 times - 700 RUR'|trans }}">
+            </div>
+        </div>
+        {{ form_end(setpaysumForm) }}
+    </div>
+
+{% endblock content %}

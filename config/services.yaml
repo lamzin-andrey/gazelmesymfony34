@@ -45,7 +45,14 @@ parameters:
   
   #Каталог с загружаемыми файлами
   app.uploadfiledir: 'images'
-  
+
+  # Реквизиты платежных систем
+
+  # Яндекс деньги
+  app.yamoney_number: '%env(resolve:YAMONEY_NUMBER)%'
+  app.yamoney_key: '%env(resolve:YAMONEY_KEY)%'
+
+  # Система тестирования
   test:
       phone: '80001112233'
       email: 'ftest_user@host.do'
@@ -154,5 +161,8 @@ twig:
     recapcthasitekey: "%app.google_recaptcha_site_key%"
     google_recaptcha_on: "%app.google_recaptcha_on%"
     redirectToConfirmPhone: "0"
+    yamoney_number: "%app.yamoney_number%"
+    yamoney_key: "%app.yamoney_key%"
+    site_name: "%app.site_name%"
 
 

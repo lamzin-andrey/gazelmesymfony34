@@ -1,0 +1,46 @@
+{% extends "base.html.twig" %}
+
+{% trans_default_domain 'Payform' %}
+
+{% block content %}
+    {% set nIspage100Percents = 1 %}
+
+    <div class="aformwrap upformwrap inrelative payformwr">
+        <div id="hPaymethodGr">
+            <form method="POST" action="https://money.yandex.ru/quickpay/confirm.xml" id="yaform">
+                <input type="hidden" name="receiver" id="rec" value="{{ yamoney_number }}">
+                <input type="hidden" name="formcomment" id="comment" value="Оплата возможности {{ n }} поднятий объявления на сайте gazel.me">
+                <input type="hidden" name="label" id="label" value="{{ transactionId }}">
+                <input type="hidden" name="quickpay-form" value="shop">
+                <input type="hidden" name="targets" id="transactionId" value="{{ transactionId }}">
+                <input type="number" id="sum" name="sum" value="{{ sum  }}" data-type="number" class="hide">
+                <input type="hidden" name="comment" id="comment2" value="Оплата возможности {{ n  }} поднятий объявления  на сайте {{ site_name }}">
+                {% if (isCache == 1) %}
+                    <label class="hide"><input type="radio" name="paymentType" id="ps" checked="checked" value="PC" >Яндекс.Деньгами</label>
+                    <label class="hide"><input type="radio" name="paymentType" id="bs" value="AC" >Банковской картой</label>
+                {% else %}
+                    <label class="hide"><input type="radio" name="paymentType" id="ps" value="PC" >Яндекс.Деньгами</label>
+                    <label class="hide"><input type="radio" name="paymentType" id="bs" checked="checked" value="AC" >Банковской картой</label>
+                {% endif %}
+                <p class="b please tj payformmsg">
+                    {{ 'You are going to pay %sum% rubles for the opportunity to raise ads on the site %site_name% %n% times with a credit card'|trans({'%n%': n, '%sum%': sum, '%site_name%' : site_name}) }}.
+                </p>
+                <div>
+                    <img src="/images/p/m.png" class="pblabel">
+                    <input type="submit" class="payvariant" id="mob" value="{{ 'To Pay'|trans }}">
+                </div>
+            </form>
+
+
+        </div>
+
+        <div id="hRoboplace" class="hide">
+            <p class="b please tj payformmsg">После нажатия на кнопку вы будете перенаправлены на страницу сервиса Робокасса <br>Выбрав там вашего мобильного оператора вы сможете провести оплату.</p>
+        </div>
+
+
+
+
+    </div>
+
+{% endblock content %}
