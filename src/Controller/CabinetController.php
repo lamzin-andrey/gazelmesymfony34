@@ -18,6 +18,23 @@ use Symfony\Bundle\SwiftmailerBundle;
 
 class CabinetController extends Controller implements IAdvertController
 {
+
+	/**
+	 * @Route("/cabinet/up/{nAdvertId}", name="cabinet")
+ */
+	public function up(int $nAdvertId, GazelMeService $oGazelMeService)
+	{
+		$oUser = $this->getUser();
+		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData();
+		$aData['list'] = [];
+		if ($oUser) {
+			//TODO
+		}
+		$aData['nCountAdverts'] = count($aData['list']);
+		return $this->render('cabinet/list.html.twig', $aData);
+	}
+
+
     /**
      * @Route("/cabinet", name="cabinet")
     */

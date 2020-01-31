@@ -8,7 +8,12 @@
 </head>
 
 <body>
-	
+	<div id="phdapp">
+		<phdnotifier ref="phdnotifier"></phdnotifier>
+		<button v-on:click="onClickTestNotices" class="btn btn-primary">Проверить уведомления</button>
+		<b4alertdlg id="appAlertDlg" v-bind:params="b4AlertDlgParams"></b4alertdlg>
+	</div>
+	<script src="/js/g.js"></script>
 </body>
 
 </html>

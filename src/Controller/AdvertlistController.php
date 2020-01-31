@@ -154,6 +154,8 @@ class AdvertlistController extends Controller
 			->orderBy(['delta' => Criteria::DESC])
 			->setMaxResults($limit)
 			->setFirstResult(0);
+
+		$oCriteria->
 		
 	
 		if ($sRegion) {

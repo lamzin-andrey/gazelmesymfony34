@@ -118,7 +118,7 @@ class ResettingController extends AbstractController
 		$aEmail = explode('@', $oUser->getEmail());
 		$sEmail = $aEmail[0][0] . '******' . '@'  . $aEmail[1];
 		return $this->render('@FOSUser/Resetting/check_email.html.twig', [
-			'tokenLifetime' => ceil($this->retryTtl / 3600),
+			'tokenLifetime' => ceil($this->_retryTtl / 3600),
 			'email' => $sEmail
 		]);
 	}

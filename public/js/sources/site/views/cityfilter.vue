@@ -64,7 +64,7 @@
 			 *  @return Number
 			*/
 			getCityId() {
-				console.log(this.locations[0]);
+				return this._getCityId();
 				if (this.locations[0] && parseInt(this.locations[0].id) && parseInt(this.locations[0].is_region) != 1) {
 					if ($('#advert_form_city')[0]) {
 						$('#advert_form_city').val(this.locations[0].id);
@@ -82,27 +82,14 @@
 			 *  @return Number
 			*/
 			getIsCity() {
-				if (this.locations[0] && parseInt(this.locations[0].is_city)) {
-					return this.locations[0].is_city;
-				}
-				return 0;
+				return this._getIsCity();
 			},
 			/**
 			 *  @description Получаем идентификатор региона выбранного в инпуте города 
 			 *  @return Number
 			*/
 			getRegionId() {
-				if (this.locations[0] && this.locations[0].is_region && parseInt(this.locations[0].id) && parseInt(this.locations[0].is_region)) {
-					if ($('#advert_form_region')[0]) {
-						$('#advert_form_region').val(this.locations[0].id);
-						$('#advert_form_city').val(0);
-						if ($('#hDisplayLocation')[0] && this.locations[0].text) {
-							$('#hDisplayLocation').text(this.locations[0].text);
-						}
-					}
-					return this.locations[0].id;
-				}
-				return 0;
+				return this._getRegionId();
 			},
 		},
 
@@ -149,6 +136,50 @@
 		};},
         //
         methods:{
+			/**
+			 *  @description Получаем идентификатор выбранного в инпуте города 
+			 *  @return Number
+			*/
+			_getIsCity() {
+				if (this.locations[0] && parseInt(this.locations[0].is_city)) {
+					return this.locations[0].is_city;
+				}
+				return 0;
+			},
+			/**
+			 *  @description Получаем идентификатор региона выбранного в инпуте города 
+			 *  @return Number
+			*/
+			_getRegionId() {
+				if (this.locations[0] && this.locations[0].is_region && parseInt(this.locations[0].id) && parseInt(this.locations[0].is_region)) {
+					if ($('#advert_form_region')[0]) {
+						$('#advert_form_region').val(this.locations[0].id);
+						$('#advert_form_city').val(0);
+						if ($('#hDisplayLocation')[0] && this.locations[0].text) {
+							$('#hDisplayLocation').text(this.locations[0].text);
+						}
+					}
+					return this.locations[0].id;
+				}
+				return 0;
+			},
+			/**
+			 *  @description Получаем идентификатор выбранного в инпуте города 
+			 *  @return Number
+			*/
+			_getCityId() {
+				if (this.locations[0] && parseInt(this.locations[0].id) && parseInt(this.locations[0].is_region) != 1) {
+					if ($('#advert_form_city')[0]) {
+						$('#advert_form_city').val(this.locations[0].id);
+						$('#advert_form_region').val(this.locations[0].r_id);
+						if ($('#hDisplayLocation')[0] && this.locations[0].text) {
+							$('#hDisplayLocation').text(this.locations[0].text);
+						}
+					}
+					return this.locations[0].id;
+				}
+				return 0;
+			},
 			onSubmitLocationData(evt){
 				let url = HttpQueryString.requestUri().split('?')[0];
 				if (url == '/podat_obyavlenie') {
@@ -178,6 +209,11 @@
 							o.css(op, 1);
 						}
 					}, 140);
+
+					Rest._post({regionId: this._getRegionId(), cityId: this._getCityId(), isCity: this._getIsCity()}, (data) => {
+						console.log('Saved!');
+					}, '/setregionjs', () => {});
+
 					return false;
 				}
 				return true;
