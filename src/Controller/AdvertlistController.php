@@ -155,8 +155,8 @@ class AdvertlistController extends Controller
 			->setMaxResults($limit)
 			->setFirstResult(0);
 
-		$oCriteria->
 		
+
 	
 		if ($sRegion) {
             //Тут в зависимости от http запроса может быть ещё пару раз вызван
