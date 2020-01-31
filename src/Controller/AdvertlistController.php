@@ -136,6 +136,10 @@ class AdvertlistController extends Controller
 	*/
 	private function _loadAdvList(string $sRegion = '', string $sCity = '', Request $oRequest) : array 
 	{
+
+		/*phpinfo();
+		die;*/
+
 		$limit = $this->getParameter('app.records_per_page', 10);
 		$repository = $this->getDoctrine()->getRepository('App:Main');
 		$oQueryBuilder = $repository->createQueryBuilder('m');
@@ -209,7 +213,7 @@ class AdvertlistController extends Controller
 		$oQueryBuilder->leftJoin('App:Regions', 'r', 'WITH', $e->eq('m.region', 'r.id'));
 
 		$oQueryBuilder->select('m.title, m.image, m.addtext, m.id, c.codename AS ccodename, m.codename, r.codename AS rcodename, m.city, m.price, c.cityName, r.regionName, u.displayName, m.box, m.term, m.people, m.far, m.near, m.piknik');
-		$aCollection = $oQueryBuilder->getQuery()->useQueryCache(true)->execute();
+		$aCollection = $oQueryBuilder->getQuery()->enableResultCache(3600)->getResult();
 		//var_dump($aCollection);die;
 		//$aCollection = $repository->matching($oCriteria)->toArray();
 		return $aCollection;

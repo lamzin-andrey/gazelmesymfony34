@@ -60,6 +60,11 @@ parameters:
       wrong_password: '1234567Aa'
 
 
+
+  memcached.servers:
+    - memcached://localhost:11211
+  memcached.config: {distribution: 'consistent', compression: true}
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -152,6 +157,16 @@ services:
         tags:
             - { name: form.type, alias: app_user_registration }
 
+    memcached.doctrine:
+      class: Memcached
+      factory: Symfony\Component\Cache\Adapter\MemcachedAdapter::createConnection
+      arguments: ['%memcached.servers%', '%memcached.config%']
+
+    doctrine.cache.memcached:
+      class: Doctrine\Common\Cache\MemcachedCache
+      calls:
+        - [ setMemcached, [ '@memcached.doctrine' ] ]
+
 
 # Это один из вариантов сделать видимым в twig шаблоне значение из конфига (app.city_zero_id) определена выше
 # Это можно перенести в config/packages/twig.yaml
@@ -164,5 +179,4 @@ twig:
     yamoney_number: "%app.yamoney_number%"
     yamoney_key: "%app.yamoney_key%"
     site_name: "%app.site_name%"
-
 
