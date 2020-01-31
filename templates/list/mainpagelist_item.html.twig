@@ -1,20 +1,16 @@
 <li>
 	<img src="{{ item.image }}" class="ii" title="{{ item.addtext }}" />
 	<div class="shortitemtext left">
-		<header><a href='{{ item.id|advlink(item.cityObject.codename, item.regionObject.codename, item.codename, item.city) }}' title="{{ item.addtext }}"> {{ item.title }}</a></header>
+		<header><a href='{{ item.id|advlink(item.ccodename, item.rcodename, item.codename, item.city) }}' title="{{ item.addtext }}"> {{ item.title }}</a></header>
 		<div class="text">
 			
 			<div class="vprice b"><span class="name">Цена:</span> {{ item.price|rouble }}</div>
 			
-			<div class="name">{{ item.regionObject.regionName|location_name(item.cityObject) }}</div>
+			<div class="name">{{ item.regionName|location_name(item.city, item.cityName) }}</div>
 			<div class="name">
-				{% if (item.userObject) %}
-					{{ item.userObject.displayName }}
-				{% else %}
-					{{ item.id }}
-				{% endif %}
+					{{ item.displayName }}
 			</div>
-			<div class="name">{{ item|type_transfer }}</div>
+			<div class="name">{{ item.box|type_transfer(item.term, item.people) }}</div>
 			<div class="phone">
 				Телефон: <a href="/phones/{{ item.id }}" target="_blank" class="dashed gn" @click="onClickGetPhone($event, '{{ item.id }}')">Показать</a>
 			</div>

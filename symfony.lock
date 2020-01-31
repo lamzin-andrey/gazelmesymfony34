@@ -157,7 +157,7 @@
         "version": "2.2.3"
     },
     "php": {
-        "version": "7.2"
+        "version": "7.3"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.0.0"
@@ -424,6 +424,9 @@
     },
     "symfony/serializer-pack": {
         "version": "v1.0.2"
+    },
+    "symfony/service-contracts": {
+        "version": "v2.0.1"
     },
     "symfony/stopwatch": {
         "version": "v3.4.32"

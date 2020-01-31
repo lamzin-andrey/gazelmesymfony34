@@ -279,21 +279,15 @@ class GazelMeService
 	/**
 	 * Добавит в $aWhere фильтр по городу и/или региону
 	 * Инициализует кириллические имена города и региона
-	 * @param \Doctrine\ORM\QueryBuilder $oQueryBuilder ('App:Main AS  m') для запроса выборки объявлений, @see AdvertListController::_loadAdvList
+	 * @param \Doctrine\Common\Collections\Criteria $oCriteria
 	 * @param string &$sCyrRegionName
 	 * @param string &$sCyrCityName
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
 	*/
-	public function setCityConditionAndInitCyrValues(\Doctrine\Common\Collections\Criteria $oCriteria, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity, &$nCityId, &$nRegionId) : void
+	public function setCityConditionAndInitCyrValues($oCriteria, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity, &$nCityId, &$nRegionId)
 	{
 		if ($sRegion) {
-			//всегда сначала загружаем по региону
-			$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Regions');
-			//TODO use Criteria. How use RegionsRepository??
-			/*$aRegions = $oRepository->findBy([
-				'codename' => $sRegion
-			]);*/
 			$aRegions = $this->oContainer->get('App\Repository\RegionsRepository')->findByCodename($sRegion);
 			if ($aRegions) {
 				$oRegion = current($aRegions);
@@ -312,6 +306,45 @@ class GazelMeService
 								//$aWhere['city'] = $oCity->getId();
 								$nCityId = $oCity->getId();
 								$oCriteria->andWhere( $e->eq('city', $oCity->getId()) );
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Добавит в $aWhere фильтр по городу и/или региону
+	 * Инициализует кириллические имена города и региона
+	 * @param \Doctrine\ORM\QueryBuilder $oQueryBuilder ('App:Main AS  m') для запроса выборки объявлений, @see AdvertListController::_loadAdvList
+	 * @param string &$sCyrRegionName
+	 * @param string &$sCyrCityName
+	 * @param string $sRegion = '' код региона латинскими буквами
+	 * @param string $sCity = ''   код города латинскими буквами
+	 */
+	public function setCityConditionAndInitCyrValuesByQueryBuilder($oQueryBuilder, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity, &$nCityId, &$nRegionId)
+	{
+		if ($sRegion) {
+			$aRegions = $this->oContainer->get('App\Repository\RegionsRepository')->findByCodename($sRegion);
+			if ($aRegions) {
+				$oRegion = current($aRegions);
+				if ($oRegion) {
+					//$aWhere['region'] = $oRegion->getId();
+					$e = $oQueryBuilder->expr();
+					$nRegionId = $oRegion->getId();
+					$oQueryBuilder->andWhere( $e->eq('m.region', $oRegion->getId()) );
+					$sCyrRegionName = $oRegion->getRegionName();
+					if ($sCity) {
+						//Тут в любом случае будет не более десятка записей для сел типа Крайновка или Калиновка. Отфильровать на php
+						$aCities = $oRegion->getCities();
+						foreach($aCities as $oCity) {
+							if ($oCity->getCodename() == $sCity) {
+								$sCyrCityName = $oCity->getCityName();
+								//$aWhere['city'] = $oCity->getId();
+								$nCityId = $oCity->getId();
+								$oQueryBuilder->andWhere( $e->eq('m.city', $oCity->getId()) );
 								break;
 							}
 						}

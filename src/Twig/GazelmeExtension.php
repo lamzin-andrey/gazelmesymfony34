@@ -4,6 +4,7 @@ namespace App\Twig;
 use App\Entity\Cities;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use App\Service\GazelMeService;
+use App\Entity\Main;
 use Landlib\RusLexicon;
 
 class GazelmeExtension extends \Twig\Extension\AbstractExtension
@@ -26,6 +27,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			new \Twig_SimpleFilter('rouble', array($this, 'roubleFilter')),
 			new \Twig_SimpleFilter('location_name', array($this, 'locationName')),
 			new \Twig_SimpleFilter('type_transfer', array($this, 'typeTransfer')),
+			new \Twig_SimpleFilter('type_transfer_by_advert', array($this, 'typeTransferByAdvert')),
 			new \Twig_SimpleFilter('distance', array($this, 'distanceFilter')),
 			new \Twig_SimpleFilter('translite_url', array($this, 'transliteUrl')),
 			new \Twig_SimpleFilter('is_city_equ_zero', array($this, 'isCityEquZero')),
@@ -61,7 +63,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	 * @param Cities $oCity
 	 * @return string
 	 */
-	public function locationName(string $sRegionName, ?Cities $oCity) : string
+	/*public function locationName(string $sRegionName, ?Cities $oCity) : string
 	{
 		$sCity = '';
 		$globals = $this->container->get('twig');
@@ -73,7 +75,42 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			$sCity = (' ' . $sCityName);
 		}
 		return ($sRegionName . $sCity);
+	}*/
+
+	/**
+	 * Выводит имя локации (например, "Тверская область Тверь" или "Москва")
+	 * @param string $sRegionName
+	 * @param Cities $oCity
+	 * @return string
+	 */
+	public function locationName(string $sRegionName, int $nCity, string $sCityName) : string
+	{
+		$sCity = '';
+		$globals = $this->container->get('twig');
+		$vars = $globals->getGlobals();
+		$nSpecialCityId = $vars['city_zero_id'];
+		$nCityId = $nCity;
+		if ($nCityId != $nSpecialCityId && $sCityName) {
+			$sCity = (' ' . $sCityName);
+		}
+		return ($sRegionName . $sCity);
 	}
+
+	/**
+	 * Получает имя локации (а это может быть как city_name, так и region_name)
+	 * @param  string $sRegionName
+	 * @param  int $nCity
+	 * @param  string $sCityName
+	 * @return string
+	 */
+	/*public function getLocationName(string $sRegionName, int $nCity, string $sCityName) : string
+	{
+		if ($this->container->getParameter('app.city_zero_id') != $nCity) {
+			return $sCityName;
+		}
+		return $sRegionName;
+	}*/
+
 	/**
 	 * @param float $v
 	 * @return string
@@ -105,11 +142,27 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	}
 	/**
 	 * Выводит тип перевозки (например, "Грузовая, термобудка" или "Пассажирская")
-	 * @param \App\Entity\Main $oItem
+	 * @oaram int $nBox
+	 * @oaram int $nTerm
+	 * @oaram int $nPeople
 	 * @return string
 	*/
-    public function typeTransfer(\App\Entity\Main $oItem) : string
+    public function typeTransfer(int $nBox, int $nTerm, int $nPeople) : string
     {
+		/** @var \App\Entity\Main $oItem */
+		$oItem = new Main();
+		$oItem->setBox($nBox);
+		$oItem->setTerm($nTerm);
+		$oItem->setPeople($nPeople);
+		return $this->oGazelService->getCarsTypes($oItem);
+	}
+	/**
+	 * Выводит тип перевозки (например, "Грузовая, термобудка" или "Пассажирская")
+	 * @param \App\Entity\Main $oItem
+	 * @return string
+	 */
+	public function typeTransferByAdvert(\App\Entity\Main $oItem) : string
+	{
 		return $this->oGazelService->getCarsTypes($oItem);
 	}
 	/**
