@@ -80,7 +80,7 @@ class ResettingController extends AbstractController
 			->verify($sGRecaptchaResponse, $sRemoteIp);
 		if ($oResponse->isSuccess()) {
 			// Verified!
-			return $this->_resettingController->sendEmailAction($oRequest);
+			return $this->_oBaseController->sendEmailAction($oRequest);
 		}
 		$aErrors = $oResponse->getErrorCodes();
 		$oTranslator = $this->_oContainer->get('translator');

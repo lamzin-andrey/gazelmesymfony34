@@ -155,7 +155,7 @@ class AdvertlistController extends Controller
 			->setMaxResults($limit)
 			->setFirstResult(0);
 
-		
+
 
 	
 		if ($sRegion) {
