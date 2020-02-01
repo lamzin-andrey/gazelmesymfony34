@@ -57,8 +57,13 @@ parameters:
   app.http_request_cache_ttl: 0
 
   app.yacache: "%env(resolve:YANDEX_CACHE)%"
-  app.yakey: "%env(resolve:YANDEX_SECRET_KEY)%"
+  app.yasecretkey: "%env(resolve:YANDEX_SECRET_KEY)%"
+
+  #Код операции, которая записывается в operations по умолчанию при успешной оплате
   rupayservices.operation_code_id: 2
+
+  # Массив дробных чисел. Допустимые к вводу суммы. Если не пуст, при создании транзакции выполняется валидация
+  rupayservices.a_fixed_sum: [60.00, 200.00, 700.00]
 
   # Система тестирования
   test:

@@ -12,7 +12,7 @@ class YamoneyNoticeRecieverController extends Controller
 {
 	/**
 	 * Обработка уведомлений от сервиса Yandex Money
-	 * Route("/yamoney/notice/reciever", name="yamoney_notice_reciever")
+	 * @Route("/yamoney/notice/reciever", name="yamoney_notice_reciever")
 	 */
 	public function index(PayService $oService, GazelMeService $oAppService)
 	{
@@ -32,7 +32,7 @@ class YamoneyNoticeRecieverController extends Controller
 		//Устанавливаем количество возможностей поднять объявление
 		$oRepository = $this->getDoctrine()->getRepository('App\Entity\Users');
 		$oUser = $oRepository->find($aInfo['user_id']);
-		$nUpcount = 1;//TODO как это получить?
+		$nUpcount = 1;
 		$nSum = intval($aInfo['sum']);
 		switch($nSum) {
 			case 200:
@@ -43,8 +43,9 @@ class YamoneyNoticeRecieverController extends Controller
 				$nUpcount = 31;
 				break;
 		}
-
-		$oUser->setUpcount($nUpcount);
+		$nSafeUpcount = $oUser->getUpcount();
+		$nSafeUpcount = $nSafeUpcount < 0 ? 0 : $nSafeUpcount;
+		$oUser->setUpcount($nSafeUpcount + $nUpcount);
 		$oEm = $this->getDoctrine()->getManager();
 		$oEm->persist($oUser);
 		$oEm->flush();
