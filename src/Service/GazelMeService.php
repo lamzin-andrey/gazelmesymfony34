@@ -463,4 +463,19 @@ class GazelMeService
 	{
 		return $this->oContainer->getParameter('app.resuilt_cache_ttl');
 	}
+
+	/**
+	 * Сохраняет модели в базе
+	 * Аргументы - оюбъекты Entity
+	*/
+	public function save()
+	{
+		$oEm = $this->oContainer->get('doctrine')->getManager();
+		$nSz = func_num_args();
+		for ($i = 0; $i < $nSz; $i++) {
+			$o = func_get_arg($i);
+			$oEm->persist($o);
+		}
+		$oEm->flush();
+	}
 }

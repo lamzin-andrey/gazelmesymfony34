@@ -36,6 +36,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			new \Twig_SimpleFilter('get_location_name', array($this, 'getLocationName')),
 			new \Twig_SimpleFilter('pluralize_hours', array($this, 'pluralizeHours')),
 			new \Twig_SimpleFilter('get_uid', array($this, 'getUid')),
+			new \Twig_SimpleFilter('raise_times', array($this, 'raiseTimes')),
 		];
     }
 	/**
@@ -267,9 +268,24 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	{
 		return ($n . ' ' . RusLexicon::getMeasureWordMorph($n, 'час', 'часа', 'часов') );
 	}
+
+	/**
+	 * Вы можете поднять ваше объявление n раз
+	 * @param  int $n
+	 * @return string
+	*/
+	public function raiseTimes(int $n) : string
+	{
+		$t = $this->translator;
+		$sTimes = $n . ' ' . RusLexicon::getMeasureWordMorph($n, $t->trans('time'), $t->trans('times'), $t->trans('time')) ;
+		$s = $t->trans('You can raise your ad %n_times%', ['%n%' => $sTimes]);
+		return $s;
+	}
 	
 	public function getUid()
 	{
 		return $this->_oViewDataService->getUid();
 	}
+
+
 }

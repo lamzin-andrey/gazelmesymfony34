@@ -65,3 +65,12 @@ Sorry, we can’t determine the phone number that you provided when submitting t
 Get SMS: Получить смс
 Data saved: Данные сохранены
 You have not access to thid advert: У вас нет доступа к этому объявлению
+Your ad has been raised in search results. You can up your ad yet %n% times: Ваше объявление поднято в результатах поиска. Вы можете поднять его ещё %n% раз
+You can pay the opportunity to raise ads: Вы можете оплатить возможность поднимать объявления
+PriceAd: Цена
+Raise ad: Поднять объявление
+Failed to make payment. If money has been debited from your account, please contact us via the <a href="%fburl%"> feedback form </a>:    Не удалось произвести оплату. Если с вашего счета списались деньги, свяжитесь с нами через <a href="%fburl%">форму обратной связи</a>
+Payment was successful. Within a few minutes, you will be available to raise ads: Оплата прошла успешно. В течении нескольких минут вам станут доступны поднятия объявлений
+You can raise your ad %n_times%: Вы можете поднять ваше объявление %n_times%
+time: раз
+times: раза

@@ -1,17 +1,19 @@
 {% extends 'base.html.twig' %}
 
-{# block title %}My title{% endblock #}
 
 {% block content %}
-{% if (nCountAdverts) %}
-	<ul class="lstnone mlist" id="strip">
-		{% for item in list %}
-		{{ include('cabinet/list_item.html.twig', {'item' : item}) }}
-		{% endfor %}
-	</ul>
-{% endif %}
-{% endblock %}
+	<div id="mainsfrormadd" class="bgwhite">
+		<div id="add_legend">{{ 'Raise ad'|trans }}</div>
+		<hr id="add_hr"/>
+		{% if (app.user.upcount > 0) %}
+			<p class="b please tc">{{  nCount|raise_times }} </p>
+		{% else %}
+			{% include('cabinet/yandexform.html.twig') %}
+		{% endif %}
 
+
+	</div>
+{% endblock %}
 
 
 {% block js %}

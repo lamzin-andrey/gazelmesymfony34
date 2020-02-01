@@ -6,32 +6,45 @@ namespace App\Controller;
 use App\Entity\Main as Advert;
 use App\Service\AdvertEditorService;
 use App\Service\GazelMeService;
+use App\Service\PayService;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Persisters\Entity\BasicEntityPersister;
 use Doctrine\ORM\Query\ResultSetMapping;
 
 use Symfony\Bundle\SwiftmailerBundle;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class CabinetController extends Controller implements IAdvertController
 {
 
 	/**
-	 * @Route("/cabinet/up/{nAdvertId}", name="cabinet")
+	 * @Route("/cabinet/up/{nAdvertId}/", name="cabinet_up")
  */
-	public function up(int $nAdvertId, GazelMeService $oGazelMeService)
+	public function up(int $nAdvertId, GazelMeService $oGazelMeService, TranslatorInterface $t)
 	{
 		$oUser = $this->getUser();
 		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData();
-		$aData['list'] = [];
-		if ($oUser) {
-			//TODO
+		/** @var \App\Entity\Users $oUser */
+		$nUpcount = $oUser->getUpcount();
+		if ($nUpcount > 0) {
+			$nUpcount--;
+			$nUpcount = $nUpcount < 0 ? 0 : $nUpcount;
+			$oUser->setUpcount($nUpcount);
+			$oGazelMeService->save($oUser);
+			if ($nUpcount > 0) {
+				$this->addFlash('success', $t->trans('Your ad has been raised in search results. You can up your ad yet %n% times', ['%n%' => $nUpcount]));
+			} else {
+				$this->addFlash('success', $t->trans('You can pay the opportunity to raise ads'));
+			}
+			return $this->redirectToRoute('cabinet');
 		}
-		$aData['nCountAdverts'] = count($aData['list']);
-		return $this->render('cabinet/list.html.twig', $aData);
+		/*$aData['nCountAdverts'] = count($aData['list']);*/
+		return $this->render('cabinet/up.html.twig', $aData);
 	}
 
 
@@ -91,5 +104,49 @@ class CabinetController extends Controller implements IAdvertController
 	public function addFlashEx(string $sType, string $sMessage)
 	{
 		return $this->addFlash($sType, $sMessage);
+	}
+
+	/**
+	 * Добавить запись в pay_transaction и вернуть идентификатор записи
+	 * @Route("/startpaytransaction.json", name="startpaytransaction")
+	 */
+	public function startpaytransaction(Request $oRequest, PayService $oPayService, TranslatorInterface $t)
+	{
+		$oEm = $this->getDoctrine()->getManager();
+
+		if (!$this->getUser()) {
+			return $this->_json([
+				'status' => 'error',
+				'msg' => $t->trans('Unauth user')
+			]);
+		}
+		$oPayService->setPayTransactionEntityClassName('App\Entity\PayTransaction');
+		$oPayService->setOperationEntityClassName('App\Entity\Operations');
+		$oTransactionData = $oPayService->createTransaction($this->getUser()->getid(), 0);
+		$nTransactionId = $oTransactionData->nPayTransactionId;
+		$sPayUrl = $oTransactionData->sPayUrl;
+
+		$aData = [
+			'id' => $nTransactionId,
+			'ops' => $oTransactionData->nBillId,
+			'yn' => $this->getParameter('app.yacache'),
+			'url' => $sPayUrl
+		];
+
+		if ($oTransactionData->sError) {
+			$aData['status'] = 'error';
+			$aData['msg'] = $oTransactionData->sError;
+		}
+		return $this->_json($aData);
+	}
+
+	private function _json(array $aData) : Response
+	{
+		if (!isset($aData['status'])) {
+			$aData['status'] = 'ok';
+		}
+		$oResponse = new Response( json_encode($aData) );
+		$oResponse->headers->set('Content-Type', 'application/json');
+		return $oResponse;
 	}
 }

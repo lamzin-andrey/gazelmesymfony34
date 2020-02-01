@@ -25,7 +25,7 @@ class Operations
     /**
      * @var int|null
      *
-     * @ORM\Column(name="user_id", type="integer", nullable=true, options={"comment"="Идентификатор пользователя"})
+     * @ORM\Column(name="user_id", type="integer", nullable=true, options={"comment"="Идентификатор пользователя phd_users"})
      */
     private $userId;
 
@@ -39,21 +39,14 @@ class Operations
     /**
      * @var int|null
      *
-     * @ORM\Column(name="upcount", type="integer", nullable=true, options={"comment"="Сколько было начислено или списано поднятий"})
-     */
-    private $upcount;
-
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="main_id", type="integer", nullable=true, options={"comment"="Идентификатор объявления в случае поднятия"})
+     * @ORM\Column(name="main_id", type="integer", nullable=true, options={"comment"="Идентификатор phd_messages.id", "default"="0"})
      */
     private $mainId = '0';
 
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="created", type="datetime", nullable=true, options={"comment"="Время операции"})
+     * @ORM\Column(name="created", type="datetime", nullable=true, options={"comment"="Время операции", "default"="CURRENT_TIMESTAMP"})
      */
     private $created;
 
@@ -67,7 +60,7 @@ class Operations
     /**
      * @var int|null
      *
-     * @ORM\Column(name="pay_transaction_id", type="integer", nullable=true, options={"comment"="Идентификатор из pay_transaction"})
+     * @ORM\Column(name="pay_transaction_id", type="integer", nullable=true, options={"comment"="Идентификатор из pay_transaction", "default"="0"})
      */
     private $payTransactionId = '0';
 
