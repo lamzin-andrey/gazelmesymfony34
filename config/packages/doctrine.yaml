@@ -28,17 +28,16 @@ doctrine:
               numeric_functions:
                 rand: DoctrineExtensions\Query\Mysql\Rand
 
-        second_level_cache:
-           enabled: true
-           regions:
-                global:
-                    lifetime: 900
-                    cache_driver:
-                        #type: memcached
-                        type: 'service'
-                        #host: localhost
-                        #port: 11211
-                        id: doctrine.cache.memcached
+        #second_level_cache:
+        #   enabled: true
+        #   regions:
+        #        global:
+        #            cache_driver:
+         #               #type: memcached
+         #               type: 'service'
+         #               #host: localhost
+         #               #port: 11211
+         #               id: doctrine.cache.memcached
                         
         #query_cache_driver:
         #    type: memcached
@@ -46,10 +45,10 @@ doctrine:
         #    port: 11211
         #    instance_class: Memcached
         
-        result_cache_driver:
-            type: 'service'
-            #type: memcached
-            #host: localhost
-            #port: 11211
-            #instance_class: Memcached
-            id: doctrine.cache.memcached
+        #result_cache_driver:
+        #    type: 'service'
+        #    #type: memcached
+        #    #host: localhost
+        #    #port: 11211
+        #    #instance_class: Memcached
+        #    id: doctrine.cache.memcached
