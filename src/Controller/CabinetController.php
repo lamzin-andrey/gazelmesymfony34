@@ -45,13 +45,21 @@ class CabinetController extends Controller implements IAdvertController
 		$aData['list'] = [];
     	if ($oUser) {
     		$oUserRepository = $this->getDoctrine()->getRepository('App:Main');
-    		$oCriteria = Criteria::create();
+    		$oQueryBuilder = $oUserRepository->createQueryBuilder('m');
+			$oExpr = $oQueryBuilder->expr();
+			$oQueryBuilder->where( $oExpr->andX($oExpr->eq('m.userId', $oUser->getId()),  $oExpr->eq('m.isDeleted', 0)) );
+			$oQueryBuilder->leftJoin('App:Cities', 'c', 'WITH', 'm.city = c.id');
+			$oQueryBuilder->leftJoin('App:Regions', 'r', 'WITH', 'm.region = r.id');
+			$oQueryBuilder->select('m.title, m.image, m.addtext, m.id, c.codename AS ccodename, r.codename AS rcodename, m.city, m.price, c.cityName, r.regionName, m.box, m.term, m.people, m.far, m.near, m.piknik, m.isHide, m.isModerate');
+			$aData['list'] = $oQueryBuilder->getQuery()->enableResultCache($oGazelMeService->ttl() )->getResult();
+    		/*$oCriteria = Criteria::create();
     		$oExpr = Criteria::expr();
     		$oCriteria->where( $oExpr->andX($oExpr->eq('userId', $oUser->getId()),  $oExpr->eq('isDeleted', 0)) );
-			$aData['list'] = $oUserRepository->matching($oCriteria)->toArray();
+			$aData['list'] = $oUserRepository->matching($oCriteria)->toArray();*/
 		}
 		$aData['nCountAdverts'] = count($aData['list']);
 		return $this->render('cabinet/list.html.twig', $aData);
+		//return $this->render('empty.html.twig', $aData);
     }
 	/**
 	 * @Route("/cabinet/edit/{nAdvertId}", name="cabinet_edit_adv")

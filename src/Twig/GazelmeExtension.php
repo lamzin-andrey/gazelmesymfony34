@@ -26,6 +26,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			new \Twig_SimpleFilter('advlink', array($this, 'advlinkFilter')),
 			new \Twig_SimpleFilter('rouble', array($this, 'roubleFilter')),
 			new \Twig_SimpleFilter('location_name', array($this, 'locationName')),
+			new \Twig_SimpleFilter('location_name_by_location_objects', array($this, 'locationNameByLocationObjects')),
 			new \Twig_SimpleFilter('type_transfer', array($this, 'typeTransfer')),
 			new \Twig_SimpleFilter('type_transfer_by_advert', array($this, 'typeTransferByAdvert')),
 			new \Twig_SimpleFilter('distance', array($this, 'distanceFilter')),
@@ -80,16 +81,37 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	/**
 	 * Выводит имя локации (например, "Тверская область Тверь" или "Москва")
 	 * @param string $sRegionName
-	 * @param Cities $oCity
+	 * @param int $nCity
+	 * @param string $sCityName
 	 * @return string
-	 */
-	public function locationName(string $sRegionName, int $nCity, string $sCityName) : string
+	*/
+	public function locationName(string $sRegionName, $nCity, $sCityName) : string
 	{
 		$sCity = '';
 		$globals = $this->container->get('twig');
 		$vars = $globals->getGlobals();
 		$nSpecialCityId = $vars['city_zero_id'];
 		$nCityId = $nCity;
+		if ($nCityId != $nSpecialCityId && $sCityName) {
+			$sCity = (' ' . $sCityName);
+		}
+		return ($sRegionName . $sCity);
+	}
+
+	/**
+	 * Выводит имя локации (например, "Тверская область Тверь" или "Москва")
+	 * @param string $sRegionName
+	 * @param Cities $oCity
+	 * @return string
+	 */
+	public function locationNameByLocationObjects(string $sRegionName, ?Cities $oCity) : string
+	{
+		$sCity = '';
+		$globals = $this->container->get('twig');
+		$vars = $globals->getGlobals();
+		$nSpecialCityId = $vars['city_zero_id'];
+		$sCityName = $oCity ? $oCity->getCityName() : '';
+		$nCityId = $oCity ? $oCity->getId() : 0;
 		if ($nCityId != $nSpecialCityId && $sCityName) {
 			$sCity = (' ' . $sCityName);
 		}

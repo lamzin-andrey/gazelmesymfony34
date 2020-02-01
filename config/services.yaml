@@ -52,6 +52,9 @@ parameters:
   app.yamoney_number: '%env(resolve:YAMONEY_NUMBER)%'
   app.yamoney_key: '%env(resolve:YAMONEY_KEY)%'
 
+  # Время жизни кэша передаваемое в enableResultCache (получать $oGazelMeService->ttl() )
+  app.resuilt_cache_ttl: 3600
+
   # Система тестирования
   test:
       phone: '80001112233'

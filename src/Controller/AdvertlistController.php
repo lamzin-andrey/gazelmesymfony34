@@ -79,7 +79,7 @@ class AdvertlistController extends Controller
 		$oSession->set('piknik', intval( $oRequest->get('piknik', 0) ));
 		
 		
-		$adverts = $this->_loadAdvList($sRegion, $sCity, $oRequest);
+		$adverts = $this->_loadAdvList($sRegion, $sCity, $oRequest, $oGazelMeService);
 		
 		$oRegionsService->saveSelectedLocation($sRegion, $sCity, $oRequest, $this->_nRegionId, $this->_nCityId, $this->_sCyrRegionName, $this->_sCyrCityName);
 		if ($oSession->has('is_add_advert_page') && strpos( $oRequest->server->get('HTTP_REFERER'), '/regions' ) !== false) {
@@ -132,14 +132,11 @@ class AdvertlistController extends Controller
 	 * 
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
+	 * @param GazelMeService $oGazelMeService
 	 * @return array
 	*/
-	private function _loadAdvList(string $sRegion = '', string $sCity = '', Request $oRequest) : array 
+	private function _loadAdvList(string $sRegion = '', string $sCity = '', Request $oRequest, GazelMeService $oGazelMeService) : array
 	{
-
-		/*phpinfo();
-		die;*/
-
 		$limit = $this->getParameter('app.records_per_page', 10);
 		$repository = $this->getDoctrine()->getRepository('App:Main');
 		$oQueryBuilder = $repository->createQueryBuilder('m');
@@ -213,7 +210,7 @@ class AdvertlistController extends Controller
 		$oQueryBuilder->leftJoin('App:Regions', 'r', 'WITH', $e->eq('m.region', 'r.id'));
 
 		$oQueryBuilder->select('m.title, m.image, m.addtext, m.id, c.codename AS ccodename, m.codename, r.codename AS rcodename, m.city, m.price, c.cityName, r.regionName, u.displayName, m.box, m.term, m.people, m.far, m.near, m.piknik');
-		$aCollection = $oQueryBuilder->getQuery()->enableResultCache(3600)->getResult();
+		$aCollection = $oQueryBuilder->getQuery()->enableResultCache($oGazelMeService->ttl())->getResult();
 		//var_dump($aCollection);die;
 		//$aCollection = $repository->matching($oCriteria)->toArray();
 		return $aCollection;

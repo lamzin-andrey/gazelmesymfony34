@@ -455,4 +455,12 @@ class GazelMeService
 		}
 		return $s;
 	}
+	/**
+	 * Время жизни result_cache для enableResultCache
+	 * @return int
+	*/
+	public function ttl() : int
+	{
+		return $this->oContainer->getParameter('app.resuilt_cache_ttl');
+	}
 }
