@@ -480,4 +480,30 @@ class GazelMeService
 		}
 		$oEm->flush();
 	}
+	/**
+	 *
+	 * @param int $nAdvertId
+	 * @param int $nUserId
+	 * @param bool $bImmediateleSave= true
+	 * @param bool$bForceUp = false
+	 * @return  App\Entity\Main or null
+	*/
+	public function upAdvert(int $nAdvertId, int $nUserId, bool $bImmediateleSave= true, bool $bForceUp = false)
+	{
+		$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Main');
+		/** @var \App\Entity\Main $oAdvert */
+		$oAdvert = $oRepository->find($nAdvertId);
+		if ($bForceUp || $oAdvert->getUserId() == $nUserId) {
+			$oQueryBuilder = $oRepository->createQueryBuilder('m');
+			$aResult = $oQueryBuilder->select('max(m.delta) ')->getQuery()->getSingleResult();
+			$n = intval( $aResult[1] ?? 0 );
+			if ($n) {
+				$oAdvert->setDelta($n + 1);
+				if ($bImmediateleSave) {
+					$this->save($oAdvert);
+				}
+			}
+		}
+		return $oAdvert;
+	}
 }

@@ -36,19 +36,8 @@ class CabinetController extends Controller implements IAdvertController
 			$nUpcount = $nUpcount < 0 ? 0 : $nUpcount;
 			$oUser->setUpcount($nUpcount);
 
-			$oRepository = $this->getDoctrine()->getRepository('App:Main');
-			/** @var \App\Entity\Main $oAdvert */
-			$oAdvert = $oRepository->find($nAdvertId);
-			if ($oAdvert->getUserId() == $oUser->getId()) {
-				$oQueryBuilder = $oRepository->createQueryBuilder('m');
-				$aResult = $oQueryBuilder->select('max(m.delta) ')->getQuery()->getSingleResult();
-				$n = intval( $aResult[1] ?? 0 );
-				if ($n) {
-					$oAdvert->setDelta($n + 1);
-				} 
-
-			}
-
+			$oAdvert = $oGazelMeService->upAdvert($nAdvertId, $oUser->getId(), false);
+			
 			$oGazelMeService->save($oUser, $oAdvert);
 			if ($nUpcount > 0) {
 				$this->addFlash('success', $t->trans('Your ad has been raised in search results. You can up your ad yet %n% times', ['%n%' => $nUpcount]));

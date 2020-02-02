@@ -47,7 +47,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	 * @param int int $nCityId
 	 * @return string
 	*/
-    public function advlinkFilter(int $nId, string $sCityCodename, string $sRegionCodename, string $sAdvCodename, int $nCityId) : string
+    public function advlinkFilter(int $nId, $sCityCodename, $sRegionCodename, $sAdvCodename,  $nCityId) : string
     {
 		$sCity = '';
 		$globals = $this->container->get('twig');
