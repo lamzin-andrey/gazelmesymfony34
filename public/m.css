@@ -229,18 +229,21 @@
 	.aformwrap {
 		width:390px;
 	}
-	.aformwrap .aphone input[type=text], .aphone input[type=password] {
+	.aformwrap .aphone input[type=text], .aphone input[type=password], .aphone input[type=number] {
 		width:369px;
 	}
 }
 /** на прочих разрешениях тянем на всю ширину экрана */
 @media (min-width:240px) {
-	.aformwrap .aphone input[type=text]{
+	.aformwrap .aphone input[type=text], .aformwrap .aphone input[type=password]{
 		width:70%;
 	}
 	.aformwrap  .apwd input[type=password] {
 		width:80%;
 	}
+	 .aformwrap .aphone input[type=number] {
+		width:96%;
+	 }
 }
 /** выше этого считаем что у нас десктоп*/
 @media (min-width:641px) {
@@ -270,7 +273,7 @@
 	#mainsfrormadd, .form {
 		width:100%;
 	}
-	.aphone input[type=text], .aphone input[type=password] {
+	.aphone input[type=text], .aphone input[type=password], .aphone input[type=number] {
 		height:32px;
 		width:330px;
 		font-size:24pt;
@@ -633,7 +636,7 @@ li {
 	display:inline !important;
 	height:auto !important;
 }
-.aphone input[type=text], .aphone input[type=password] {
+.aphone input[type=text], .aphone input[type=password], .aphone input[type=number] {
 	display:inline-block;
 	margin-top:3px;
 	vertical-align: top;
@@ -1047,6 +1050,16 @@ input[type=number] {
 	font-size: 24pt;
 	max-width:138px;
 }
+#phonepayform {
+	max-width: none;
+}
 #hPaysumGr div, #hPaymethodGr div {
 	margin-bottom: 10px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }

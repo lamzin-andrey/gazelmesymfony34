@@ -16,6 +16,7 @@ class YamoneyNoticeRecieverController extends Controller
 	 */
 	public function index(PayService $oService, GazelMeService $oAppService)
 	{
+
 		$this->_oAppService = $oAppService;
 		$oService->setHttpNoticeEntityClassName('App\Entity\YaHttpNotice');
 		$oService->setPayTransactionEntityClassName('App\Entity\PayTransaction');

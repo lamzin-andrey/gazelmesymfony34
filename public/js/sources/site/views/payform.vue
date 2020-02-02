@@ -5,7 +5,7 @@
 			<input v-model="yacache" type="hidden" name="receiver" id="rec">
 			
 			<!-- //TODO тут возможно что-то надо будет -->
-			<input type="hidden" name="formcomment" id="comment" value="Оплата возможности {n} поднятий объявления на сайте gazel.me">
+			<input type="hidden" name="formcomment" id="comment" :value="getComment()">
 			
 			<input v-model="tid" type="hidden" name="label" >
 			<input type="hidden" name="quickpay-form" value="shop">
@@ -13,7 +13,7 @@
 			<input v-model="paysum" type="hidden"  name="sum" data-type="number">
 
 			<!-- //TODO тут возможно что-то надо будет -->
-			<input type="hidden" name="comment" id="comment2" value="Оплата возможности {n} поднятий объявления  на сайте gazel.me">
+			<input type="hidden" name="comment" id="comment2" :value="getComment()">
 
 			<input v-model="paymentType" type="hidden" name="paymentType" id="paytype" >
 		</form>
@@ -21,7 +21,6 @@
 		
 			<div class="aformwrap upformwrap inrelative payformwr">
 				<div id="hPaymethodGr" v-if="step == STEP_SHOW_PAY_VARIANTS_FORM">
-					<!-- TODO идентификаторы  правильные установить -->
 					<p class="b please tj payformmsg">Оплатить {{paysum}} рублей. Выберите способ оплаты. </p>
 					<div>
 						<img src="/images/p/y.png" class="pblabel">
@@ -31,10 +30,15 @@
 						<img src="/images/p/c.png" class="pblabel">
 						<input @click="onClickSendMoney('AC')" type="button" class="payvariant" id="card" value="Банковская карта">
 					</div>
+					<div class="aphone sz12">
+						<label for="phonepayform" class="slabel">{{ $t('app.YourPayPhone') }}</label><br>
+						<input type="number" v-model="phone" id="phonepayform" >
+					</div>
 					<div>
 						<img src="/images/p/m.png" class="pblabel">
 						<input @click="onClickSendMoney('MC')" type="button" class="payvariant" id="mob" value="Со счёта мобильного">
 					</div>
+					
 				</div>
 				<!-- идентификаторы крайне важны, сумма -->
 				
@@ -105,8 +109,13 @@
 
 		}; },
 		
+
         //
         methods:{
+			getComment(){
+				//console.log('getComment: this.quantity = ' + this.quantity);
+				return this.$t('app.PayformComment').replace('{n}', this.quantity);
+			},
 			/**
 			 * @description Обработка клика на кнопке выбора количества поднятий
 			 * @param {Number} nSum
@@ -115,6 +124,7 @@
 			onClickSelectSum(nSum, nQnt) {
 				this.paysum = nSum;
 				this.quantity = nQnt;
+				//console.log('set this.quantity = ' + this.quantity);
 				this.step = this.STEP_SHOW_PAY_VARIANTS_FORM;
 			},
 			/**
