@@ -482,10 +482,10 @@ class GazelMeService
 	}
 	/**
 	 *
-	 * @param int $nAdvertId
-	 * @param int $nUserId
+	 * @param int  $nAdvertId
+	 * @param int  $nUserId
 	 * @param bool $bImmediateleSave= true
-	 * @param bool$bForceUp = false
+	 * @param bool $bForceUp = false
 	 * @return  App\Entity\Main or null
 	*/
 	public function upAdvert(int $nAdvertId, int $nUserId, bool $bImmediateleSave= true, bool $bForceUp = false)
@@ -493,7 +493,7 @@ class GazelMeService
 		$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Main');
 		/** @var \App\Entity\Main $oAdvert */
 		$oAdvert = $oRepository->find($nAdvertId);
-		if ($bForceUp || $oAdvert->getUserId() == $nUserId) {
+		if ($oAdvert && ($bForceUp || $oAdvert->getUserId() == $nUserId) ) {
 			$oQueryBuilder = $oRepository->createQueryBuilder('m');
 			$aResult = $oQueryBuilder->select('max(m.delta) ')->getQuery()->getSingleResult();
 			$n = intval( $aResult[1] ?? 0 );
@@ -502,6 +502,28 @@ class GazelMeService
 				if ($bImmediateleSave) {
 					$this->save($oAdvert);
 				}
+			}
+		}
+		return $oAdvert;
+	}
+	/**
+	 *
+	 * @param int  $nAdvertId
+	 * @param int  $nUserId
+	 * @param bool $bVisibleFlag
+	 * @param bool $bImmediateleSave= true
+	 * @param bool $bForce = false
+	 * @return  App\Entity\Main or null
+	 */
+	public function setAdvertShown(int $nAdvertId, int $nUserId, bool $bVisibleFlag, bool $bImmediateleSave = true, $bForce = false)
+	{
+		$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Main');
+		/** @var \App\Entity\Main $oAdvert */
+		$oAdvert = $oRepository->find($nAdvertId);
+		if ($oAdvert && ($bForce || $oAdvert->getUserId() == $nUserId) ) {
+			$oAdvert->setIsHide( (!$bVisibleFlag) );
+			if ($bImmediateleSave) {
+				$this->save($oAdvert);
 			}
 		}
 		return $oAdvert;

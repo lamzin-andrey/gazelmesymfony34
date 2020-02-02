@@ -21,10 +21,35 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class CabinetController extends Controller implements IAdvertController
 {
+	/**
+	 * @Route("/cabinet/hide/{nAdvertId}/", name="cabinet_hide")
+	*/
+	public function hide(int $nAdvertId, GazelMeService $oGazelMeService, TranslatorInterface $t)
+	{
+		$oUser = $this->getUser();
+		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData();
+		/** @var \App\Entity\Users $oUser */
+		$oAdvert = $oGazelMeService->setAdvertShown($nAdvertId, $oUser->getId(), false, true);
+		$this->addFlash('success', $t->trans('Your ad is hide'));
+		return $this->redirectToRoute('cabinet');
+	}
+
+	/**
+	 * @Route("/cabinet/show/{nAdvertId}/", name="cabinet_show")
+	*/
+	public function show(int $nAdvertId, GazelMeService $oGazelMeService, TranslatorInterface $t)
+	{
+		$oUser = $this->getUser();
+		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData();
+		/** @var \App\Entity\Users $oUser */
+		$oAdvert = $oGazelMeService->setAdvertShown($nAdvertId, $oUser->getId(), true, true);
+		$this->addFlash('success', $t->trans('Your ad is show'));
+		return $this->redirectToRoute('cabinet');
+	}
 
 	/**
 	 * @Route("/cabinet/up/{nAdvertId}/", name="cabinet_up")
- */
+    */
 	public function up(int $nAdvertId, GazelMeService $oGazelMeService, TranslatorInterface $t)
 	{
 		$oUser = $this->getUser();
@@ -37,7 +62,7 @@ class CabinetController extends Controller implements IAdvertController
 			$oUser->setUpcount($nUpcount);
 
 			$oAdvert = $oGazelMeService->upAdvert($nAdvertId, $oUser->getId(), false);
-			
+
 			$oGazelMeService->save($oUser, $oAdvert);
 			if ($nUpcount > 0) {
 				$this->addFlash('success', $t->trans('Your ad has been raised in search results. You can up your ad yet %n% times', ['%n%' => $nUpcount]));
