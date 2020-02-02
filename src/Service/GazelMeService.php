@@ -474,7 +474,9 @@ class GazelMeService
 		$nSz = func_num_args();
 		for ($i = 0; $i < $nSz; $i++) {
 			$o = func_get_arg($i);
-			$oEm->persist($o);
+			if ($o) {
+				$oEm->persist($o);
+			}
 		}
 		$oEm->flush();
 	}
