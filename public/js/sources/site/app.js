@@ -224,6 +224,16 @@ window.app = new Vue({
 		/**
 		 * Восстанавливает значение 
 		*/
+		onClickDeleteAdv(evt) {
+			if (confirm(this.$t('app.Are_You_sure_deleteAdv'))) {
+				return true;
+			}
+			evt.preventDefault();
+			return false;
+		},
+		/**
+		 * Восстанавливает значение 
+		*/
 		safeCheckboxAttribute(sId){
 			let o = $('#advert_form_' + sId)[0], c = 'checked', s;
 			if (!o) {

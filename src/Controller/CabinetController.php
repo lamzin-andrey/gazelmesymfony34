@@ -22,6 +22,19 @@ use Symfony\Component\Translation\TranslatorInterface;
 class CabinetController extends Controller implements IAdvertController
 {
 	/**
+	 * @Route("/cabinet/delete/{nAdvertId}/", name="cabinet_delete")
+	*/
+	public function delete(int $nAdvertId, GazelMeService $oGazelMeService, TranslatorInterface $t)
+	{
+		$oUser = $this->getUser();
+		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData();
+		/** @var \App\Entity\Users $oUser */
+		$oAdvert = $oGazelMeService->setAdvertAsDeleted($nAdvertId, $oUser->getId(), true);
+		$this->addFlash('success', $t->trans('Your ad is deleted'));
+		return $this->redirectToRoute('cabinet');
+	}
+
+	/**
 	 * @Route("/cabinet/hide/{nAdvertId}/", name="cabinet_hide")
 	*/
 	public function hide(int $nAdvertId, GazelMeService $oGazelMeService, TranslatorInterface $t)

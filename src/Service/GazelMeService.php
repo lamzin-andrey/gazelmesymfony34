@@ -528,4 +528,27 @@ class GazelMeService
 		}
 		return $oAdvert;
 	}
+
+	/**
+	 *
+	 * @param int  $nAdvertId
+	 * @param int  $nUserId
+	 * @param bool $bImmediateleSave= true
+	 * @param bool $bForce = false
+	 * @return  App\Entity\Main or null
+	 */
+	public function setAdvertAsDeleted(int $nAdvertId, int $nUserId, bool $bImmediateleSave= true, bool $bForce = false)
+	{
+		$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Main');
+		/** @var \App\Entity\Main $oAdvert */
+		$oAdvert = $oRepository->find($nAdvertId);
+		if ($oAdvert && ($bForce || $oAdvert->getUserId() == $nUserId) ) {
+			$oAdvert->setIsDeleted(true);
+			if ($bImmediateleSave) {
+				$this->save($oAdvert);
+			}
+		}
+		return $oAdvert;
+	}
+
 }

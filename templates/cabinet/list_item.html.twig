@@ -26,7 +26,7 @@
 			<a href="/cabinet/hide/{{item.id}}" class="hideshow">{{ 'Скрыть'|trans }}</a>
 		{% endif %}
 
-		<a href="/cabinet/delete/{{item.id}}" class="delitem">{{ 'Удалить'|trans }}</a>
+		<a href="/cabinet/delete/{{item.id}}" @click="onClickDeleteAdv" class="delitem">{{ 'Удалить'|trans }}</a>
 
 		{% if (item.isModerate == 0) %}
 			<span class="cabitem darkred pt10">{{ 'Не проверено модератором'|trans }}</span>
