@@ -3,16 +3,12 @@
 
 		<form method="POST" action="https://money.yandex.ru/quickpay/confirm.xml" id="yaform" class="hide" >
 			<input v-model="yacache" type="hidden" name="receiver" id="rec">
-			
-			<!-- //TODO тут возможно что-то надо будет -->
 			<input type="hidden" name="formcomment" id="comment" :value="getComment()">
 			
 			<input v-model="tid" type="hidden" name="label" >
 			<input type="hidden" name="quickpay-form" value="shop">
 			<input v-model="tid" type="hidden" name="targets">
 			<input v-model="paysum" type="hidden"  name="sum" data-type="number">
-
-			<!-- //TODO тут возможно что-то надо будет -->
 			<input type="hidden" name="comment" id="comment2" :value="getComment()">
 
 			<input v-model="paymentType" type="hidden" name="paymentType" id="paytype" >
@@ -132,6 +128,7 @@
             */
 			onClickSendMoney(method) {
 				this.$root.setMainSpinnerVisible(true);
+				this.paymentType = method;
 				//TODO должны получить id из таблицы pay_transactions
 				//в operations main_id это будет phd_messages.id
 				Rest._post({sum:this.paysum, method: method, phone: this.phone}, (data) => { this.onSuccessStartPayTransaction(data);}, '/startpaytransaction.json', (a, b, c) => {this.defaultFailSendFormListener(a, b, c);});
