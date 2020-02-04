@@ -42,6 +42,7 @@ Vue.component('typefilter', require('./views/typefilter'));
 Vue.component('loginform', require('./views/loginform'));
 Vue.component('payform', require('./views/payform'));
 Vue.component('additems', require('./views/additems'));
+Vue.component('pagination', require('./views/pagination'));
 
 
 window.app = new Vue({
@@ -158,8 +159,17 @@ window.app = new Vue({
 		vueFileInputIsEnabled : true,
 
 		/** @property {String} uploadImageError модель Для вывода текста ошибки загрузки файла */
-		uploadImageError : ''
+		uploadImageError : '',
 		
+
+		//Переменные связанные с кнопкой показать ещё
+		/** @property {Boolean} btnMoreTextIsVisible для показа анимации */
+		btnMoreAnimIsVisible: false, 
+
+		/** @property {Boolean} btnMoreTextIsVisible для показа анимации */
+		btnMoreTextIsVisible: true, 
+
+		isStaticPaginationVisible: true
 	},
 	/**
 	* @description Событие, наступающее после связывания el с этой логикой
@@ -170,7 +180,7 @@ window.app = new Vue({
 			Rest._token = Rest._token = this.$refs.loginform.getCsrf();
 		}
 		if (this.$refs.cityfilter) {
-			this.$refs.cityfilter.setLocation(cityId, regionId, isCity, locationDisplayName);
+			this.$refs.cityfilter.setLocation(cityId, regionId, isCity, window.locationDisplayName);
 		}
 		
 		$('#bttimg').css('display', 'block');
@@ -226,9 +236,43 @@ window.app = new Vue({
 		 * Подгрузка объявлений
 		*/
 		onClickGteMoreItems(evt) {
-			Rest._get( (data) => {
+			this.btnMoreAnimIsVisible = true;
+			this.btnMoreTextIsVisible = false;
+			evt.preventDefault();
+			let dt = {
+				page: HttpQueryString._GET('page', 1),
+				city: '',
+				region: ''
+			}, a, sCity, sRegion;
+			if (this.lastPage) {
+				dt.page = this.lastPage;
+			}
+			dt.page++;
+			this.lastPage = dt.page;
+
+			if (window.sLocationUrl) {
+				a = sLocationUrl.split('/');
+				sRegion = a[1];
+				sCity = a[2];
+				if (sRegion && !sCity) {
+					sCity = sRegion;
+					sCity = '';
+				}
+				dt.city = sCity;
+				dt.region = sRegion;
+			}
+			Rest._post(dt, (data) => {
+				this.btnMoreAnimIsVisible = false;
+				this.btnMoreTextIsVisible = true;
 				this.$refs.additems.addItems(data.list);
-			}, '/getads.json', (a, b, c) => { this.defaultFailSendFormListener(a, b, c) });
+				this.isStaticPaginationVisible = false;
+				this.$refs.pagination.setPagination(data.pageData);
+			}, '/getnewitems.json', (a, b, c) => {
+				this.btnMoreAnimIsVisible = false;
+				this.btnMoreTextIsVisible = true;
+				this.defaultFailSendFormListener(a, b, c)
+			}, false);
+			return false;
 		},
 		/**
 		 * 

@@ -15,6 +15,7 @@ use App\Service\RegionsService;
 use App\Service\ViewDataService;
 
 use \Doctrine\Common\Collections\Criteria;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class AdvertlistController extends Controller
 {
@@ -35,6 +36,22 @@ class AdvertlistController extends Controller
 	private $_nTotalAdverts  = 0;
 
 
+	/**
+	 * @Route("/getnewitems.json", name="getads")
+	 * @param Request $oRequest
+	 * @param TranslatorInterface $t
+	 * @return
+	*/
+	public function getmoreadv(Request $oRequest, TranslatorInterface $t, GazelMeService $oGazelMeService)
+	{
+		$sRegion = $oRequest->get('region', '');
+		$sCity = $oRequest->get('city', '');
+		$aData = [];
+		$aData['list'] = $this->_loadAdvList($sRegion, $sCity, $oRequest, $oGazelMeService);
+		$aPageData = $oGazelMeService->preparePaging(intval($oRequest->get('page', 1)), $this->_nTotalAdverts, $this->getParameter('app.records_per_page', 10), 10);
+		$oGazelMeService->setPageData($aData, $aPageData);
+		return $this->_json($aData);
+	}
 	/**
       * @Route("/", name="home")
     */
@@ -252,6 +269,16 @@ class AdvertlistController extends Controller
 		$this->_sCyrCityName = $sCyrCityName;
 		$this->_nCityId = $nCityId;
 		$this->_nRegionId = $nRegionId;
+	}
+	/**
+	 * @param $
+	 * @return
+	*/
+	private function _json($aData) : Response
+	{
+		$oResponse = new Response( json_encode($aData) );
+		$oResponse->headers->set("Content-Type", 'application/json');
+		return $oResponse;
 	}
 	
 }

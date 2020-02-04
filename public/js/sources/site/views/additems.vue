@@ -1,6 +1,6 @@
 <template>
 	<div>
-        <ul class="lstnone mlist" id="strip">
+        <ul class="listnone mlist" id="strip">
             <li v-for="item in items">
                 <img :src="item.image" class="ii" :title="item.addtext" />
                 <div class="shortitemtext left">
@@ -45,14 +45,14 @@
 
         /** @property {Array} Список объявлений */
 			items: [
-                {
+                /*{
                     id:'1',
                     image: '/images/gazel.jpg',
                     addtext: 'lalalal la',
-                    ccodename: '',
-                    rcodename: '',
-                    codename: '',
-                    title: '',
+                    ccodename: 'lalal',
+                    rcodename: 'oblka_sa',
+                    codename: 'uxty',
+                    title: 'Na labitenax ax',
                     price: 10.20,
                     cityName: 'Volyzkaya oblast',
                     city: 10,
@@ -61,13 +61,37 @@
                     people: 0,
                     box: 1,
                     term: 0
-                }
+                }*/
             ],
 		};},
         //
         methods:{
-            onClickGetPhone($event, id){
-                alert('Allo!');
+            addItems(data) {
+                let i;
+                for (i = 0; i < data.length; i++) {
+                    data[i].id = String(data[i].id);
+                    this.items.push(data[i]);
+                }
+                //this.items = [...this.items, ...data];
+                //console.log(this.items);
+            },
+            onClickGetPhone(ev, id){
+                ev.preventDefault();
+                let i, phv;
+                if (this.$refs[`pv${id}`] ) {
+                    phv = this.$refs[`pv${id}`];
+                    if (phv.setSrc) {
+                        phv.setSrc(`/phones/${id}`);
+                    } else if (phv instanceof Array) {
+                        for (i = 0; i < phv.length; i++) {
+                            if (phv[i].id == id) {
+                                phv[i].setSrc(`/phones/${id}`);
+                                break;
+                            }
+                        }
+                    }
+                }
+                return false;
             },
             type_transfer($nBox, $nTerm, $nPeople) {
                 let $oItem, $a, $s;
@@ -75,7 +99,7 @@
                 
                 $a = [];
                 if ($oItem.box) {
-                    $a.push(this.$t('app.Avenger'));//TODO
+                    $a.push(this.$t('app.Avenger'));
                 }
                 
                 if ($oItem.people) {
@@ -86,7 +110,7 @@
                     $a.push(this.$t('app.Termobox'));
                 }
                 $s = $a.join(', ');
-                $s = $s.toLowerCase('utf-8');
+                $s = $s.toLowerCase();
                 $s = TextFormat.capitalize($s);
                 return $s;
             },
@@ -108,7 +132,7 @@
                 let $sUnit, $a, $s, $q, $i, $j, $sZero, $sRouble;
                 $sUnit = this.$t('app.Roubles');//TODO
                 if (parseInt($v) == 0 || !$v) {
-                    $v = 1;
+                    $v = '1';
                 }
                 $v = $v.replace(/\./, ',');
                 $a = $v.split(',');

@@ -8,8 +8,8 @@
 		{% for item in list %}
 		{{ include('list/mainpagelist_item.html.twig', {'item' : item}) }}
 		{% endfor %}
-		<additems ref="additems"></additems>
 	</ul>
+	<additems ref="additems"></additems>
 	<div id="socnetbuttons" class="slogan socbut" style="text-align:center">
 		<div class="ya-share2" data-services="vkontakte,facebook,odnoklassniki,moimir,gplus,twitter,linkedin,viber,whatsapp"></div>
 	</div>
@@ -30,11 +30,15 @@
 
 {% block js %}
 
-{% if (app.user) %}}
+{% if (app.user) %}
     <script>var uidTest = '{{ app.user.id }}';</script>
 {% else %}
     <script>var uidTest = '0';</script>
-{% endif %}}
+{% endif %}
+
+{% if (sLocationUrl is defined) %}
+	<script>var sLocationUrl = '{{ sLocationUrl }}';</script>
+{% endif %}
 
 
 <script>var cityZeroId = parseInt('{{ city_zero_id }}');</script>
