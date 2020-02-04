@@ -190,4 +190,8 @@ twig:
     google_recaptcha_on: "%app.google_recaptcha_on%"
     redirectToConfirmPhone: "0"
     site_name: "%app.site_name%"
+    maxpage: 0
+    page: 0
+    limit: 100000
+    pageData: []
 

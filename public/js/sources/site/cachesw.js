@@ -1,4 +1,4 @@
-import LandCacheClient from './../landcache/sources/js/land_cache_client'
+import LandCacheClient from './../landcache/sources/js/land_cache_client.js'
 
 class CacheSw extends LandCacheClient {
 	/**

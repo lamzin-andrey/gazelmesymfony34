@@ -31,6 +31,10 @@ class AdvertlistController extends Controller
 	/** @property int  _nRegionId идентификатор региона или крупного города */
 	private $_nRegionId  = 0;
 
+	/** @property int  _nTotalAdverts Общее количество записей в таблице объвлений, которые удовлетворяют условиям фильтра. Устанавливается в _loadAdvList  */
+	private $_nTotalAdverts  = 0;
+
+
 	/**
       * @Route("/", name="home")
     */
@@ -126,6 +130,8 @@ class AdvertlistController extends Controller
 				$aData['nCityId'] = $oCity->getId();
 			}
 		}
+		$aPageData = $oGazelMeService->preparePaging(intval($oRequest->get('page', 1)), $this->_nTotalAdverts, $this->getParameter('app.records_per_page', 10), 10);
+		$oGazelMeService->setPageData($aData, $aPageData);
         return $this->render('list/mainlist.html.twig', $aData);
 	}
 	/**
@@ -138,6 +144,11 @@ class AdvertlistController extends Controller
 	private function _loadAdvList(string $sRegion = '', string $sCity = '', Request $oRequest, GazelMeService $oGazelMeService) : array
 	{
 		$limit = $this->getParameter('app.records_per_page', 10);
+		$nOffset = 0;
+		$nPage = intval( $oRequest->get('page', 0) );
+		$n = $nPage - 1;
+		$n = $n < 0 ? 0 : $n;
+		$nOffset = $n * $limit;
 		$repository = $this->getDoctrine()->getRepository('App:Main');
 		$oQueryBuilder = $repository->createQueryBuilder('m');
 		$oQueryBuilder = $oQueryBuilder->select()
@@ -146,7 +157,7 @@ class AdvertlistController extends Controller
 			->andWhere( $oQueryBuilder->expr()->eq('m.isModerate', 1) )
 			->orderBy('m.delta','DESC')
 			->setMaxResults($limit)
-			->setFirstResult(0);
+			->setFirstResult($nOffset);
 		/*$oCriteria = Criteria::create();
 		$e = Criteria::expr();
 		$oCriteria->where( $e->eq('isDeleted', 0) )
@@ -155,8 +166,6 @@ class AdvertlistController extends Controller
 			->orderBy(['delta' => Criteria::DESC])
 			->setMaxResults($limit)
 			->setFirstResult(0);*/
-
-
 
 	
 		if ($sRegion) {
@@ -213,6 +222,10 @@ class AdvertlistController extends Controller
 		$aCollection = $oQueryBuilder->getQuery()->enableResultCache($oGazelMeService->ttl())->getResult();
 		//var_dump($aCollection);die;
 		//$aCollection = $repository->matching($oCriteria)->toArray();
+
+
+		$this->_nTotalAdverts = $oGazelMeService->getCountByQb($oQueryBuilder, 'm');
+
 		return $aCollection;
 	}
 	/**

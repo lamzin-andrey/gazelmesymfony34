@@ -551,4 +551,131 @@ class GazelMeService
 		return $oAdvert;
 	}
 
+	/**
+	 * Изменить значение переменной var в request_uri
+	 * @param string $sVarName имя переменной в querystring
+	 * @param string $sValue значение переменной в querystring
+	 * @return string
+	**/
+	public function setUrlVar($sVarName, $sValue) : string
+	{
+		$oRequest = $this->oContainer->get('request_stack')->getCurrentRequest();
+		//$a = explode("?", $_SERVER["REQUEST_URI"]);
+		$sUri = $oRequest->server->get('REQUEST_URI');
+		$a = explode('?', $sUri);
+		$base = $a[0];
+		$data = [];
+		/** @var Request $oRequest */
+		//$sGet = $oRequest->getQueryString();
+		$_GET[$sVarName] = $sValue;
+		if ($sValue == 1) {
+			unset($_GET[$sVarName]);
+		}
+		foreach ($_GET as $k => $i) {
+			$data[] = "$k=$i";
+		}
+		if (count ($_GET)) {
+			$base .= "?" . join('&', $data);
+		}
+		return $base;
+	}
+	/**
+	 * @param int $nPage
+	 * @param int $nTotalPage
+	 * @param int $nPerPage
+	 * @param int $nItemInLine
+	 * @param string $sPrevLabel = '<<'
+	 * @param string $sNextLabel = '>>'
+	 * @return StdClass {pageData: array of {n, text, active}, nMaxpage: номер последней страницы}
+	*/
+	public function preparePaging(int $nPage, int $nTotalPage, int $nPerPage, int $nItemInLine, string $sPrevLabel = '<<', string $sNextLabel = '>>') : \StdClass
+	{
+		$oResult = new \StdClass();
+		$oResult->pageData = [];
+		$oResult->nMaxpage = 0;
+		$p = $nPage;
+		$nMaxpage = $nMaxnum = ceil($nTotalPage / $nPerPage);
+		if ($nMaxnum <= 1) {
+			return $oResult;
+		}
+		$start = $p - floor($nItemInLine / 2);
+		$start = $start < 1 ? 1: $start;
+		$end = $p + floor($nItemInLine / 2);
+		$end = $end > $nMaxnum ? $nMaxnum : $end;
+
+		$data = [];
+		if ($start >  2) {
+			$o = $this->_getPagelineItemData();
+			$o->n = 1;
+			$data[] = $o;
+		}
+		if ($start > 1) {
+			$o = $this->_getPagelineItemData();
+			$o->n = $start - 1;
+			$o->text = $sPrevLabel;
+			$data[] = $o;
+		}
+		for ($i = $start; $i <= $end; $i++) {
+			$o = $this->_getPagelineItemData();
+			$o->n = $i;
+			if ($i == $p) {
+				$o->active = 1;
+			}
+			$data[] = $o;
+		}
+		if ($end + 1 < $nMaxnum) {
+			$o = $this->_getPagelineItemData();
+			$o->n = $end + 1;
+			$o->text = $sNextLabel;
+			$data[] = $o;
+		}
+		if (/*$end != $maxnum - 1 &&*/ $end != $nMaxnum) {
+			$o = $this->_getPagelineItemData();
+			$o->n = $nMaxnum;
+			$data[] = $o;
+		}
+		$oResult->pageData = $data;
+		$oResult->nMaxpage = $nMaxpage;
+		return $oResult;
+	}
+	/**
+	 *
+	 * @param $
+	 * @return  {text, active, n}
+	*/
+	private function _getPagelineItemData() : \StdClass
+	{
+		$o = new \StdClass();
+		$o->n = 0;
+		$o->text = '';
+		$o->active = 0;
+		return $o;
+	}
+	/**
+	 * Получить общее количество записей выбираемых QueryBuilder без учета offset limit
+	 * @param \Doctrine\ORM\QueryBuilder $oQueryBuilder
+	 * @param string $sAlias Псевдоним таблицы переданный ранее в QueryBuilder при его создании
+	 * @return
+	*/
+	public function getCountByQb(\Doctrine\ORM\QueryBuilder $oQueryBuilder, string $sAlias) : int
+	{
+		$oQueryBuilder->select('COUNT(' . $sAlias . '.id)');
+		$oEm = $this->oContainer->get('doctrine')->getManager();
+		$oQ = $oEm->createQuery( $oQueryBuilder->getQuery()->getDQL() );
+		$a = $oQ->getSingleResult();
+		return intval($a[1] ?? 0);
+	}
+
+	/**
+	 * Устанавливает переменные viewData свЯзанные со строкой пагинации
+	 * @param array &$aData данные для viewData
+	 * @param \StdClass $oPageData данные полученные вызовом preparePaging
+	*/
+	public function setPageData(array &$aData, \StdClass $oPageData)
+	{
+		$aData['pageData'] = $oPageData->pageData;
+		$aData['maxpage'] = $oPageData->nMaxpage;
+		$aData['page'] = intval($this->oContainer->get('request_stack')->getCurrentRequest()->get('page', 1) );
+		$aData['limit'] = $this->oContainer->getParameter('app.records_per_page', 10);
+	}
 }

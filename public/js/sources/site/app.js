@@ -41,6 +41,7 @@ Vue.component('cityfilter', require('./views/cityfilter'));
 Vue.component('typefilter', require('./views/typefilter'));
 Vue.component('loginform', require('./views/loginform'));
 Vue.component('payform', require('./views/payform'));
+Vue.component('additems', require('./views/additems'));
 
 
 window.app = new Vue({
@@ -222,7 +223,15 @@ window.app = new Vue({
 			}
 		},
 		/**
-		 * Восстанавливает значение 
+		 * Подгрузка объявлений
+		*/
+		onClickGteMoreItems(evt) {
+			Rest._get( (data) => {
+				this.$refs.additems.addItems(data.list);
+			}, '/getads.json', (a, b, c) => { this.defaultFailSendFormListener(a, b, c) });
+		},
+		/**
+		 * 
 		*/
 		onClickDeleteAdv(evt) {
 			if (confirm(this.$t('app.Are_You_sure_deleteAdv'))) {

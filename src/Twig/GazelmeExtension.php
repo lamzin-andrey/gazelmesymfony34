@@ -37,6 +37,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			new \Twig_SimpleFilter('pluralize_hours', array($this, 'pluralizeHours')),
 			new \Twig_SimpleFilter('get_uid', array($this, 'getUid')),
 			new \Twig_SimpleFilter('raise_times', array($this, 'raiseTimes')),
+			new \Twig_SimpleFilter('set_url_var', array($this, 'setUrlVar')),
 		];
     }
 	/**
@@ -286,6 +287,12 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	{
 		return $this->_oViewDataService->getUid();
 	}
-
+	/**
+	 * @see GazelMeService::setUrlVar
+	*/
+	public function setUrlVar(string $sVarName, string $sValue) : string
+	{
+		return $this->oGazelService->setUrlVar($sVarName, $sValue);
+	}
 
 }
