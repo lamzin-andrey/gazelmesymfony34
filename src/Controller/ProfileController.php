@@ -22,13 +22,14 @@ use \Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use FOS\UserBundle\Controller\ProfileController as BaseProfileController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Psr\Container\ContainerInterface AS PsrContainerInterface;
+use App\Controller\IAdvertController;
 
 /**
  * Controller managing the user profile.
  *
  * @author Christophe Coevoet <stof@notk.org>
  */
-class ProfileController extends AbstractController
+class ProfileController extends AbstractController implements IAdvertController
 {
     private $eventDispatcher;
     private $formFactory;
@@ -76,23 +77,11 @@ class ProfileController extends AbstractController
 				$bCurrentPasswordIsValid = $encoder->isPasswordValid($oUser, $sRawPassword);
 
 				//Validate Password
-				//Это проверка, удовлетворяет ли новый пароль правилам валидации
-				$oTempUser = new \App\Entity\Users();
-				$oValidateForm = $this->createForm(ProfileFormType::class, $oTempUser );
-				$aData = [
-					'display_name' => 'fdsjmkfhnsdkjfsdjkfhgfd',
-					'_token' => $oValidateForm->createView()->children['_token']->vars['value']
-				];
-				$oTempUser->setUsername('usernameusername');
-				$oTempUser->setPassword($sNewPassword);
-				$oTempUser->setDisplayName('usernameusername');
-				$oValidateForm->submit($aData);
-
-				if (!$bCurrentPasswordIsValid || !$oValidateForm->isValid()) {
-					if (!$oValidateForm->isValid()) {
-						$aErrors = $oGazelMeService->getFormErrorsAsArray($oValidateForm);
-
-						$this->addFlash('notice', current($aErrors));
+				//Это проверка, удовлетворяет ли новый пароль правилам валидации.
+				$sPasswordValidationError = $oGazelMeService->checkValidPassword($sNewPassword, $this);
+				if (!$bCurrentPasswordIsValid || $sPasswordValidationError) {
+					if ($sPasswordValidationError) {
+						$this->addFlash('notice', $sPasswordValidationError);
 					} else {
 						$this->addFlash('notice', $t->trans('Current password is invalid'));
 					}
@@ -179,5 +168,15 @@ class ProfileController extends AbstractController
 		$oResponse = new Response( json_encode($aData) );
 		$oResponse->headers->set('Content-Type', 'application/json');
 		return $oResponse;
+	}
+
+	public function createFormEx(string $sFormTypeClass, $oEntity, array $aOptions)
+	{
+		return $this->createForm($sFormTypeClass, $oEntity, $aOptions);
+	}
+
+	public function addFlashEx(string $sType, string $sMessage)
+	{
+		return $this->addFlash($sType, $sMessage);
 	}
 }

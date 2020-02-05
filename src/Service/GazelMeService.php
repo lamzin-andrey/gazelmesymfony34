@@ -1,6 +1,8 @@
 <?php
 namespace App\Service;
 
+use App\Controller\IAdvertController;
+use App\Form\ProfileFormType;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormInterface;
@@ -689,5 +691,31 @@ class GazelMeService
 	public function now() : \DateTimeInterface
 	{
 		return new \DateTime();
+	}
+
+	/**
+	 *
+	 * @param $
+	 * @return string
+	*/
+	public function checkValidPassword(string $sPassword, IAdvertController $oController) : string
+	{
+		$oTempUser = new \App\Entity\Users();
+		$oValidateForm = $oController->createFormEx(ProfileFormType::class, $oTempUser, []);
+		$aData = [
+			'display_name' => 'fdsjmkfhnsdkjfsdjkfhgfd',
+			'_token' => $oValidateForm->createView()->children['_token']->vars['value']
+		];
+		$oTempUser->setUsername('usernameusername');
+		$oTempUser->setPassword($sPassword);
+		$oTempUser->setDisplayName('usernameusername');
+		$oValidateForm->submit($aData);
+		if (!$oValidateForm->isValid() ) {
+			$aErrors = $this->getFormErrorsAsArray($oValidateForm);
+			if (count($aErrors)) {
+				return current($aErrors);
+			}
+		}
+		return '';
 	}
 }
