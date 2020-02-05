@@ -30,6 +30,7 @@ var locales = {
 			'Avenger' : 'Грузовая',
 			'Passenger' : 'Пассажирская',
 			'Termobox' : 'Термобудка',
+			'securityLoginRemember_me' : 'Запомнить меня',
 			'' : 'Выход'
         }
     }

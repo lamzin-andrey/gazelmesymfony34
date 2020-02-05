@@ -13,6 +13,12 @@
 					<label for="password" class="slabel">{{ $t('app.Password')  }}</label><br/> 
 					<input @keydown="onEnterData" type="password" v-model="password">
 				</div>
+
+				<div class="m10p">
+					<input v-model="rememberMe" class="ml5p" type="checkbox" id="remember_me" name="_remember_me" value="on" />
+					<label for="remember_me">{{ $t('app.securityLoginRemember_me') }}</label>
+				</div>
+
 				<div class="left lpm1">
 					<a class="smbr" href="/remind" target="_blank">{{ $t('app.Passwordrecovery')  }}</a>
 				</div>
@@ -60,7 +66,9 @@
 			login:'',
 
 			/** @property {String} Пароль */
-			password:''
+			password:'',
+
+			rememberMe: false
 
 			
 		};},
@@ -81,7 +89,15 @@
 			onClickSendLoginButton(){
 				this.isHasError = false;
 				$('.aformwrap').css('height', 'auto');
-				Rest._post({_csrf_token: Rest._token, _username: this.login, _password: this.password}, (data) => {this.onSuccessLogin(data);}, this.action, (data) => { this.onFailLogin(data); });
+				let data = {
+					_csrf_token: Rest._token,
+					_username: this.login,
+					_password: this.password
+				};
+				if (this.rememberMe) {
+					data._remember_me = 'on';
+				}
+				Rest._post(data, (data) => {this.onSuccessLogin(data);}, this.action, (data) => { this.onFailLogin(data); });
 			},
 			/**
 			 * @description Нажатие на кнопку enter в полях ввода
@@ -110,7 +126,7 @@
 			onFailLogin(data) {
 				if (data.message && !data.success) {
 					this.isHasError = true;
-					$('.aformwrap').css('height', '220px');
+					$('.aformwrap').css('height', '260px');
 					if (~data.message.indexOf('CSRF')) {
 						location.reload();
 					}
