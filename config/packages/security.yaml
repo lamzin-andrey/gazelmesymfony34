@@ -25,6 +25,11 @@ security:
                 
             anonymous:    true
 
+            remember_me:
+                secret:   '%kernel.secret%' # key: '%secret%' # as case
+                path:     /
+                lifetime: 604800 # 1 week in secondslifetime: 604800 # 1 week in seconds
+
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 
