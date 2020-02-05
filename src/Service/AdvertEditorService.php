@@ -363,6 +363,7 @@ class AdvertEditorService
 		$oUser = $oUserManager->createUser();
 		$oUser->setUsername($aData['phone']);
 		$oUser->setPhone($aData['phone']);
+		$oUser->setDisplayName($aData['company_name']);
 		$sEmail = trim($aData['email'] ?? '');
 		if (!$sEmail) {
 			//Установим временный email чтобы FOS не ругались
