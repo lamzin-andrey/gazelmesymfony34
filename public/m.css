@@ -1067,3 +1067,14 @@ input::-webkit-inner-spin-button {
 .listnone li{
 	list-style-type: none;
 }
+
+.op0 {
+	opacity: 0;
+}
+.sqr1px {
+	width: 1px;
+	height: 1px;
+}
+.vspacerBtnMore {
+	height: 30px;
+}

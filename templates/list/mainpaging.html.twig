@@ -2,12 +2,14 @@
 <div id="paginator">
 	{% if (maxpage > page) %}
 	<div class="left pl3">
-		<a v-on:click="onClickGteMoreItems" href="#" id="moreitems" class="hidelink" >
+		<a v-on:click="onClickGetMoreItems" href="#" id="moreitems" class="hidelink hide" :style="{display:displayBtnMore}">
 			<div  class="button more" id="bmore">
 				<img src="{{ asset('images/lw.gif') }}"class="plm" v-if="btnMoreAnimIsVisible">
 				<span v-if="btnMoreTextIsVisible" style="vertical-align:top; display:block-inline">Еще {{ limit}}</span>
 			</div>
 		</a>
+
+		<div class="vspacerBtnMore" v-if="displayBtnMore == 'none'">&nbsp;</div>
 	</div>
 	{% endif %}
 	<div class="both"></div>

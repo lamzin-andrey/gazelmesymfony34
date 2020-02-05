@@ -169,7 +169,9 @@ window.app = new Vue({
 		/** @property {Boolean} btnMoreTextIsVisible для показа анимации */
 		btnMoreTextIsVisible: true, 
 
-		isStaticPaginationVisible: true
+		isStaticPaginationVisible: true, 
+
+		displayBtnMore: 'inherit'
 	},
 	/**
 	* @description Событие, наступающее после связывания el с этой логикой
@@ -235,7 +237,7 @@ window.app = new Vue({
 		/**
 		 * Подгрузка объявлений
 		*/
-		onClickGteMoreItems(evt) {
+		onClickGetMoreItems(evt) {
 			this.btnMoreAnimIsVisible = true;
 			this.btnMoreTextIsVisible = false;
 			evt.preventDefault();
@@ -249,7 +251,12 @@ window.app = new Vue({
 			}
 			dt.page++;
 			this.lastPage = dt.page;
-
+			
+			
+			if (!window.sLocationUrl || window.sLocationUrl == '/') {
+				window.sLocationUrl = HttpQueryString.requestUri();
+			}
+			
 			if (window.sLocationUrl) {
 				a = sLocationUrl.split('/');
 				sRegion = a[1];
@@ -264,9 +271,15 @@ window.app = new Vue({
 			Rest._post(dt, (data) => {
 				this.btnMoreAnimIsVisible = false;
 				this.btnMoreTextIsVisible = true;
-				this.$refs.additems.addItems(data.list);
-				this.isStaticPaginationVisible = false;
-				this.$refs.pagination.setPagination(data.pageData);
+				
+				if (data.list.length) {
+					this.$refs.additems.addItems(data.list);
+
+					this.isStaticPaginationVisible = false;
+					this.$refs.pagination.setPagination(data.pageData);
+				} else {
+					this.displayBtnMore = 'none';
+				}
 			}, '/getnewitems.json', (a, b, c) => {
 				this.btnMoreAnimIsVisible = false;
 				this.btnMoreTextIsVisible = true;

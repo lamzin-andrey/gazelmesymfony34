@@ -37,8 +37,13 @@ class AdvertEditorService
 
 	/** @property int $_nExistsUserId идентификатор уже существующего пользователя */
 	private $_nExistsUserId = 0;
+
 	/** @property $_oController need  implements IAdvertController */
 	private $_oController = null;
+
+	/** @property \App\Entity\Main $_oAdvert  */
+	private $_oAdvert = null;
+
 
 
 	public function __construct(ContainerInterface $container, ViewDataService $oViewDataService, FileUploaderService $oFileUploaderService, GazelMeService $oGazelMeService, RegionsService $oRegionsService)
@@ -325,6 +330,9 @@ class AdvertEditorService
 		}
 		$this->_oAdvert->setPhone( $this->_oGazelMeService->normalizePhone( $this->_oAdvert->getPhone() ) );
 
+		/*$o = new \App\Entity\Main;
+		$o->set /**/
+		$this->_oAdvert->setCreated( $oGazelMeService->now() );
 		$this->_oEm->persist($this->_oAdvert);
 		$this->_oEm->flush();
 
@@ -351,9 +359,10 @@ class AdvertEditorService
 	private function _saveUser(Request $oRequest)
 	{
 		$aData = $this->_formData();
-		$oUserManager = $this->_oController->get('fos_user.user_manager');
+		$oUserManager = $this->_oContainer->get('fos_user.user_manager');
 		$oUser = $oUserManager->createUser();
 		$oUser->setUsername($aData['phone']);
+		$oUser->setPhone($aData['phone']);
 		$sEmail = trim($aData['email'] ?? '');
 		if (!$sEmail) {
 			//Установим временный email чтобы FOS не ругались
@@ -368,6 +377,7 @@ class AdvertEditorService
 		}
 		$oUser->setPlainPassword($sPassword);
 		$oUser->setEnabled(true);
+
 		$oUserManager->updateUser($oUser);
 		$this->_nExistsUserId = $oUser->getId();
 	}
@@ -402,7 +412,7 @@ class AdvertEditorService
 			$oUser->setPlainPassword($aData['password']);
 			$oUser->setEnabled(true);
 			$oUser->setIsAnonymous(false);
-			$oUserManager = $this->get('fos_user.user_manager');
+			$oUserManager = $this->_oContainer->get('fos_user.user_manager');
 			$oUserManager->updateUser($oUser);
 			$this->_nExistsUserId = $oUser->getId();
 		}
@@ -434,7 +444,7 @@ class AdvertEditorService
 	{
 		$aData = $this->_formData();
 		$oUser = $this->getUser();
-		$aData['phone'] = $oUser->getPhone();
+		$aData['advert_form[phone]'] = $oUser->getPhone();
 		//$oForm->setData($aData);
 		$oForm->submit($aData);
 	}

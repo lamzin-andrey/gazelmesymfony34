@@ -152,7 +152,10 @@
                 $v = $a.join('');
                 return $v + $sRouble;
             },
-
+            /**
+			 *  @description Получаем Ссылку на страницу объявления
+			 *  @return String
+			*/
             advlink($nId, $sCityCodename, $sRegionCodename, $sAdvCodename, $nCityId) {
                 let $sCity, $globals, $vars, $nSpecialCityId;
                 $sCity = '';
@@ -164,16 +167,8 @@
             },
 
 
-			/**
-			 *  @description Получаем идентификатор выбранного в инпуте города 
-			 *  @return Number
-			*/
-			_getIsCity() {
-				if (this.locations[0] && parseInt(this.locations[0].is_city)) {
-					return this.locations[0].is_city;
-				}
-				return 0;
-			}
+			
+			
 
         }, //end methods
         //вызывается после data, поля из data видны "напрямую" как this.fieldName

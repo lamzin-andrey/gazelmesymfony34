@@ -54,11 +54,7 @@ class ResettingController extends AbstractController
 	{
 		$bCaptchaIsOn = $this->_oContainer->getParameter('app.google_recaptcha_on');
 		$bCaptchaIsOn = $bCaptchaIsOn == 'false' ? false : $bCaptchaIsOn;
-		if (!$bCaptchaIsOn) {
-			/** @var \Symfony\Component\HttpFoundation\RedirectResponse $oResult */
-			$oResult = $this->_oBaseController->sendEmailAction($oRequest);
-			return $oResult;
-		}
+
 		$sGRecaptchaResponse = $oRequest->get('g-recaptcha-response');
 		$sPhone = $oRequest->get('username');
 		$secret = $this->_oContainer->getParameter('app.google_recaptcha_secret_key');
@@ -73,6 +69,12 @@ class ResettingController extends AbstractController
 		}
 		if (!$sGRecaptchaResponse) {
 			return $this->_redirectToFailRoute('missing-input-response');
+		}
+
+		if (!$bCaptchaIsOn) {
+			/** @var \Symfony\Component\HttpFoundation\RedirectResponse $oResult */
+			$oResult = $this->_oBaseController->sendEmailAction($oRequest);
+			return $oResult;
 		}
 
 		$oRecaptcha = new ReCaptcha($secret);

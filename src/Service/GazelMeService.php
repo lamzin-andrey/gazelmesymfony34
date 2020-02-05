@@ -678,4 +678,13 @@ class GazelMeService
 		$aData['page'] = intval($this->oContainer->get('request_stack')->getCurrentRequest()->get('page', 1) );
 		$aData['limit'] = $this->oContainer->getParameter('app.records_per_page', 10);
 	}
+
+	/**
+	 *
+	 * @return  new \DateTime в перспективе с учетом летнего времени при необходимости
+	*/
+	public function now() : \DateTimeInterface
+	{
+		return new \DateTime();
+	}
 }
