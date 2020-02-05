@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Form\ProfileFormType;
+use App\Service\GazelMeService;
 use FOS\UserBundle\Event\FilterUserResponseEvent;
 use FOS\UserBundle\Event\FormEvent;
 use FOS\UserBundle\Event\GetResponseUserEvent;
@@ -59,7 +61,7 @@ class ProfileController extends AbstractController
      *
      * @return Response
      */
-    public function editAction(Request $oRequest)
+    public function editAction(Request $oRequest, GazelMeService $oGazelMeService)
     {
 		if ($oRequest->getMethod() == 'POST') {
 			$aInput = $oRequest->get('fos_user_profile_form');
@@ -70,9 +72,30 @@ class ProfileController extends AbstractController
 				$t = $this->_oContainer->get('translator');
 				/** @var \Symfony\Component\Security\Core\Encoder\UserPasswordEncoder $encoder */
 				$encoder = $this->_oContainer->get('security.password_encoder');
+				//Это проверка, совпадает ли текущий пароль с настоящим
 				$bCurrentPasswordIsValid = $encoder->isPasswordValid($oUser, $sRawPassword);
-				if (!$bCurrentPasswordIsValid) {
-					$this->addFlash('notice', $t->trans('Current password is invalid'));
+
+				//Validate Password
+				//Это проверка, удовлетворяет ли новый пароль правилам валидации
+				$oTempUser = new \App\Entity\Users();
+				$oValidateForm = $this->createForm(ProfileFormType::class, $oTempUser );
+				$aData = [
+					'display_name' => 'fdsjmkfhnsdkjfsdjkfhgfd',
+					'_token' => $oValidateForm->createView()->children['_token']->vars['value']
+				];
+				$oTempUser->setUsername('usernameusername');
+				$oTempUser->setPassword($sNewPassword);
+				$oTempUser->setDisplayName('usernameusername');
+				$oValidateForm->submit($aData);
+
+				if (!$bCurrentPasswordIsValid || !$oValidateForm->isValid()) {
+					if (!$oValidateForm->isValid()) {
+						$aErrors = $oGazelMeService->getFormErrorsAsArray($oValidateForm);
+
+						$this->addFlash('notice', current($aErrors));
+					} else {
+						$this->addFlash('notice', $t->trans('Current password is invalid'));
+					}
 					return $this->redirectToRoute('fos_user_profile_edit');
 				}
 				$aUserData = [];
@@ -105,6 +128,43 @@ class ProfileController extends AbstractController
 			}
 		}
         return $this->_oBaseController->editAction($oRequest);
+		/*$request = $oRequest;
+		$user = $this->getUser();
+		if (!is_object($user) || !$user instanceof UserInterface) {
+			throw new AccessDeniedException('This user does not have access to this section.');
+		}
+
+		$event = new GetResponseUserEvent($user, $request);
+		$this->eventDispatcher->dispatch(FOSUserEvents::PROFILE_EDIT_INITIALIZE, $event);
+
+		if (null !== $event->getResponse()) {
+			return $event->getResponse();
+		}
+
+		$form = $this->formFactory->createForm();
+		$form->setData($user);
+
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()) {
+			$event = new FormEvent($form, $request);
+			$this->eventDispatcher->dispatch(FOSUserEvents::PROFILE_EDIT_SUCCESS, $event);
+
+			$this->userManager->updateUser($user);
+
+			if (null === $response = $event->getResponse()) {
+				$url = $this->generateUrl('fos_user_profile_show');
+				$response = new RedirectResponse($url);
+			}
+
+			$this->eventDispatcher->dispatch(FOSUserEvents::PROFILE_EDIT_COMPLETED, new FilterUserResponseEvent($user, $request, $response));
+
+			return $response;
+		}
+
+		return $this->render('@FOSUser/Profile/edit.html.twig', array(
+			'form' => $form->createView(),
+		));*/
     }
 	/**
 	 * Проверяет, авторизован ли пользователь

@@ -426,6 +426,9 @@ class GazelMeService
 		}
 		for ($i = 0; $i < $nSz - 1; $i ++) {
 			$oCurrentError = $oForm->getErrors(true)->next();
+			if (!$oCurrentError) {
+				continue;
+			}
 			$sKey = $oCurrentError->getOrigin()->getConfig()->getName();
 			$sMessage = $oCurrentError->getMessage();
 			$aResult[$sKey] = $sMessage;
