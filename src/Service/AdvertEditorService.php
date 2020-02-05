@@ -236,7 +236,7 @@ class AdvertEditorService
 				//проверяем, не совпал ли пароль
 				$bPasswordValid = $this->_oEncoder->isPasswordValid($oUser, $sPassword);
 				//и пользователь его устанавливал раньше
-				if (!$bPasswordValid && !$oUser->getIsAnonymous()) {
+				if (!$bPasswordValid && !$oUser->getIsAnonymous() ) {
 					$this->_oGazelMeService->addFormError('User already exists, but password not valid', 'phone');
 					return false;
 				}
@@ -246,6 +246,18 @@ class AdvertEditorService
 					$this->_nExistsUserId = $oUser->getId();
 					$this->_bNeedUpdatePassword = true;
 				}
+				//Если пароль валиден, но не совпадают телефон или email
+				if ($bPasswordValid && !$oUser->getIsAnonymous() ) {
+					if ($oUser->getUsername() != $this->_oGazelMeService->normalizePhone($sPhone)) {
+						$this->_oGazelMeService->addFormError('Email is busy', 'email');
+						return false;
+					}
+					if ($oUser->getEmail() != $sEmail) {
+						$this->_oController->addFlashEx('notice', 'You can change email on your profile after authentication');
+					}
+
+				}
+
 				$this->_nExistsUserId = $oUser->getId();
 			} else {
 				//Нет пользователя с таким логином или паролем - значит надо создать
