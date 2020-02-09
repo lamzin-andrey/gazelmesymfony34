@@ -90,11 +90,11 @@ class AdvertEditorService
 		$aData['aCompanyName'] = [];
 		$aData['agreeAttrs'] = [];
 
-		/*if ($oAdvert && $this->getUser() && $this->getUser()->getId() != $oAdvert->getUserId()) {
+		if ($oAdvert && $this->getUser() && $this->getUser()->getId() != $oAdvert->getUserId()) {
 			$aData = $this->_oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
 			$this->addFlash('notice', 'You have not access to thid advert');
 			return $aData;
-		}*/
+		}
 
 		if ($this->getUser()) {
 			$aData['aCompanyName']['disabled'] = $aData['aPhone']['disabled']  = 'disabled';
@@ -123,8 +123,8 @@ class AdvertEditorService
 						$aData['redirectToConfirmPhone'] = '0';
 						$aData['redirectToCabinedId'] = $this->_oAdvert->getId();
 						$sMsg = 'Your ad has been added and will be placed on the site after verification';
-						$oSession->remove('lastAdvertImage');
 					}
+					$oSession->remove('lastAdvertImage');
 					$this->addFlash('success', $this->translator->trans($sMsg));
 				} else {
 					$this->addFlash('notice', $this->translator->trans('Advert form has errors'));
