@@ -90,7 +90,7 @@ class AdvertEditorService
 		$aData['aCompanyName'] = [];
 		$aData['agreeAttrs'] = [];
 
-		if ($oAdvert && $this->getUser() && $this->getUser()->getId() != $oAdvert->getUserId()) {
+		if ($oAdvert && $oAdvert->getId() && $this->getUser() && $this->getUser()->getId() != $oAdvert->getUserId()) {
 			$aData = $this->_oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
 			$this->addFlash('notice', 'You have not access to thid advert');
 			return $aData;

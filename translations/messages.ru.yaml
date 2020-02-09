@@ -34,6 +34,7 @@ Exit: Выход
 Reset password: Сброс пароля
 User with phone not found: Не найден пользователь с таким телефоном
 missing-input-response: Необходимо подтвердить, что вы не робот
+SMS verification: Верификация по sms
 Send: Отправить
 Current password is invalid: Текущий пароль введён неверно
 Login: Авторизация
@@ -79,7 +80,7 @@ time: раз
 times: раза
 Your ad is show: Ваше объявление показывается
 Your ad is hide: Ваше объявление скрыто
-Your ad is deleted: Ваше объявление удалено
+Your ad will deleted after one second from your cabinet, after one hour from site pages.: Ваше объявление будет удалено через одну секунду из вашего кабинета, через час со страниц сайта.
 Email is busy: Email занят
 You can change email on your profile after authentication: Вы можете изменить адрес электронной почты в своем профиле после аутентификации
 Select location: Выберите локацию

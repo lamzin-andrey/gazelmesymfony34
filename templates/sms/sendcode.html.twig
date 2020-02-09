@@ -1,4 +1,5 @@
 {% extends "base.html.twig" %}
+{% set title = 'SMS verification'|trans %}
 {% block content %}
     <div class="form getsmsform">
         {{   form_start(form, {'action': path('smsverify_sendcode'), 'method': 'POST'}) }}

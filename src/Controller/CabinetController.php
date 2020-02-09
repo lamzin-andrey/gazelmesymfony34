@@ -30,7 +30,7 @@ class CabinetController extends Controller implements IAdvertController
 		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData();
 		/** @var \App\Entity\Users $oUser */
 		$oAdvert = $oGazelMeService->setAdvertAsDeleted($nAdvertId, $oUser->getId(), true);
-		$this->addFlash('success', $t->trans('Your ad is deleted'));
+		$this->addFlash('success', $t->trans('Your ad will deleted after one second from your cabinet, after one hour from site pages.'));
 		return $this->redirectToRoute('cabinet');
 	}
 
@@ -105,7 +105,7 @@ class CabinetController extends Controller implements IAdvertController
 			$oQueryBuilder->leftJoin('App:Cities', 'c', 'WITH', 'm.city = c.id');
 			$oQueryBuilder->leftJoin('App:Regions', 'r', 'WITH', 'm.region = r.id');
 			$oQueryBuilder->select('m.title, m.image, m.addtext, m.id, c.codename AS ccodename, r.codename AS rcodename, m.city, m.price, c.cityName, r.regionName, m.box, m.term, m.people, m.far, m.near, m.piknik, m.isHide, m.isModerate');
-			$aData['list'] = $oQueryBuilder->getQuery()->enableResultCache($oGazelMeService->ttl() )->getResult();
+			$aData['list'] = $oQueryBuilder->getQuery()->enableResultCache(1)->getResult();
     		/*$oCriteria = Criteria::create();
     		$oExpr = Criteria::expr();
     		$oCriteria->where( $oExpr->andX($oExpr->eq('userId', $oUser->getId()),  $oExpr->eq('isDeleted', 0)) );

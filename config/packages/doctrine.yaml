@@ -45,10 +45,10 @@ doctrine:
         #    port: 11211
         #    instance_class: Memcached
         
-        #result_cache_driver:
-        #    type: 'service'
-        #    #type: memcached
-        #    #host: localhost
-        #    #port: 11211
-        #    #instance_class: Memcached
-        #    id: doctrine.cache.memcached
+        result_cache_driver:
+            type: 'service'
+            #type: memcached
+            #host: localhost
+            #port: 11211
+            #instance_class: Memcached
+            id: doctrine.cache.memcached
