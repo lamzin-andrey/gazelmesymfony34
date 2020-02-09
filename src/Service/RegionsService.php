@@ -19,6 +19,8 @@ class RegionsService  {
 	public  $regionInnerName = '';
 	/** @property bool $bIsShortData Принимает true когда страница с буквой (как следствие на ней немного данных и надо установиить "растяжку для футера") */
 	public  $bIsShortData = false;
+	/** @property bool $bIsNotFound true когда не найдена область */
+	public $bIsNotFound = [];
 	/** @property int $_nDefaultWordsOnLetter сколько регионов показывать под буквой по умолчанию */
 	private $_defaultWordsOnLetter = 5;
 	/** @property int $_aBreadCrumbs ассоциативный массив хлебных крошек */
@@ -119,6 +121,8 @@ class RegionsService  {
 		 		$this->isRegionInner = 1;
 		 		$this->regionInnerName = "{$s}/";
 		 		return true;
+			} else {
+				$this->bIsNotFound = true;
 			}
 		}
 		return false;

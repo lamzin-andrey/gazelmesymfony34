@@ -110,6 +110,9 @@ class RegionsController extends Controller
 		$aData['title'] = $sTitle;
 		$aData['h1'] = $sTitle;
 		$oRegionsService->buildData($oRequest);
+		if ($oRegionsService->bIsNotFound) {
+			throw $this->createNotFoundException('Location not found');
+		}
 		$aData['data'] = $oRegionsService->data;
 		$aData['breadCrumbs'] = $oRegionsService->breadCrumbs();
 		$aData['wordsOnLetter'] = $oRegionsService->wordsOnLetter;

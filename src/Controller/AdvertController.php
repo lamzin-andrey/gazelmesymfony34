@@ -74,8 +74,8 @@ class AdvertController extends Controller  implements IAdvertController
 		$oRepository = $this->getDoctrine()->getRepository('App:Main');
 		
 		$advert = $oRepository->find($nAdvId);
-		if (!$advert) {//TODO 404!
-			die('TODO 404 ' . __FILE__ . __LINE__);
+		if (!$advert) {
+			throw $this->createNotFoundException('Advert not found');
 		}
 		$siteName = $this->getParameter('app.site_name');
 		
