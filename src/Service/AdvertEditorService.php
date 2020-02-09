@@ -4,6 +4,7 @@ namespace App\Service;
 use App\Entity\Users;
 use App\Form\AdvertForm;
 use App\Form\AjaxFileUploadFormType;
+use ReCaptcha\ReCaptcha;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormInterface;
@@ -186,6 +187,12 @@ class AdvertEditorService
 	 **/
 	private function _isAdditionalValid() : bool
 	{
+		//Валидация Google Captcha
+		if (!$this->_oGazelMeService->checkGoogleCaptcha()) {
+			$this->_oController->addFlashEx('notice', 'missing-input-response');
+			return false;
+		}
+
 		$aData = $this->_formData();
 		//валидация заполненности хотя бы одного из чекбоксов
 		//Тип авто

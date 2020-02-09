@@ -15,6 +15,7 @@ use \Landlib\Text2Png;
 use Doctrine\Common\Collections\Criteria;
 use Landlib\RusLexicon;
 use Landlib\SymfonyToolsBundle\Service\FileUploaderService;
+use ReCaptcha\ReCaptcha;
 
 class GazelMeService
 {
@@ -722,12 +723,40 @@ class GazelMeService
 	}
 
 	/**
-	 *
 	 * @param string $id for example 'App:Users'
 	 * @return ?ServiceEntityRepositoryInterface
 	*/
 	public function repository(string $id) : ?EntityRepository
 	{
 		return $this->oContainer->get('doctrine')->getRepository($id);
+	}
+	/**
+	 *
+	 * @return bool true если каптча введена или отключена в настройках .env
+	*/
+	public function checkGoogleCaptcha() : bool
+	{
+		$bCaptchaIsOn = $this->oContainer->getParameter('app.google_recaptcha_on');
+		$bCaptchaIsOn = $bCaptchaIsOn == 'false' ? false : $bCaptchaIsOn;
+		$oRequest = $this->oContainer->get('request_stack')->getCurrentRequest();
+
+		if ($bCaptchaIsOn) {
+			$sGRecaptchaResponse = $oRequest->get('g-recaptcha-response');
+			if (!$sGRecaptchaResponse) {
+				return false;
+			}
+			$secret = $this->oContainer->getParameter('app.google_recaptcha_secret_key');
+			$sDomain = $this->oContainer->getParameter('app.domain');
+			$sRemoteIp = $oRequest->server->get('REMOTE_ADDR');
+			$oRecaptcha = new ReCaptcha($secret);
+			$oResponse = $oRecaptcha->setExpectedHostname($sDomain)
+				->verify($sGRecaptchaResponse, $sRemoteIp);
+			if ($oResponse->isSuccess()) {
+				// Verified!
+				return true;
+			}
+		}
+		//Каптча может быть отключена в .env файле в этом случае считаем что валидация всегда пройдена
+		return true;
 	}
 }
