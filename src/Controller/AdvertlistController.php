@@ -98,10 +98,14 @@ class AdvertlistController extends Controller
 		$oSession->set('far', intval( $oRequest->get('far', 0) ));
 		$oSession->set('near', intval( $oRequest->get('near', 0) ));
 		$oSession->set('piknik', intval( $oRequest->get('piknik', 0) ));
-		
-		
+
 		$adverts = $this->_loadAdvList($sRegion, $sCity, $oRequest, $oGazelMeService);
-		
+		if ($sRegion || $sCity) {
+			if (!$this->_nCityId && !$this->_nRegionId) {
+				throw $this->createNotFoundException('Location not found');
+			}
+		}
+
 		$oRegionsService->saveSelectedLocation($sRegion, $sCity, $oRequest, $this->_nRegionId, $this->_nCityId, $this->_sCyrRegionName, $this->_sCyrCityName);
 		if ($oSession->has('is_add_advert_page') && strpos( $oRequest->server->get('HTTP_REFERER'), '/regions' ) !== false) {
 			$oSession->remove('is_add_advert_page');
@@ -277,7 +281,7 @@ class AdvertlistController extends Controller
 	private function _json($aData) : Response
 	{
 		$oResponse = new Response( json_encode($aData) );
-		$oResponse->headers->set("Content-Type", 'application/json');
+		$oResponse->headers->set('Content-Type', 'application/json');
 		return $oResponse;
 	}
 	
