@@ -121,7 +121,8 @@ class AdvertEditorService
 					if ($this->getUser() && $this->getUser()->getIsSmsVerify() == 1) {
 						$aData['redirectToConfirmPhone'] = '0';
 						$aData['redirectToCabinedId'] = $this->_oAdvert->getId();
-						$sMsg = 'Data saved';
+						$sMsg = 'Your ad has been added and will be placed on the site after verification';
+						$oSession->remove('lastAdvertImage');
 					}
 					$this->addFlash('success', $this->translator->trans($sMsg));
 				} else {
@@ -137,7 +138,7 @@ class AdvertEditorService
 
 		$aData['form'] = $oForm->createView();
 		$aData['ajax_form'] = $oAjaxForm->createView();
-		$aData['image'] = 'images/gazel.jpg';
+		$aData['image'] = $oSession->get('lastAdvertImage', 'images/gazel.jpg');
 
 
 		$oRegionService = $this->_oRegionsService;;
@@ -292,7 +293,7 @@ class AdvertEditorService
 	/**
 	 * Если пользователь не авторизован создаётся пользователь.
 	 * Данные формы также сохраняются.
-	 **/
+	**/
 	private function _saveAdvertData(\Symfony\Component\Form\FormInterface $oForm, \App\Service\GazelMeService $oGazelMeService, Request $oRequest, bool $bModeEdit)
 	{
 		$this->_oEm = $this->getDoctrine()->getManager();
@@ -354,6 +355,7 @@ class AdvertEditorService
 		$nId = $this->_oAdvert->getId();
 		$sDQuery = 'UPDATE App:Main AS m '
 			. 'SET m.region = :r, m.city = :c, m.delta = :id, m.userId = :uid '
+			. $this->_setIsDeletedAndModeratedFragment()
 			. 'WHERE m.id = :id';
 		/** @var \Doctrine\ORM\Query $oQuery */
 		$oQuery = $this->_oEm->createQuery($sDQuery);
@@ -457,8 +459,23 @@ class AdvertEditorService
 	{
 		$aData = $this->_formData();
 		$oUser = $this->getUser();
-		$aData['advert_form[phone]'] = $oUser->getPhone();
+		$aData['phone'] = $oUser->getPhone();
 		//$oForm->setData($aData);
 		$oForm->submit($aData);
+	}
+	/**
+	 * Устанавливает фрагмент SQL запроса сохранения данных модерации
+	 * Если пользователь уже подтвердил свой номер телефона по sms isDeleted устанавливается в 0
+	 * @return string
+	*/
+	private function _setIsDeletedAndModeratedFragment() : string
+	{
+		$oUser = $this->getUser();
+		if ($oUser) {
+			if ($oUser->getIsSmsVerify()) {
+				return ', m.isDeleted = 0';
+			}
+		}
+		return '';
 	}
 }

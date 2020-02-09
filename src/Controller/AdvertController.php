@@ -126,6 +126,8 @@ class AdvertController extends Controller  implements IAdvertController
 				if ($oFile) {
 					$sFileName = $oGazelMeService->getFileUploaderService()->upload($oFile);
 					$aData['path'] = '/' . $this->_subdir . '/' . $sFileName;
+					$oSession = $oRequest->getSession();
+					$oSession->set('lastAdvertImage', $aData['path']);
 					$aData['status'] = 'ok';
 				} else {
 					$aData['status'] = 'error';
