@@ -4,6 +4,6 @@
 {% block content %}
 	<h1>{{ 'Page not found'|trans }}</h1>
 	<p>
-		{{ 'The requested page couldn\'t be located. Checkout for any URL misspelling or <a href="%link%">return to the homepage</a>.'|raw|trans({'%link%' : path('home')}) }}
+		{{ 'The requested page couldn\'t be located. Checkout for any URL misspelling or <a href="%link%">return to the homepage</a>.'|trans({'%link%' : path('home')})|raw }}
 	</p>
 {% endblock %}
