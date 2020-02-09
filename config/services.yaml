@@ -33,6 +33,7 @@ parameters:
   # Ключи для отправки sms
   app.smspilotkey: '%env(resolve:SMSPILOTKEY)%'
   app.smspilot_sendername: '%env(resolve:SMSPILOT_SENDERNAME)%'
+  app.politicDoc: /images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc
   # Интервал между возможностью отпарвки сообщений
   app.sms_interval: 63
   # Надо ли вообще отправлять sms
@@ -190,6 +191,8 @@ twig:
     google_recaptcha_on: "%app.google_recaptcha_on%"
     redirectToConfirmPhone: "0"
     site_name: "%app.site_name%"
+    domain: '%app.domain%'
+    politicDoc: '%app.politicDoc%'
     maxpage: 0
     page: 0
     limit: 100000

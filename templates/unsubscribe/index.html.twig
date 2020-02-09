@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div id="mainsfrormadd" class="bgwhite">
+        <div id="add_legend">{{'Unsubscribe'|trans}}</div>
+        <hr id="add_hr"/>
+        {{ form_start(form, {'action' : path('unsubscribe'), 'method' : 'POST'}) }}
+            <div class="aformwrap upformwrap" id="upform">
+                <!--div id="uperror" class="both hide">Неверно введен код</div-->
+                <div class="aphone" style="margin-bottom:10px;">
+                    {{  form_row(form.email) }}
+                </div>
+                <div class="right capinputs capiwr">
+                    <div class="right capinputs">
+                        <div class="right upformbtn">
+                            <input type="submit" value="{{'Send'|trans}}" >
+                        </div>
+                    </div>
+                    <div class="both"></div>
+                </div>
+                <div class="both"></div>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

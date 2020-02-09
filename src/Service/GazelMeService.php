@@ -3,6 +3,8 @@ namespace App\Service;
 
 use App\Controller\IAdvertController;
 use App\Form\ProfileFormType;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityRepository;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormInterface;
@@ -717,5 +719,15 @@ class GazelMeService
 			}
 		}
 		return '';
+	}
+
+	/**
+	 *
+	 * @param string $id for example 'App:Users'
+	 * @return ?ServiceEntityRepositoryInterface
+	*/
+	public function repository(string $id) : ?EntityRepository
+	{
+		return $this->oContainer->get('doctrine')->getRepository($id);
 	}
 }
