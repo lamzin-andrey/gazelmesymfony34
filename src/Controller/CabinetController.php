@@ -145,6 +145,7 @@ class CabinetController extends Controller implements IAdvertController
 	}
 	public function addFlashEx(string $sType, string $sMessage)
 	{
+		$sMessage = $this->get('translator')->trans($sMessage);
 		return $this->addFlash($sType, $sMessage);
 	}
 
