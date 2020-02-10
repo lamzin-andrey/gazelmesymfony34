@@ -11,7 +11,7 @@
   height: auto;
 }
 .locationsave {
-	min-height:38px;
+	min-height:38px!important;
 }
 @media(max-width:768px) {
 	.locationsave {
