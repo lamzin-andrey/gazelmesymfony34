@@ -198,7 +198,7 @@ window.app = new Vue({
 
 		if (parseInt(window.redirectToCabinedId) > 0) {
 			setTimeout(() => {
-				location.href = '/cabinet/edit/' + parseInt(window.redirectToCabinedId);
+				location.href = '/cabinet';
 			}, 3 * 1000);
 		}
 
