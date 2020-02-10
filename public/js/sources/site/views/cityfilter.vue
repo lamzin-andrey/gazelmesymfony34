@@ -180,9 +180,9 @@
 				}
 				return 0;
 			},
-			onSubmitLocationData(evt){
+			onSubmitLocationData(evt) {
 				let url = HttpQueryString.requestUri().split('?')[0];
-				if (url == '/podat_obyavlenie') {
+				if (url == '/podat_obyavlenie' || ~url.indexOf('/cabinet/edit/')) {
 					evt.preventDefault();
 					var nCount = 0, nDir = -1, opMin = 0.2, opMax = 1, o = $('#hDisplayLocation'),
 						op = 'opacity', step = 0.5;
