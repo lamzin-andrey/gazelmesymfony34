@@ -697,6 +697,9 @@ li {
 	width:46px;
 	display:inline-block;
 }
+.pwdmail {
+	min-height: 40px;
+}
 #grb {
 	border: #e0e0e0 solid 1px;
 	padding: 0px 8px;
@@ -1088,4 +1091,8 @@ input::-webkit-inner-spin-button {
 }
 .vspacerBtnMore {
 	height: 30px;
+}
+input[type=text],input[type=password], input[type=number], input[type=email], input[type=submit], input[type=button] {
+	min-height: 34px;
+	font-size: 24px;
 }
