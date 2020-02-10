@@ -780,11 +780,11 @@ input[type=number]#advert_form_phone {
 	margin: 0 auto; 
 }
 #paglist li{
-	display:inline;
+	display:inline-block;
 	border-radius:4px;
 	border-color:#1B3D7F;
 	background-color:#1B3D7F;
-	margin: 8px 2px;
+	margin: 2px;
 }
 #paglist li.active {
 	display:inline;
