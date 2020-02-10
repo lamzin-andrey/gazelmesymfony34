@@ -151,6 +151,7 @@
 
 
 {% block js %}
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 	<script type="text/javascript" src="/js/L.js?{{assetsVersion}}" async></script>
 	<script type="text/javascript">
 		var token = '{{ csrf_token }}';
