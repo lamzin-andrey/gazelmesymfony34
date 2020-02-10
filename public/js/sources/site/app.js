@@ -191,11 +191,15 @@ window.app = new Vue({
 		Rest._get(() => {  }, '/worker?action=automoderate', () => {});//TODO async
 
 		if (window.redirectToConfirmPhone === '1') {
-			location.href = '/smsverify';
+			setTimeout(() => {
+				location.href = '/smsverify';
+			}, 3 * 1000);
 		}
 
 		if (parseInt(window.redirectToCabinedId) > 0) {
-			location.href = '/cabinet/edit/' + parseInt(window.redirectToCabinedId);
+			setTimeout(() => {
+				location.href = '/cabinet/edit/' + parseInt(window.redirectToCabinedId);
+			}, 3 * 1000);
 		}
 
 		//Восстановить значения чекнутых чекбоксов (vue иногда такое vue)
