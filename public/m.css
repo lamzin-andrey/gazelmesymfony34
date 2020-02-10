@@ -367,6 +367,9 @@ html {height:100%}
 .adtitle input[type=text]{
 	width:79%;
 }
+.adtitle, .add_text, .price, .image {
+	margin-top:14px;
+}
 
 #content {
 	clear:both;
