@@ -25,6 +25,12 @@ parameters:
   
   # Site domain
   app.domain: '%env(resolve:HOST)%'
+
+  # Email с которого приходят письма
+  app.site_sender_email: '%env(resolve:ADMIN_EMAIL)%'
+
+  # Email на который приходят письма
+  app.site_recipient_email: '%env(resolve:OBSERVER_EMAIL)%'
   
   # Ключи для re-captcha
   app.google_recaptcha_site_key: '%env(resolve:GOOGLE_RECAPTCHA_SITEKEY)%'

@@ -152,7 +152,7 @@ class CabinetController extends Controller implements IAdvertController
 	 * Добавить запись в pay_transaction и вернуть идентификатор записи
 	 * @Route("/startpaytransaction.json", name="startpaytransaction")
 	 */
-	public function startpaytransaction(Request $oRequest, PayService $oPayService, TranslatorInterface $t)
+	public function startpaytransaction(Request $oRequest, PayService $oPayService, TranslatorInterface $t, GazelMeService $oGazelMeService)
 	{
 		$oEm = $this->getDoctrine()->getManager();
 
@@ -178,7 +178,19 @@ class CabinetController extends Controller implements IAdvertController
 		if ($oTransactionData->sError) {
 			$aData['status'] = 'error';
 			$aData['msg'] = $oTransactionData->sError;
+		} else {
+			$sRawMethod = $oRequest->get('method', '');
+			$sPhone = $oRequest->get('phone', '');
+			if ($sRawMethod == 'MC') {
+				$oMessage = new \Swift_Message();
+				$oMessage->setSubject('Новое сообщение в пуще');
+				$oMessage->setBody('Абонент ' . $oGazelMeService->formatPhone($sPhone) . ' просит перезвонить ему.', 'text/html', 'UTF-8');
+				$oMessage->setFrom( $this->getParameter('app.site_sender_email'));
+				$oMessage->setTo( $this->getParameter('app.site_recipient_email'));
+				$this->get('mailer')->send($oMessage);
+			}
 		}
+
 		return $this->_json($aData);
 	}
 
