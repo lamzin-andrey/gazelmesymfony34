@@ -71,7 +71,7 @@ class AdvertForm extends AbstractType
 			'currency' => '',
 			'required' => false
 		]);
-		$oBuilder->add('phone', TextType::class, [
+		$oBuilder->add('phone', IntegerType::class, [
 			'translation_domain' => 'Adform'
 		]);
 		

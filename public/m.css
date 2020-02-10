@@ -689,8 +689,15 @@ li {
 	color:#000981;
 }
 
-.authorname input[type=text]{
-	width:99%
+.authorname input[type=text], 
+	#mainsfrormadd input[type=password],
+	#mainsfrormadd input[type=text],
+	#mainsfrormadd input[type=number],
+	#mainsfrormadd input[type=email] {
+	width:99%;
+}
+input[type=number]#advert_form_phone {
+	max-width: 99%;
 }
 .red {color:red;}
 .pwdmail label{
@@ -702,7 +709,7 @@ li {
 }
 #grb {
 	border: #e0e0e0 solid 1px;
-	padding: 0px 8px;
+	padding: 12px 8px;
 }
 .socbut {
 	width:380px;
@@ -1096,3 +1103,4 @@ input[type=text],input[type=password], input[type=number], input[type=email], in
 	min-height: 34px;
 	font-size: 24px;
 }
+
