@@ -422,7 +422,7 @@ body {
 	vertical-align:middle;
 }
 .pageh100 body, .pageh100 body div#app, .pageh100  {
-	height:100%;
+	min-height:100%;
 }
 
 #logo-in {
