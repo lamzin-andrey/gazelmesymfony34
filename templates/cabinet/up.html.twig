@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-
+{% set title = 'Payment'|trans %}
 
 {% block content %}
 	<div id="mainsfrormadd" class="bgwhite">
@@ -10,8 +10,6 @@
 		{% else %}
 			{% include('cabinet/yandexform.html.twig') %}
 		{% endif %}
-
-
 	</div>
 {% endblock %}
 

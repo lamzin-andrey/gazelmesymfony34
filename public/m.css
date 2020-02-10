@@ -80,7 +80,7 @@
 	}
 	
 	.aformwrap  .apwd input[type=password] {
-		width:931;
+		width:931px;
 	}
 	
 	.payformwr {
@@ -194,7 +194,7 @@
 		text-align:left;
 	}
 	.aformwrap input[type="button"].payvariant, .aformwrap input[type="button"].paysum{
-		font-size:18px!important0;
+		font-size:18px!important;
 		padding-left:56px;
 		
 	}
@@ -835,8 +835,8 @@ li {
 	width:75px;
 }
 .please {margin:5px 0 0 8px; color:#3279B2; padding:4px;}
-.please_in {margin: 0 auto; width:70%; text-align:center}
-.please_in span{vertical-align:top; display:block-inline}
+.please_in {margin: 0 auto; width:70%; text-align:center;}
+.please_in span{vertical-align:top; display:inline-block;}
 
 .upb {
 	position:fixed;
