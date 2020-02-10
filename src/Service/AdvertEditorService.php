@@ -89,6 +89,8 @@ class AdvertEditorService
 		$aData['aPhone'] = [];
 		$aData['aCompanyName'] = [];
 		$aData['agreeAttrs'] = [];
+		$t = $this->translator;
+		$aData['title'] = $t->trans('To add an advert');
 
 		if ($oAdvert && $oAdvert->getId() && $this->getUser() && $this->getUser()->getId() != $oAdvert->getUserId()) {
 			$aData = $this->_oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);

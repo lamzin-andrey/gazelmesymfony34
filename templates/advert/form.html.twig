@@ -1,8 +1,9 @@
 {% extends "base.html.twig" %}
+
 {% block content %}
 
 <div id="mainsfrormadd">
-	<div id="add_legend">Добавить свое объявление</div>
+	<div id="add_legend">{{ title }}</div>
 	<hr id="add_hr"/>
 		{{  form_start(form, {'action': path(sActionPath, actionPathAttributes), 'attr': {'enctype': 'multipart/form-data', 'v-on:submit' : 'onSubmitAdvertForm'} }) }}
 		<div>

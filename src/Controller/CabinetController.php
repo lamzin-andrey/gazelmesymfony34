@@ -122,13 +122,14 @@ class CabinetController extends Controller implements IAdvertController
 	{
 		$oAdvertRepository = $this->getDoctrine()->getRepository('App:Main');
 		$oAdvert = $this->_oAdvert = $oAdvertRepository->find($nAdvertId);
+		$t = $this->get('translator');
 		if ($oAdvert && $this->getUser()->getId() != $oAdvert->getUserId()) {
-			$t = $this->get('translator');
 			$this->addFlash('notice', $t->trans('You have not access to thid advert'));
 			return $this->redirectToRoute('home');
 		}
 		$oAdvertEditorService->setController($this);
 		$aData = $oAdvertEditorService->pageAdvertForm($oRequest, $oEncoder, $this->_oAdvert, true);
+		$aData['title'] = $t->trans('Editing an advert');
 		return $this->render('advert/form.html.twig', $aData);
 	}
 	/**
