@@ -2,7 +2,7 @@
 <div v-if="isVisible" class="b please">
 	<div class="please_in">
 		<img src="/images/l-w.gif" width="16" class="ldr">
-		<span ><div>{{ $t('app.PleaseAdvMe') }}</div><div>{{ siteName }}</div></span>
+		<div ><div>{{ $t('app.PleaseAdvMe') }}</div><div>{{ siteName }}</div></div>
 		<img :src="computedSrc" @load="onImageLoaded" />
 		<div v-if="isPublicPage">
 			<span>{{ $t('app.PleaseSocnet') }}</span>
