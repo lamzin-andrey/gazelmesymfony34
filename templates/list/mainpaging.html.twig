@@ -1,0 +1,29 @@
+{%   if (pageData is defined) %}
+<div id="paginator">
+	{% if (maxpage > page) %}
+	<div class="left pl3">
+		<a v-on:click="onClickGetMoreItems" href="#" id="moreitems" class="hidelink hide" :style="{display:displayBtnMore}">
+			<div  class="button more" id="bmore">
+				<img src="{{ asset('images/lw.gif') }}"class="plm" v-if="btnMoreAnimIsVisible">
+				<span v-if="btnMoreTextIsVisible" style="vertical-align:top; display:block-inline">Еще {{ limit}}</span>
+			</div>
+		</a>
+
+		<div class="vspacerBtnMore" v-if="displayBtnMore == 'none'">&nbsp;</div>
+	</div>
+	{% endif %}
+	<div class="both"></div>
+	<pagination ref="pagination"></pagination>
+	<ul id="paglist" v-if="isStaticPaginationVisible">
+		{% for p in pageData %}
+		<li {% if (p.active == 1) %} {{ 'class="active"' }} {% endif %} >
+			{% if (p.active == 0) %}
+				<a href="{{ 'page'|set_url_var(p.n) }}">{% if (p.text != '') %}{{ p.text }}{% else %}{{ p.n }}{% endif %}</a>
+			{% else %}
+				<span>{{ p.n }}</span>
+        	{% endif %}
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+{%   endif %}

@@ -1,6 +1,10 @@
 <?php
 namespace App\Service;
 
+use App\Controller\IAdvertController;
+use App\Form\ProfileFormType;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityRepository;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormInterface;
@@ -11,6 +15,7 @@ use \Landlib\Text2Png;
 use Doctrine\Common\Collections\Criteria;
 use Landlib\RusLexicon;
 use Landlib\SymfonyToolsBundle\Service\FileUploaderService;
+use ReCaptcha\ReCaptcha;
 
 class GazelMeService
 {
@@ -279,21 +284,15 @@ class GazelMeService
 	/**
 	 * Добавит в $aWhere фильтр по городу и/или региону
 	 * Инициализует кириллические имена города и региона
-	 * @param \Doctrine\ORM\QueryBuilder $oQueryBuilder ('App:Main AS  m') для запроса выборки объявлений, @see AdvertListController::_loadAdvList
+	 * @param \Doctrine\Common\Collections\Criteria $oCriteria
 	 * @param string &$sCyrRegionName
 	 * @param string &$sCyrCityName
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
 	*/
-	public function setCityConditionAndInitCyrValues(\Doctrine\Common\Collections\Criteria $oCriteria, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity, &$nCityId, &$nRegionId) : void
+	public function setCityConditionAndInitCyrValues($oCriteria, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity, &$nCityId, &$nRegionId)
 	{
 		if ($sRegion) {
-			//всегда сначала загружаем по региону
-			$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Regions');
-			//TODO use Criteria. How use RegionsRepository??
-			/*$aRegions = $oRepository->findBy([
-				'codename' => $sRegion
-			]);*/
 			$aRegions = $this->oContainer->get('App\Repository\RegionsRepository')->findByCodename($sRegion);
 			if ($aRegions) {
 				$oRegion = current($aRegions);
@@ -312,6 +311,45 @@ class GazelMeService
 								//$aWhere['city'] = $oCity->getId();
 								$nCityId = $oCity->getId();
 								$oCriteria->andWhere( $e->eq('city', $oCity->getId()) );
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Добавит в $aWhere фильтр по городу и/или региону
+	 * Инициализует кириллические имена города и региона
+	 * @param \Doctrine\ORM\QueryBuilder $oQueryBuilder ('App:Main AS  m') для запроса выборки объявлений, @see AdvertListController::_loadAdvList
+	 * @param string &$sCyrRegionName
+	 * @param string &$sCyrCityName
+	 * @param string $sRegion = '' код региона латинскими буквами
+	 * @param string $sCity = ''   код города латинскими буквами
+	 */
+	public function setCityConditionAndInitCyrValuesByQueryBuilder($oQueryBuilder, &$sCyrRegionName, &$sCyrCityName, $sRegion, $sCity, &$nCityId, &$nRegionId)
+	{
+		if ($sRegion) {
+			$aRegions = $this->oContainer->get('App\Repository\RegionsRepository')->findByCodename($sRegion);
+			if ($aRegions) {
+				$oRegion = current($aRegions);
+				if ($oRegion) {
+					//$aWhere['region'] = $oRegion->getId();
+					$e = $oQueryBuilder->expr();
+					$nRegionId = $oRegion->getId();
+					$oQueryBuilder->andWhere( $e->eq('m.region', $oRegion->getId()) );
+					$sCyrRegionName = $oRegion->getRegionName();
+					if ($sCity) {
+						//Тут в любом случае будет не более десятка записей для сел типа Крайновка или Калиновка. Отфильровать на php
+						$aCities = $oRegion->getCities();
+						foreach($aCities as $oCity) {
+							if ($oCity->getCodename() == $sCity) {
+								$sCyrCityName = $oCity->getCityName();
+								//$aWhere['city'] = $oCity->getId();
+								$nCityId = $oCity->getId();
+								$oQueryBuilder->andWhere( $e->eq('m.city', $oCity->getId()) );
 								break;
 							}
 						}
@@ -393,6 +431,9 @@ class GazelMeService
 		}
 		for ($i = 0; $i < $nSz - 1; $i ++) {
 			$oCurrentError = $oForm->getErrors(true)->next();
+			if (!$oCurrentError) {
+				continue;
+			}
 			$sKey = $oCurrentError->getOrigin()->getConfig()->getName();
 			$sMessage = $oCurrentError->getMessage();
 			$aResult[$sKey] = $sMessage;
@@ -421,5 +462,301 @@ class GazelMeService
 			$s = '';
 		}
 		return $s;
+	}
+	/**
+	 * Время жизни result_cache для enableResultCache
+	 * @return int
+	*/
+	public function ttl() : int
+	{
+		return $this->oContainer->getParameter('app.resuilt_cache_ttl');
+	}
+
+	/**
+	 * Сохраняет модели в базе
+	 * Аргументы - оюбъекты Entity
+	*/
+	public function save()
+	{
+		$oEm = $this->oContainer->get('doctrine')->getManager();
+		$nSz = func_num_args();
+		for ($i = 0; $i < $nSz; $i++) {
+			$o = func_get_arg($i);
+			if ($o) {
+				$oEm->persist($o);
+			}
+		}
+		$oEm->flush();
+	}
+	/**
+	 *
+	 * @param int  $nAdvertId
+	 * @param int  $nUserId
+	 * @param bool $bImmediateleSave= true
+	 * @param bool $bForceUp = false
+	 * @return  App\Entity\Main or null
+	*/
+	public function upAdvert(int $nAdvertId, int $nUserId, bool $bImmediateleSave= true, bool $bForceUp = false)
+	{
+		$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Main');
+		/** @var \App\Entity\Main $oAdvert */
+		$oAdvert = $oRepository->find($nAdvertId);
+		if ($oAdvert && ($bForceUp || $oAdvert->getUserId() == $nUserId) ) {
+			$oQueryBuilder = $oRepository->createQueryBuilder('m');
+			$aResult = $oQueryBuilder->select('max(m.delta) ')->getQuery()->getSingleResult();
+			$n = intval( $aResult[1] ?? 0 );
+			if ($n) {
+				$oAdvert->setDelta($n + 1);
+				if ($bImmediateleSave) {
+					$this->save($oAdvert);
+				}
+			}
+		}
+		return $oAdvert;
+	}
+	/**
+	 *
+	 * @param int  $nAdvertId
+	 * @param int  $nUserId
+	 * @param bool $bVisibleFlag
+	 * @param bool $bImmediateleSave= true
+	 * @param bool $bForce = false
+	 * @return  App\Entity\Main or null
+	 */
+	public function setAdvertShown(int $nAdvertId, int $nUserId, bool $bVisibleFlag, bool $bImmediateleSave = true, $bForce = false)
+	{
+		$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Main');
+		/** @var \App\Entity\Main $oAdvert */
+		$oAdvert = $oRepository->find($nAdvertId);
+		if ($oAdvert && ($bForce || $oAdvert->getUserId() == $nUserId) ) {
+			$oAdvert->setIsHide( (!$bVisibleFlag) );
+			if ($bImmediateleSave) {
+				$this->save($oAdvert);
+			}
+		}
+		return $oAdvert;
+	}
+
+	/**
+	 *
+	 * @param int  $nAdvertId
+	 * @param int  $nUserId
+	 * @param bool $bImmediateleSave= true
+	 * @param bool $bForce = false
+	 * @return  App\Entity\Main or null
+	 */
+	public function setAdvertAsDeleted(int $nAdvertId, int $nUserId, bool $bImmediateleSave= true, bool $bForce = false)
+	{
+		$oRepository = $this->oContainer->get('doctrine')->getRepository('App:Main');
+		/** @var \App\Entity\Main $oAdvert */
+		$oAdvert = $oRepository->find($nAdvertId);
+		if ($oAdvert && ($bForce || $oAdvert->getUserId() == $nUserId) ) {
+			$oAdvert->setIsDeleted(true);
+			if ($bImmediateleSave) {
+				$this->save($oAdvert);
+			}
+		}
+		return $oAdvert;
+	}
+
+	/**
+	 * Изменить значение переменной var в request_uri
+	 * @param string $sVarName имя переменной в querystring
+	 * @param string $sValue значение переменной в querystring
+	 * @return string
+	**/
+	public function setUrlVar($sVarName, $sValue) : string
+	{
+		$oRequest = $this->oContainer->get('request_stack')->getCurrentRequest();
+		//$a = explode("?", $_SERVER["REQUEST_URI"]);
+		$sUri = $oRequest->server->get('REQUEST_URI');
+		$a = explode('?', $sUri);
+		$base = $a[0];
+		$data = [];
+		/** @var Request $oRequest */
+		//$sGet = $oRequest->getQueryString();
+		$_GET[$sVarName] = $sValue;
+		if ($sValue == 1) {
+			unset($_GET[$sVarName]);
+		}
+		foreach ($_GET as $k => $i) {
+			$data[] = "$k=$i";
+		}
+		if (count ($_GET)) {
+			$base .= "?" . join('&', $data);
+		}
+		return $base;
+	}
+	/**
+	 * @param int $nPage
+	 * @param int $nTotalPage
+	 * @param int $nPerPage
+	 * @param int $nItemInLine
+	 * @param string $sPrevLabel = '<<'
+	 * @param string $sNextLabel = '>>'
+	 * @return StdClass {pageData: array of {n, text, active}, nMaxpage: номер последней страницы}
+	*/
+	public function preparePaging(int $nPage, int $nTotalPage, int $nPerPage, int $nItemInLine, string $sPrevLabel = '<<', string $sNextLabel = '>>') : \StdClass
+	{
+		$oResult = new \StdClass();
+		$oResult->pageData = [];
+		$oResult->nMaxpage = 0;
+		$p = $nPage;
+		$nMaxpage = $nMaxnum = ceil($nTotalPage / $nPerPage);
+		if ($nMaxnum <= 1) {
+			return $oResult;
+		}
+		$start = $p - floor($nItemInLine / 2);
+		$start = $start < 1 ? 1: $start;
+		$end = $p + floor($nItemInLine / 2);
+		$end = $end > $nMaxnum ? $nMaxnum : $end;
+
+		$data = [];
+		if ($start >  2) {
+			$o = $this->_getPagelineItemData();
+			$o->n = 1;
+			$data[] = $o;
+		}
+		if ($start > 1) {
+			$o = $this->_getPagelineItemData();
+			$o->n = $start - 1;
+			$o->text = $sPrevLabel;
+			$data[] = $o;
+		}
+		for ($i = $start; $i <= $end; $i++) {
+			$o = $this->_getPagelineItemData();
+			$o->n = $i;
+			if ($i == $p) {
+				$o->active = 1;
+			}
+			$data[] = $o;
+		}
+		if ($end + 1 < $nMaxnum) {
+			$o = $this->_getPagelineItemData();
+			$o->n = $end + 1;
+			$o->text = $sNextLabel;
+			$data[] = $o;
+		}
+		if (/*$end != $maxnum - 1 &&*/ $end != $nMaxnum) {
+			$o = $this->_getPagelineItemData();
+			$o->n = $nMaxnum;
+			$data[] = $o;
+		}
+		$oResult->pageData = $data;
+		$oResult->nMaxpage = $nMaxpage;
+		return $oResult;
+	}
+	/**
+	 *
+	 * @param $
+	 * @return  {text, active, n}
+	*/
+	private function _getPagelineItemData() : \StdClass
+	{
+		$o = new \StdClass();
+		$o->n = 0;
+		$o->text = '';
+		$o->active = 0;
+		return $o;
+	}
+	/**
+	 * Получить общее количество записей выбираемых QueryBuilder без учета offset limit
+	 * @param \Doctrine\ORM\QueryBuilder $oQueryBuilder
+	 * @param string $sAlias Псевдоним таблицы переданный ранее в QueryBuilder при его создании
+	 * @return
+	*/
+	public function getCountByQb(\Doctrine\ORM\QueryBuilder $oQueryBuilder, string $sAlias) : int
+	{
+		$oQueryBuilder->select('COUNT(' . $sAlias . '.id)');
+		$oEm = $this->oContainer->get('doctrine')->getManager();
+		$oQ = $oEm->createQuery( $oQueryBuilder->getQuery()->getDQL() );
+		$a = $oQ->getSingleResult();
+		return intval($a[1] ?? 0);
+	}
+
+	/**
+	 * Устанавливает переменные viewData свЯзанные со строкой пагинации
+	 * @param array &$aData данные для viewData
+	 * @param \StdClass $oPageData данные полученные вызовом preparePaging
+	*/
+	public function setPageData(array &$aData, \StdClass $oPageData)
+	{
+		$aData['pageData'] = $oPageData->pageData;
+		$aData['maxpage'] = $oPageData->nMaxpage;
+		$aData['page'] = intval($this->oContainer->get('request_stack')->getCurrentRequest()->get('page', 1) );
+		$aData['limit'] = $this->oContainer->getParameter('app.records_per_page', 10);
+	}
+
+	/**
+	 *
+	 * @return  new \DateTime в перспективе с учетом летнего времени при необходимости
+	*/
+	public function now() : \DateTimeInterface
+	{
+		return new \DateTime();
+	}
+
+	/**
+	 *
+	 * @param $
+	 * @return string
+	*/
+	public function checkValidPassword(string $sPassword, IAdvertController $oController) : string
+	{
+		$oTempUser = new \App\Entity\Users();
+		$oValidateForm = $oController->createFormEx(ProfileFormType::class, $oTempUser, []);
+		$aData = [
+			'display_name' => 'fdsjmkfhnsdkjfsdjkfhgfd',
+			'_token' => $oValidateForm->createView()->children['_token']->vars['value']
+		];
+		$oTempUser->setUsername('usernameusername');
+		$oTempUser->setPassword($sPassword);
+		$oTempUser->setDisplayName('usernameusername');
+		$oValidateForm->submit($aData);
+		if (!$oValidateForm->isValid() ) {
+			$aErrors = $this->getFormErrorsAsArray($oValidateForm);
+			if (count($aErrors)) {
+				return current($aErrors);
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * @param string $id for example 'App:Users'
+	 * @return ?ServiceEntityRepositoryInterface
+	*/
+	public function repository(string $id) : ?EntityRepository
+	{
+		return $this->oContainer->get('doctrine')->getRepository($id);
+	}
+	/**
+	 *
+	 * @return bool true если каптча введена или отключена в настройках .env
+	*/
+	public function checkGoogleCaptcha() : bool
+	{
+		$bCaptchaIsOn = $this->oContainer->getParameter('app.google_recaptcha_on');
+		$bCaptchaIsOn = $bCaptchaIsOn == 'false' ? false : $bCaptchaIsOn;
+		$oRequest = $this->oContainer->get('request_stack')->getCurrentRequest();
+
+		if ($bCaptchaIsOn) {
+			$sGRecaptchaResponse = $oRequest->get('g-recaptcha-response');
+			if (!$sGRecaptchaResponse) {
+				return false;
+			}
+			$secret = $this->oContainer->getParameter('app.google_recaptcha_secret_key');
+			$sDomain = $this->oContainer->getParameter('app.domain');
+			$sRemoteIp = $oRequest->server->get('REMOTE_ADDR');
+			$oRecaptcha = new ReCaptcha($secret);
+			$oResponse = $oRecaptcha->setExpectedHostname($sDomain)
+				->verify($sGRecaptchaResponse, $sRemoteIp);
+			if ($oResponse->isSuccess()) {
+				// Verified!
+				return true;
+			}
+		}
+		//Каптча может быть отключена в .env файле в этом случае считаем что валидация всегда пройдена
+		return true;
 	}
 }

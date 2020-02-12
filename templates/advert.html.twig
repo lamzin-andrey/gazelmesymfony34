@@ -8,7 +8,7 @@
 				<header><h2 class="a b">{{ advert.title }}</h2></header>
 				<div class="text">
 					<div class="vprice b"><span class="name">Цена:</span>  {{ advert.price|rouble }}</div>
-					<div class="name"><span class="dd">Местоположение</span> {{ advert.regionObject.regionName|location_name(advert.cityObject) }}</div>
+					<div class="name"><span class="dd">Местоположение</span> {{ advert.regionObject.regionName|location_name(advert.city, advert.cityObject.cityName) }}</div>
 					<div class="name"><span class="dd">Контактное лицо</span>
 						{% if (advert.userObject) %}
 							{{ advert.userObject.displayName }}
@@ -16,7 +16,7 @@
 							{{ advert.id }}
 						{% endif %}
 					</div>
-					<div class="name"><span class="dd">Тип</span> {{ advert|type_transfer }}</div>
+					<div class="name"><span class="dd">Тип</span> {{ advert|type_transfer_by_advert }}</div>
 					<div class="name"><span class="dd">Расстояние</span> {{ advert|distance }}</div>
 					<div class="phone">
 						Телефон: <a class="dashed gn" data-id="{{ advert.id }}" href="#" @click="onClickGetPhone($event, '{{ advert.id }}')">

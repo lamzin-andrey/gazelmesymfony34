@@ -42,9 +42,9 @@ getauthstate:
     defaults: { _controller: 'App\Controller\ProfileController::getauthstate' }
    
 
-fos_user_registration_register:
-    path: /register
-    defaults: { _controller: 'App\Controller\RegistrationController:registerAction' }
+#fos_user_registration_register:
+#    path: /register
+#    defaults: { _controller: 'App\Controller\RegistrationController:registerAction' }
     
 fos_user_registration_check_email:
     path: /register/check-email

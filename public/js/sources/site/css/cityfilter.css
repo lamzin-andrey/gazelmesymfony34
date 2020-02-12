@@ -11,7 +11,12 @@
   height: auto;
 }
 .locationsave {
-	min-height:38px;
+	min-height:38px!important;
+	font-size: inherit!important;
+}
+.ti-new-tag-input-wrapper input{
+	font-size: inherit!important;
+	min-height:16px!important;
 }
 @media(max-width:768px) {
 	.locationsave {

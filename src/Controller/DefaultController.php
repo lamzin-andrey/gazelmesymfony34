@@ -52,11 +52,10 @@ class DefaultController extends Controller
 	/**
 	 * @Route("/agreement", name="agreement") 
 	*/
-	public function agreement()
+	public function agreement(GazelMeService $oGazelMeService)
 	{
-		//TODO template is temp
-		//return $this->render('list/filterform.html.twig', $aData);
-		return $this->redirectToRoute("home");
+		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData();
+		return $this->render('license.html.twig', $aData);
 	}
 	/**
 	 * @Route("/preview", name="uploaded_imagePreview") 

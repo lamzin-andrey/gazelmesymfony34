@@ -15,6 +15,7 @@ use App\Service\RegionsService;
 use App\Service\ViewDataService;
 
 use \Doctrine\Common\Collections\Criteria;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class AdvertlistController extends Controller
 {
@@ -31,6 +32,26 @@ class AdvertlistController extends Controller
 	/** @property int  _nRegionId идентификатор региона или крупного города */
 	private $_nRegionId  = 0;
 
+	/** @property int  _nTotalAdverts Общее количество записей в таблице объвлений, которые удовлетворяют условиям фильтра. Устанавливается в _loadAdvList  */
+	private $_nTotalAdverts  = 0;
+
+
+	/**
+	 * @Route("/getnewitems.json", name="getads")
+	 * @param Request $oRequest
+	 * @param TranslatorInterface $t
+	 * @return
+	*/
+	public function getmoreadv(Request $oRequest, TranslatorInterface $t, GazelMeService $oGazelMeService)
+	{
+		$sRegion = $oRequest->get('region', '');
+		$sCity = $oRequest->get('city', '');
+		$aData = [];
+		$aData['list'] = $this->_loadAdvList($sRegion, $sCity, $oRequest, $oGazelMeService);
+		$aPageData = $oGazelMeService->preparePaging(intval($oRequest->get('page', 1)), $this->_nTotalAdverts, $this->getParameter('app.records_per_page', 10), 10);
+		$oGazelMeService->setPageData($aData, $aPageData);
+		return $this->_json($aData);
+	}
 	/**
       * @Route("/", name="home")
     */
@@ -77,10 +98,14 @@ class AdvertlistController extends Controller
 		$oSession->set('far', intval( $oRequest->get('far', 0) ));
 		$oSession->set('near', intval( $oRequest->get('near', 0) ));
 		$oSession->set('piknik', intval( $oRequest->get('piknik', 0) ));
-		
-		
-		$adverts = $this->_loadAdvList($sRegion, $sCity, $oRequest);
-		
+
+		$adverts = $this->_loadAdvList($sRegion, $sCity, $oRequest, $oGazelMeService);
+		if ($sRegion || $sCity) {
+			if (!$this->_nCityId && !$this->_nRegionId) {
+				throw $this->createNotFoundException('Location not found');
+			}
+		}
+
 		$oRegionsService->saveSelectedLocation($sRegion, $sCity, $oRequest, $this->_nRegionId, $this->_nCityId, $this->_sCyrRegionName, $this->_sCyrCityName);
 		if ($oSession->has('is_add_advert_page') && strpos( $oRequest->server->get('HTTP_REFERER'), '/regions' ) !== false) {
 			$oSession->remove('is_add_advert_page');
@@ -126,82 +151,102 @@ class AdvertlistController extends Controller
 				$aData['nCityId'] = $oCity->getId();
 			}
 		}
+		$aPageData = $oGazelMeService->preparePaging(intval($oRequest->get('page', 1)), $this->_nTotalAdverts, $this->getParameter('app.records_per_page', 10), 10);
+		$oGazelMeService->setPageData($aData, $aPageData);
         return $this->render('list/mainlist.html.twig', $aData);
 	}
 	/**
 	 * 
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
+	 * @param GazelMeService $oGazelMeService
 	 * @return array
 	*/
-	private function _loadAdvList(string $sRegion = '', string $sCity = '', Request $oRequest) : array 
+	private function _loadAdvList(string $sRegion = '', string $sCity = '', Request $oRequest, GazelMeService $oGazelMeService) : array
 	{
 		$limit = $this->getParameter('app.records_per_page', 10);
+		$nOffset = 0;
+		$nPage = intval( $oRequest->get('page', 0) );
+		$n = $nPage - 1;
+		$n = $n < 0 ? 0 : $n;
+		$nOffset = $n * $limit;
 		$repository = $this->getDoctrine()->getRepository('App:Main');
-		/*$oQueryBuilder = $repository->createQueryBuilder('m');
+		$oQueryBuilder = $repository->createQueryBuilder('m');
 		$oQueryBuilder = $oQueryBuilder->select()
 			->where( $oQueryBuilder->expr()->eq('m.isDeleted', 0) )
 			->andWhere( $oQueryBuilder->expr()->eq('m.isHide', 0) )
 			->andWhere( $oQueryBuilder->expr()->eq('m.isModerate', 1) )
 			->orderBy('m.delta','DESC')
 			->setMaxResults($limit)
-			->setFirstResult(0);*/
-		$oCriteria = Criteria::create();
+			->setFirstResult($nOffset);
+		/*$oCriteria = Criteria::create();
 		$e = Criteria::expr();
 		$oCriteria->where( $e->eq('isDeleted', 0) )
 			->andWhere( $e->eq('isHide', 0) )
 			->andWhere( $e->eq('isModerate', 1) )
 			->orderBy(['delta' => Criteria::DESC])
 			->setMaxResults($limit)
-			->setFirstResult(0);
-		
+			->setFirstResult(0);*/
+
 	
 		if ($sRegion) {
             //Тут в зависимости от http запроса может быть ещё пару раз вызван
             //$oQueryBuilder->andWhere();
-			$this->_setCityConditionAndInitCyrValues($oCriteria, $sRegion, $sCity);
+			$this->_setCityConditionAndInitCyrValues(null, $oQueryBuilder, $sRegion, $sCity);
+
 		}
 		
 		$oSession = $oRequest->getSession();
 		$aOrWhereType = [];
 		$aOrWhereDistance = [];
 		if (intval($oSession->get('people', 0))) {
-			//$aOrWhereType[] = 'm.people = 1';
-			$aOrWhereType[] = $e->eq('people', 1);
+			$aOrWhereType[] = 'm.people = 1';
+			//$aOrWhereType[] = $e->eq('people', 1);
 		}
 		if (intval($oSession->get('box', 0))) {
-			//$aOrWhereType[] = 'm.box = 1';
-			$aOrWhereType[] = $e->eq('box', 1);
+			$aOrWhereType[] = 'm.box = 1';
+			//$aOrWhereType[] = $e->eq('box', 1);
 		}
 		if (intval($oSession->get('term', 0))) {
-			//$aOrWhereType[] = 'm.term = 1';
-			$aOrWhereType[] = $e->eq('term', 1);
+			$aOrWhereType[] = 'm.term = 1';
+			//$aOrWhereType[] = $e->eq('term', 1);
 		}
 		if (intval($oSession->get('far', 0))) {
-			//$aOrWhereDistance[] = 'm.far = 1';
-			$aOrWhereDistance[] = $e->eq('far', 1);
+			$aOrWhereDistance[] = 'm.far = 1';
+			//$aOrWhereDistance[] = $e->eq('far', 1);
 		}
 		if (intval($oSession->get('near', 0))) {
-			//$aOrWhereDistance[] = 'm.near = 1';
-			$aOrWhereDistance[] = $e->eq('near', 1);
+			$aOrWhereDistance[] = 'm.near = 1';
+			//$aOrWhereDistance[] = $e->eq('near', 1);
 		}
 		if (intval($oSession->get('piknik', 0))) {
-			//$aOrWhereDistance[] = 'm.piknik = 1';
-			$aOrWhereDistance[] = $e->eq('piknik', 1);
+			$aOrWhereDistance[] = 'm.piknik = 1';
+			//$aOrWhereDistance[] = $e->eq('piknik', 1);
 		}
 		if ($aOrWhereType) {
             //Добавляем первые скобки с OR
-			//$oQueryBuilder->andWhere($oQueryBuilder->expr()->andX(   join(' OR ', $aOrWhereType) ) );
-			$oCriteria->andWhere(call_user_func_array([$e, 'orX'], $aOrWhereType) );
+			$oQueryBuilder->andWhere($oQueryBuilder->expr()->andX(   join(' OR ', $aOrWhereType) ) );
+			//$oCriteria->andWhere(call_user_func_array([$e, 'orX'], $aOrWhereType) );
 		}
 		if ($aOrWhereDistance) {
             //Добавляем вторые скобки с OR
-			//$oQueryBuilder->andWhere($oQueryBuilder->expr()->andX(   join(' OR ', $aOrWhereDistance) ) );
-			$oCriteria->andWhere(call_user_func_array([$e, 'orX'], $aOrWhereDistance) );
+			$oQueryBuilder->andWhere($oQueryBuilder->expr()->andX(   join(' OR ', $aOrWhereDistance) ) );
+			//$oCriteria->andWhere(call_user_func_array([$e, 'orX'], $aOrWhereDistance) );
 		}
-		
-		//$aCollection = $oQueryBuilder->getQuery()->execute();
-		$aCollection = $repository->matching($oCriteria)->toArray();
+		$e = $oQueryBuilder->expr();
+		/** @var \Doctrine\ORM\QueryBuilder $oQueryBuilder*/
+		$oQueryBuilder->leftJoin('App:Users', 'u', 'WITH', $e->eq('m.userId', 'u.id'));
+		$oQueryBuilder->leftJoin('App:Cities', 'c', 'WITH', $e->eq('m.city', 'c.id'));
+		$oQueryBuilder->leftJoin('App:Regions', 'r', 'WITH', $e->eq('m.region', 'r.id'));
+
+		$oQueryBuilder->select('m.title, m.image, m.addtext, m.id, c.codename AS ccodename, m.codename, r.codename AS rcodename, m.city, m.price, c.cityName, r.regionName, u.displayName, m.box, m.term, m.people, m.far, m.near, m.piknik');
+		$aCollection = $oQueryBuilder->getQuery()->enableResultCache($oGazelMeService->ttl())->getResult();
+		//var_dump($aCollection);die;
+		//$aCollection = $repository->matching($oCriteria)->toArray();
+
+
+		$this->_nTotalAdverts = $oGazelMeService->getCountByQb($oQueryBuilder, 'm');
+
 		return $aCollection;
 	}
 	/**
@@ -211,18 +256,33 @@ class AdvertlistController extends Controller
 	 * @param string $sRegion = '' код региона латинскими буквами
      * @param string $sCity = ''   код города латинскими буквами
 	*/
-	private function _setCityConditionAndInitCyrValues(Criteria $oCriteria, string $sRegion = '', string $sCity = '') : void
+	private function _setCityConditionAndInitCyrValues($oCriteria = null, $oQueryBuilder = null, string $sRegion = '', string $sCity = '') : void
 	{
 		$oGazelMeService = $this->get('App\Service\GazelMeService');
 		$sCyrRegionName = '';
 		$sCyrCityName = '';
 		$nCityId = 0;
 		$nRegionId = 0;
-		$oGazelMeService->setCityConditionAndInitCyrValues($oCriteria, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity, $nCityId, $nRegionId);
+		if ($oCriteria) {
+			$oGazelMeService->setCityConditionAndInitCyrValues($oCriteria, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity, $nCityId, $nRegionId);
+		} else if ($oQueryBuilder) {
+			$oGazelMeService->setCityConditionAndInitCyrValuesByQueryBuilder($oQueryBuilder, $sCyrRegionName, $sCyrCityName, $sRegion, $sCity, $nCityId, $nRegionId);
+		}
+
 		$this->_sCyrRegionName = $sCyrRegionName;
 		$this->_sCyrCityName = $sCyrCityName;
 		$this->_nCityId = $nCityId;
 		$this->_nRegionId = $nRegionId;
+	}
+	/**
+	 * @param $
+	 * @return
+	*/
+	private function _json($aData) : Response
+	{
+		$oResponse = new Response( json_encode($aData) );
+		$oResponse->headers->set('Content-Type', 'application/json');
+		return $oResponse;
 	}
 	
 }

@@ -74,8 +74,8 @@ class AdvertController extends Controller  implements IAdvertController
 		$oRepository = $this->getDoctrine()->getRepository('App:Main');
 		
 		$advert = $oRepository->find($nAdvId);
-		if (!$advert) {//TODO 404!
-			die('TODO 404 ' . __FILE__ . __LINE__);
+		if (!$advert) {
+			throw $this->createNotFoundException('Advert not found');
 		}
 		$siteName = $this->getParameter('app.site_name');
 		
@@ -126,6 +126,8 @@ class AdvertController extends Controller  implements IAdvertController
 				if ($oFile) {
 					$sFileName = $oGazelMeService->getFileUploaderService()->upload($oFile);
 					$aData['path'] = '/' . $this->_subdir . '/' . $sFileName;
+					$oSession = $oRequest->getSession();
+					$oSession->set('lastAdvertImage', $aData['path']);
 					$aData['status'] = 'ok';
 				} else {
 					$aData['status'] = 'error';
@@ -171,6 +173,7 @@ class AdvertController extends Controller  implements IAdvertController
 
 	public function addFlashEx(string $sType, string $sMessage)
 	{
+		$sMessage = $this->get('translator')->trans($sMessage);
 		return $this->addFlash($sType, $sMessage);
 	}
 }

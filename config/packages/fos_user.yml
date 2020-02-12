@@ -3,8 +3,8 @@ fos_user:
     firewall_name: main
     user_class: App\Entity\Users
     from_email:
-        address: "lamzin.an@gmail.com"
-        sender_name: "lamzin.an@gmail.com"
+        address: '%env(resolve:ADMIN_EMAIL)%'
+        sender_name: '%env(resolve:ADMIN_EMAIL)%'
     profile:
         form:
             type: App\Form\ProfileFormType

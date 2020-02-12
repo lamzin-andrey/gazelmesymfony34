@@ -40,6 +40,9 @@ Vue.component('phoneview', require('./views/phoneview'));
 Vue.component('cityfilter', require('./views/cityfilter'));
 Vue.component('typefilter', require('./views/typefilter'));
 Vue.component('loginform', require('./views/loginform'));
+Vue.component('payform', require('./views/payform'));
+Vue.component('additems', require('./views/additems'));
+Vue.component('pagination', require('./views/pagination'));
 
 
 window.app = new Vue({
@@ -156,8 +159,19 @@ window.app = new Vue({
 		vueFileInputIsEnabled : true,
 
 		/** @property {String} uploadImageError модель Для вывода текста ошибки загрузки файла */
-		uploadImageError : ''
+		uploadImageError : '',
 		
+
+		//Переменные связанные с кнопкой показать ещё
+		/** @property {Boolean} btnMoreTextIsVisible для показа анимации */
+		btnMoreAnimIsVisible: false, 
+
+		/** @property {Boolean} btnMoreTextIsVisible для показа анимации */
+		btnMoreTextIsVisible: true, 
+
+		isStaticPaginationVisible: true, 
+
+		displayBtnMore: 'inherit'
 	},
 	/**
 	* @description Событие, наступающее после связывания el с этой логикой
@@ -168,7 +182,7 @@ window.app = new Vue({
 			Rest._token = Rest._token = this.$refs.loginform.getCsrf();
 		}
 		if (this.$refs.cityfilter) {
-			this.$refs.cityfilter.setLocation(cityId, regionId, isCity, locationDisplayName);
+			this.$refs.cityfilter.setLocation(cityId, regionId, isCity, window.locationDisplayName);
 		}
 		
 		$('#bttimg').css('display', 'block');
@@ -177,11 +191,15 @@ window.app = new Vue({
 		Rest._get(() => {  }, '/worker?action=automoderate', () => {});//TODO async
 
 		if (window.redirectToConfirmPhone === '1') {
-			location.href = '/smsverify';
+			setTimeout(() => {
+				location.href = '/smsverify';
+			}, 3 * 1000);
 		}
 
 		if (parseInt(window.redirectToCabinedId) > 0) {
-			location.href = '/cabinet/edit/' + parseInt(window.redirectToCabinedId);
+			setTimeout(() => {
+				location.href = '/cabinet';
+			}, 3 * 1000);
 		}
 
 		//Восстановить значения чекнутых чекбоксов (vue иногда такое vue)
@@ -192,9 +210,12 @@ window.app = new Vue({
 		this.safeCheckboxAttribute('near');
 		this.safeCheckboxAttribute('piknik');
 
-		//Если существуетзагруженное изображение, отметить это, чтобы изображения не изменялись при выборе чекбоксов
-		this.imageurl = this.$refs.filepreview.getAttribute('src');
-		this.imageUrlIsSet = (this.imageurl.split('/').length > 3 );
+		if (this.$refs.filepreview) {
+			//Если существуетзагруженное изображение, отметить это, чтобы изображения не изменялись при выборе чекбоксов
+			this.imageurl = this.$refs.filepreview.getAttribute('src');
+			this.imageUrlIsSet = (this.imageurl.split('/').length > 3 );
+		}
+		
 	},
 	/**
 	* @property methods эти методы можно указывать непосредственно в @ - атрибутах
@@ -216,6 +237,69 @@ window.app = new Vue({
 				this.$refs.filepreview.setAttribute('src', url);
 				this.imageurl = url;
 			}
+		},
+		/**
+		 * Подгрузка объявлений
+		*/
+		onClickGetMoreItems(evt) {
+			this.btnMoreAnimIsVisible = true;
+			this.btnMoreTextIsVisible = false;
+			evt.preventDefault();
+			let dt = {
+				page: HttpQueryString._GET('page', 1),
+				city: '',
+				region: ''
+			}, a, sCity, sRegion;
+			if (this.lastPage) {
+				dt.page = this.lastPage;
+			}
+			dt.page++;
+			this.lastPage = dt.page;
+			
+			
+			if (!window.sLocationUrl || window.sLocationUrl == '/') {
+				window.sLocationUrl = HttpQueryString.requestUri();
+			}
+			
+			if (window.sLocationUrl) {
+				a = sLocationUrl.split('/');
+				sRegion = a[1];
+				sCity = a[2];
+				if (sRegion && !sCity) {
+					sCity = sRegion;
+					sCity = '';
+				}
+				dt.city = sCity;
+				dt.region = sRegion;
+			}
+			Rest._post(dt, (data) => {
+				this.btnMoreAnimIsVisible = false;
+				this.btnMoreTextIsVisible = true;
+				
+				if (data.list.length) {
+					this.$refs.additems.addItems(data.list);
+
+					this.isStaticPaginationVisible = false;
+					this.$refs.pagination.setPagination(data.pageData);
+				} else {
+					this.displayBtnMore = 'none';
+				}
+			}, '/getnewitems.json', (a, b, c) => {
+				this.btnMoreAnimIsVisible = false;
+				this.btnMoreTextIsVisible = true;
+				this.defaultFailSendFormListener(a, b, c)
+			}, false);
+			return false;
+		},
+		/**
+		 * 
+		*/
+		onClickDeleteAdv(evt) {
+			if (confirm(this.$t('app.Are_You_sure_deleteAdv'))) {
+				return true;
+			}
+			evt.preventDefault();
+			return false;
 		},
 		/**
 		 * Восстанавливает значение 
@@ -409,8 +493,53 @@ window.app = new Vue({
 		},
 		alert(s){
 			alert(s);
-		}
-	}//end methods
+		},
+		/**
+		 * @description Стандартная обработка неуспешной отправки формы.
+		 * В случае ошибки сети или сбоя серверного приложения вызывает defaultError()
+		 * В случае ошибки серверного приложения анализирует data 
+		 *  Ожидает найти там status == 'error || success' и объект errors
+		 *  Ожидаемый формат объекта errors:
+		 *  key:String : errorMessage:String
+		 *  Для каждого ключа будет выполнен поиск инпута с таким id
+		 *   В случае успешного поиска для него будет установлен текст ошибки errorMessage
+		 * 
+		 * Можно  использовать в обработчике успешной отправки формы
+		 *  if (!this.$root.defaultFailSendFormListener(data)) {
+		 * 		return;
+		 * 	}
+		 *  @param {*} data
+		 *  @param {*} b
+		 *  @param {*} c
+		 *	@return Boolean
+		*/
+		defaultFailSendFormListener(data, b, c){
+			if (data.status == 'error') {
+				if (data.errors && this.formInputValidator) {
+					let i, jEl;
+					for (i in data.errors) {
+						jEl = $('#' + i);
+						if (jEl[0]) {
+							this.formInputValidator.viewSetError(jEl, data.errors[i]);
+						}
+					}
+				} else if (data.msg) {
+					this.alert(data.msg);
+				}
+				return false;
+			} else if (data.status != 'ok') {
+				this.defaultError();
+			}
+			return true;
+		},
+		/**
+		 * @description Показ алерта с ошибкой по умолчанию
+		*/
+		defaultError() {
+			this.alert( this.$t('app.DefaultError') );
+		},
+		setMainSpinnerVisible(	bVisible){}
+	 }//end methods
 
 	}).$mount('#app');
 

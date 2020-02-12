@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\GazelMeService;
 use FOS\UserBundle\Event\FilterUserResponseEvent;
 use FOS\UserBundle\Event\FormEvent;
 use FOS\UserBundle\Event\GetResponseNullableUserEvent;
@@ -22,7 +23,7 @@ use \Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 use ReCaptcha\ReCaptcha;
 
-class ResettingController extends AbstractController
+class ResettingController extends AbstractController implements IAdvertController
 {
 
     public function __construct(BaseResettingController $oBaseController, EventDispatcherInterface $eventDispatcher, FactoryInterface $formFactory, UserManagerInterface $userManager, TokenGeneratorInterface $tokenGenerator, MailerInterface $mailer, $retryTtl, ContainerInterface $oContainer)
@@ -54,11 +55,7 @@ class ResettingController extends AbstractController
 	{
 		$bCaptchaIsOn = $this->_oContainer->getParameter('app.google_recaptcha_on');
 		$bCaptchaIsOn = $bCaptchaIsOn == 'false' ? false : $bCaptchaIsOn;
-		if (!$bCaptchaIsOn) {
-			/** @var \Symfony\Component\HttpFoundation\RedirectResponse $oResult */
-			$oResult = $this->_oBaseController->sendEmailAction($oRequest);
-			return $oResult;
-		}
+
 		$sGRecaptchaResponse = $oRequest->get('g-recaptcha-response');
 		$sPhone = $oRequest->get('username');
 		$secret = $this->_oContainer->getParameter('app.google_recaptcha_secret_key');
@@ -71,6 +68,13 @@ class ResettingController extends AbstractController
 		if (!$oUser) {
 			return $this->_redirectToFailRoute('User with phone not found');
 		}
+
+		if (!$bCaptchaIsOn) {
+			/** @var \Symfony\Component\HttpFoundation\RedirectResponse $oResult */
+			$oResult = $this->_oBaseController->sendEmailAction($oRequest);
+			return $oResult;
+		}
+
 		if (!$sGRecaptchaResponse) {
 			return $this->_redirectToFailRoute('missing-input-response');
 		}
@@ -80,7 +84,7 @@ class ResettingController extends AbstractController
 			->verify($sGRecaptchaResponse, $sRemoteIp);
 		if ($oResponse->isSuccess()) {
 			// Verified!
-			return $this->_resettingController->sendEmailAction($oRequest);
+			return $this->_oBaseController->sendEmailAction($oRequest);
 		}
 		$aErrors = $oResponse->getErrorCodes();
 		$oTranslator = $this->_oContainer->get('translator');
@@ -118,15 +122,24 @@ class ResettingController extends AbstractController
 		$aEmail = explode('@', $oUser->getEmail());
 		$sEmail = $aEmail[0][0] . '******' . '@'  . $aEmail[1];
 		return $this->render('@FOSUser/Resetting/check_email.html.twig', [
-			'tokenLifetime' => ceil($this->retryTtl / 3600),
+			'tokenLifetime' => ceil($this->_retryTtl / 3600),
 			'email' => $sEmail
 		]);
 	}
 
 
-    public function resetAction(Request $request, $token)
+    public function resetAction(Request $oRequest, $token)
     {
-        return $this->_oBaseController->resetAction($request, $token);
+    	if ($oRequest->getMethod() == 'POST') {
+			$oGazelMeService = $this->_oContainer->get('App\Service\GazelMeService');
+			$sPassword = $oRequest->get('fos_user_resetting_form')['plainPassword']['first'];
+			$sError = $oGazelMeService->checkValidPassword($sPassword, $this);
+			if ($sError) {
+				$this->addFlash('notice', $sError);
+				return $this->redirectToRoute('fos_user_resetting_reset', ['token' => $token]);
+			}
+		}
+        return $this->_oBaseController->resetAction($oRequest, $token);
     }
 
 	/**
@@ -142,5 +155,15 @@ class ResettingController extends AbstractController
 		$sMessage = $this->_oContainer->get('translator')->trans($sMessage);
 		$this->addFlash('notice', $sMessage);
 		return $this->redirectToRoute($sFailRoute);
+	}
+
+	public function createFormEx(string $sFormTypeClass, $oEntity, array $aOptions)
+	{
+		return $this->createForm($sFormTypeClass, $oEntity, $aOptions);
+	}
+
+	public function addFlashEx(string $sType, string $sMessage)
+	{
+		return $this->addFlash($sType, $sMessage);
 	}
 }

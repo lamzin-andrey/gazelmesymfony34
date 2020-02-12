@@ -4,6 +4,7 @@ namespace App\Twig;
 use App\Entity\Cities;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use App\Service\GazelMeService;
+use App\Entity\Main;
 use Landlib\RusLexicon;
 
 class GazelmeExtension extends \Twig\Extension\AbstractExtension
@@ -25,7 +26,9 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			new \Twig_SimpleFilter('advlink', array($this, 'advlinkFilter')),
 			new \Twig_SimpleFilter('rouble', array($this, 'roubleFilter')),
 			new \Twig_SimpleFilter('location_name', array($this, 'locationName')),
+			new \Twig_SimpleFilter('location_name_by_location_objects', array($this, 'locationNameByLocationObjects')),
 			new \Twig_SimpleFilter('type_transfer', array($this, 'typeTransfer')),
+			new \Twig_SimpleFilter('type_transfer_by_advert', array($this, 'typeTransferByAdvert')),
 			new \Twig_SimpleFilter('distance', array($this, 'distanceFilter')),
 			new \Twig_SimpleFilter('translite_url', array($this, 'transliteUrl')),
 			new \Twig_SimpleFilter('is_city_equ_zero', array($this, 'isCityEquZero')),
@@ -33,6 +36,8 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			new \Twig_SimpleFilter('get_location_name', array($this, 'getLocationName')),
 			new \Twig_SimpleFilter('pluralize_hours', array($this, 'pluralizeHours')),
 			new \Twig_SimpleFilter('get_uid', array($this, 'getUid')),
+			new \Twig_SimpleFilter('raise_times', array($this, 'raiseTimes')),
+			new \Twig_SimpleFilter('set_url_var', array($this, 'setUrlVar')),
 		];
     }
 	/**
@@ -43,7 +48,7 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	 * @param int int $nCityId
 	 * @return string
 	*/
-    public function advlinkFilter(int $nId, string $sCityCodename, string $sRegionCodename, string $sAdvCodename, int $nCityId) : string
+    public function advlinkFilter(int $nId, $sCityCodename, $sRegionCodename, $sAdvCodename,  $nCityId) : string
     {
 		$sCity = '';
 		$globals = $this->container->get('twig');
@@ -61,7 +66,47 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	 * @param Cities $oCity
 	 * @return string
 	 */
-	public function locationName(string $sRegionName, ?Cities $oCity) : string
+	/*public function locationName(string $sRegionName, ?Cities $oCity) : string
+	{
+		$sCity = '';
+		$globals = $this->container->get('twig');
+		$vars = $globals->getGlobals();
+		$nSpecialCityId = $vars['city_zero_id'];
+		$sCityName = $oCity ? $oCity->getCityName() : '';
+		$nCityId = $oCity ? $oCity->getId() : 0;
+		if ($nCityId != $nSpecialCityId && $sCityName) {
+			$sCity = (' ' . $sCityName);
+		}
+		return ($sRegionName . $sCity);
+	}*/
+
+	/**
+	 * Выводит имя локации (например, "Тверская область Тверь" или "Москва")
+	 * @param string $sRegionName
+	 * @param int $nCity
+	 * @param string $sCityName
+	 * @return string
+	*/
+	public function locationName(string $sRegionName, $nCity, $sCityName) : string
+	{
+		$sCity = '';
+		$globals = $this->container->get('twig');
+		$vars = $globals->getGlobals();
+		$nSpecialCityId = $vars['city_zero_id'];
+		$nCityId = $nCity;
+		if ($nCityId != $nSpecialCityId && $sCityName) {
+			$sCity = (' ' . $sCityName);
+		}
+		return ($sRegionName . $sCity);
+	}
+
+	/**
+	 * Выводит имя локации (например, "Тверская область Тверь" или "Москва")
+	 * @param string $sRegionName
+	 * @param Cities $oCity
+	 * @return string
+	 */
+	public function locationNameByLocationObjects(string $sRegionName, ?Cities $oCity) : string
 	{
 		$sCity = '';
 		$globals = $this->container->get('twig');
@@ -74,6 +119,22 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 		}
 		return ($sRegionName . $sCity);
 	}
+
+	/**
+	 * Получает имя локации (а это может быть как city_name, так и region_name)
+	 * @param  string $sRegionName
+	 * @param  int $nCity
+	 * @param  string $sCityName
+	 * @return string
+	 */
+	/*public function getLocationName(string $sRegionName, int $nCity, string $sCityName) : string
+	{
+		if ($this->container->getParameter('app.city_zero_id') != $nCity) {
+			return $sCityName;
+		}
+		return $sRegionName;
+	}*/
+
 	/**
 	 * @param float $v
 	 * @return string
@@ -105,11 +166,27 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	}
 	/**
 	 * Выводит тип перевозки (например, "Грузовая, термобудка" или "Пассажирская")
-	 * @param \App\Entity\Main $oItem
+	 * @oaram int $nBox
+	 * @oaram int $nTerm
+	 * @oaram int $nPeople
 	 * @return string
 	*/
-    public function typeTransfer(\App\Entity\Main $oItem) : string
+    public function typeTransfer(int $nBox, int $nTerm, int $nPeople) : string
     {
+		/** @var \App\Entity\Main $oItem */
+		$oItem = new Main();
+		$oItem->setBox($nBox);
+		$oItem->setTerm($nTerm);
+		$oItem->setPeople($nPeople);
+		return $this->oGazelService->getCarsTypes($oItem);
+	}
+	/**
+	 * Выводит тип перевозки (например, "Грузовая, термобудка" или "Пассажирская")
+	 * @param \App\Entity\Main $oItem
+	 * @return string
+	 */
+	public function typeTransferByAdvert(\App\Entity\Main $oItem) : string
+	{
 		return $this->oGazelService->getCarsTypes($oItem);
 	}
 	/**
@@ -192,9 +269,30 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	{
 		return ($n . ' ' . RusLexicon::getMeasureWordMorph($n, 'час', 'часа', 'часов') );
 	}
+
+	/**
+	 * Вы можете поднять ваше объявление n раз
+	 * @param  int $n
+	 * @return string
+	*/
+	public function raiseTimes(int $n) : string
+	{
+		$t = $this->translator;
+		$sTimes = $n . ' ' . RusLexicon::getMeasureWordMorph($n, $t->trans('time'), $t->trans('times'), $t->trans('time')) ;
+		$s = $t->trans('You can raise your ad %n_times%', ['%n%' => $sTimes]);
+		return $s;
+	}
 	
 	public function getUid()
 	{
 		return $this->_oViewDataService->getUid();
 	}
+	/**
+	 * @see GazelMeService::setUrlVar
+	*/
+	public function setUrlVar(string $sVarName, string $sValue) : string
+	{
+		return $this->oGazelService->setUrlVar($sVarName, $sValue);
+	}
+
 }

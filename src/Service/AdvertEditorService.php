@@ -4,6 +4,7 @@ namespace App\Service;
 use App\Entity\Users;
 use App\Form\AdvertForm;
 use App\Form\AjaxFileUploadFormType;
+use ReCaptcha\ReCaptcha;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormInterface;
@@ -37,8 +38,13 @@ class AdvertEditorService
 
 	/** @property int $_nExistsUserId идентификатор уже существующего пользователя */
 	private $_nExistsUserId = 0;
+
 	/** @property $_oController need  implements IAdvertController */
 	private $_oController = null;
+
+	/** @property \App\Entity\Main $_oAdvert  */
+	private $_oAdvert = null;
+
 
 
 	public function __construct(ContainerInterface $container, ViewDataService $oViewDataService, FileUploaderService $oFileUploaderService, GazelMeService $oGazelMeService, RegionsService $oRegionsService)
@@ -83,12 +89,14 @@ class AdvertEditorService
 		$aData['aPhone'] = [];
 		$aData['aCompanyName'] = [];
 		$aData['agreeAttrs'] = [];
+		$t = $this->translator;
+		$aData['title'] = $t->trans('To add an advert');
 
-		/*if ($oAdvert && $this->getUser() && $this->getUser()->getId() != $oAdvert->getUserId()) {
+		if ($oAdvert && $oAdvert->getId() && $this->getUser() && $this->getUser()->getId() != $oAdvert->getUserId()) {
 			$aData = $this->_oGazelMeService->getViewDataService()->getDefaultTemplateData($oRequest);
 			$this->addFlash('notice', 'You have not access to thid advert');
 			return $aData;
-		}*/
+		}
 
 		if ($this->getUser()) {
 			$aData['aCompanyName']['disabled'] = $aData['aPhone']['disabled']  = 'disabled';
@@ -116,8 +124,9 @@ class AdvertEditorService
 					if ($this->getUser() && $this->getUser()->getIsSmsVerify() == 1) {
 						$aData['redirectToConfirmPhone'] = '0';
 						$aData['redirectToCabinedId'] = $this->_oAdvert->getId();
-						$sMsg = 'Data saved';
+						$sMsg = 'Your ad has been added and will be placed on the site after verification';
 					}
+					$oSession->remove('lastAdvertImage');
 					$this->addFlash('success', $this->translator->trans($sMsg));
 				} else {
 					$this->addFlash('notice', $this->translator->trans('Advert form has errors'));
@@ -132,7 +141,7 @@ class AdvertEditorService
 
 		$aData['form'] = $oForm->createView();
 		$aData['ajax_form'] = $oAjaxForm->createView();
-		$aData['image'] = 'images/gazel.jpg';
+		$aData['image'] = $oSession->get('lastAdvertImage', 'images/gazel.jpg');
 
 
 		$oRegionService = $this->_oRegionsService;;
@@ -180,6 +189,12 @@ class AdvertEditorService
 	 **/
 	private function _isAdditionalValid() : bool
 	{
+		//Валидация Google Captcha
+		if (!$this->_oGazelMeService->checkGoogleCaptcha()) {
+			$this->_oController->addFlashEx('notice', 'missing-input-response');
+			return false;
+		}
+
 		$aData = $this->_formData();
 		//валидация заполненности хотя бы одного из чекбоксов
 		//Тип авто
@@ -231,7 +246,7 @@ class AdvertEditorService
 				//проверяем, не совпал ли пароль
 				$bPasswordValid = $this->_oEncoder->isPasswordValid($oUser, $sPassword);
 				//и пользователь его устанавливал раньше
-				if (!$bPasswordValid && !$oUser->getIsAnonymous()) {
+				if (!$bPasswordValid && !$oUser->getIsAnonymous() ) {
 					$this->_oGazelMeService->addFormError('User already exists, but password not valid', 'phone');
 					return false;
 				}
@@ -241,6 +256,18 @@ class AdvertEditorService
 					$this->_nExistsUserId = $oUser->getId();
 					$this->_bNeedUpdatePassword = true;
 				}
+				//Если пароль валиден, но не совпадают телефон или email
+				if ($bPasswordValid && !$oUser->getIsAnonymous() ) {
+					if ($oUser->getUsername() != $this->_oGazelMeService->normalizePhone($sPhone)) {
+						$this->_oGazelMeService->addFormError('Email is busy', 'email');
+						return false;
+					}
+					if ($oUser->getEmail() != $sEmail) {
+						$this->_oController->addFlashEx('notice', 'You can change email on your profile after authentication');
+					}
+
+				}
+
 				$this->_nExistsUserId = $oUser->getId();
 			} else {
 				//Нет пользователя с таким логином или паролем - значит надо создать
@@ -275,7 +302,7 @@ class AdvertEditorService
 	/**
 	 * Если пользователь не авторизован создаётся пользователь.
 	 * Данные формы также сохраняются.
-	 **/
+	**/
 	private function _saveAdvertData(\Symfony\Component\Form\FormInterface $oForm, \App\Service\GazelMeService $oGazelMeService, Request $oRequest, bool $bModeEdit)
 	{
 		$this->_oEm = $this->getDoctrine()->getManager();
@@ -325,6 +352,9 @@ class AdvertEditorService
 		}
 		$this->_oAdvert->setPhone( $this->_oGazelMeService->normalizePhone( $this->_oAdvert->getPhone() ) );
 
+		/*$o = new \App\Entity\Main;
+		$o->set /**/
+		$this->_oAdvert->setCreated( $oGazelMeService->now() );
 		$this->_oEm->persist($this->_oAdvert);
 		$this->_oEm->flush();
 
@@ -334,6 +364,7 @@ class AdvertEditorService
 		$nId = $this->_oAdvert->getId();
 		$sDQuery = 'UPDATE App:Main AS m '
 			. 'SET m.region = :r, m.city = :c, m.delta = :id, m.userId = :uid '
+			. $this->_setIsDeletedAndModeratedFragment()
 			. 'WHERE m.id = :id';
 		/** @var \Doctrine\ORM\Query $oQuery */
 		$oQuery = $this->_oEm->createQuery($sDQuery);
@@ -351,9 +382,11 @@ class AdvertEditorService
 	private function _saveUser(Request $oRequest)
 	{
 		$aData = $this->_formData();
-		$oUserManager = $this->_oController->get('fos_user.user_manager');
+		$oUserManager = $this->_oContainer->get('fos_user.user_manager');
 		$oUser = $oUserManager->createUser();
 		$oUser->setUsername($aData['phone']);
+		$oUser->setPhone($aData['phone']);
+		$oUser->setDisplayName($aData['company_name']);
 		$sEmail = trim($aData['email'] ?? '');
 		if (!$sEmail) {
 			//Установим временный email чтобы FOS не ругались
@@ -368,6 +401,7 @@ class AdvertEditorService
 		}
 		$oUser->setPlainPassword($sPassword);
 		$oUser->setEnabled(true);
+
 		$oUserManager->updateUser($oUser);
 		$this->_nExistsUserId = $oUser->getId();
 	}
@@ -402,7 +436,7 @@ class AdvertEditorService
 			$oUser->setPlainPassword($aData['password']);
 			$oUser->setEnabled(true);
 			$oUser->setIsAnonymous(false);
-			$oUserManager = $this->get('fos_user.user_manager');
+			$oUserManager = $this->_oContainer->get('fos_user.user_manager');
 			$oUserManager->updateUser($oUser);
 			$this->_nExistsUserId = $oUser->getId();
 		}
@@ -437,5 +471,20 @@ class AdvertEditorService
 		$aData['phone'] = $oUser->getPhone();
 		//$oForm->setData($aData);
 		$oForm->submit($aData);
+	}
+	/**
+	 * Устанавливает фрагмент SQL запроса сохранения данных модерации
+	 * Если пользователь уже подтвердил свой номер телефона по sms isDeleted устанавливается в 0
+	 * @return string
+	*/
+	private function _setIsDeletedAndModeratedFragment() : string
+	{
+		$oUser = $this->getUser();
+		if ($oUser) {
+			if ($oUser->getIsSmsVerify()) {
+				return ', m.isDeleted = 0';
+			}
+		}
+		return '';
 	}
 }

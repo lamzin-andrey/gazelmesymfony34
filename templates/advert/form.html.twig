@@ -1,8 +1,9 @@
 {% extends "base.html.twig" %}
+
 {% block content %}
 
 <div id="mainsfrormadd">
-	<div id="add_legend">Добавить свое объявление</div>
+	<div id="add_legend">{{ title }}</div>
 	<hr id="add_hr"/>
 		{{  form_start(form, {'action': path(sActionPath, actionPathAttributes), 'attr': {'enctype': 'multipart/form-data', 'v-on:submit' : 'onSubmitAdvertForm'} }) }}
 		<div>
@@ -33,20 +34,20 @@
 					 {{ form_row(form.piknik) }}
 				</div>
 			</div>
-			<p class="adtitle">
+			<div class="adtitle">
 				{{ form_label(form.title) }} <span class="red">*</span> {{ form_widget(form.title) }}
 				{{ form_errors(form.title) }}
-			</p>
-			<p class="add_text">
+			</div>
+			<div class="add_text">
 				{{ form_label(form.addtext) }}<span class="red">*</span>
 				{{ form_widget(form.addtext) }}
 				<span class="right praf" id="afctrl">955 / 1000</span>
 				{{ form_errors(form.addtext) }}
-			</p>
-			<p class="price">
+			</div>
+			<div class="price">
 				{{ form_row(form.price) }}
-			</p>
-			<p class="image ">
+			</div>
+			<div class="image ">
 				<img ref="filepreview" src="{{ asset(image) }}" class="ii" id="imgview"/> <label for="image">Загрузите изображение</label><br/>
 				<table>
 					<tr>
@@ -73,7 +74,7 @@
 					</tr>
 				</table>
 				{{ form_widget(form.imgpath, {'value' : image} ) }}
-			</p>
+			</div>
 			<div class="both"></div>
 			<div class="authorname py-4">
 				{# <?=FV::labinp("person", "Введите ваше имя или название компании *", @$addForm->name, 0, 0, $authorized);?> #}
@@ -99,10 +100,10 @@
 
 			<div id="grb" {% if (app.user is not null) %} class="hide"{% endif %}>
 				<p class="register">Если хотите обновлять и редактировать объявление, введите пароль
-				<br/>Адрес электронной почты понадобится вам, если вы его забудете.</p>
-				<p class="pwdmail">
+					<br/>Адрес электронной почты понадобится вам, если вы его забудете.</p>
+				<div class="pwdmail">
 					{{ form_row(form.password, {'attr' : { 'v-model' : 'password' } }) }}
-				</p>
+				</div>
 				<div class="pwdmail">
 					{{ form_row(form.email, {'attr' : { 'v-model' : 'email' } }) }}
 				</div>
@@ -131,6 +132,11 @@
 							<div class="both">&nbsp;</div>
 					</table>
 				</div>
+				<p class="fcomment green">
+					Если каптча долго не устанавливается (не требует нажимать на картинки, а просто не включается), отправьте форму без неё.
+					Это сохранит введённые вами данные, а ReCaptcha  может заработать после нескольких отправок.
+					Спаасибо за понимание.
+				</p>
 			{% endif %}
 			
 			<div class="right prmf">
@@ -145,6 +151,7 @@
 
 
 {% block js %}
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 	<script type="text/javascript" src="/js/L.js?{{assetsVersion}}" async></script>
 	<script type="text/javascript">
 		var token = '{{ csrf_token }}';

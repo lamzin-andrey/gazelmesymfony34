@@ -25,6 +25,11 @@ security:
                 
             anonymous:    true
 
+            remember_me:
+                secret:   '%kernel.secret%' # key: '%secret%' # as case
+                path:     /
+                lifetime: 604800 # 1 week in secondslifetime: 604800 # 1 week in seconds
+
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 
@@ -37,11 +42,13 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/cabinet, roles: ROLE_USER }
+        - { path: ^/payment, roles: ROLE_USER }
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/, role: ROLE_ADMIN }
-        
+        - { path: ^/private/, role: ROLE_ADMIN }
+
     encoders:
         # FOS\UserBundle\Model\UserInterface: bcrypt
         FOS\UserBundle\Model\UserInterface: bcrypt

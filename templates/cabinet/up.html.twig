@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+{% set title = 'Payment'|trans %}
+
+{% block content %}
+	<div id="mainsfrormadd" class="bgwhite">
+		<div id="add_legend">{{ 'Raise ad'|trans }}</div>
+		<hr id="add_hr"/>
+		{% if (app.user.upcount > 0) %}
+			<p class="b please tc">{{  nCount|raise_times }} </p>
+		{% else %}
+			{% include('cabinet/yandexform.html.twig') %}
+		{% endif %}
+	</div>
+{% endblock %}
+
+
+{% block js %}
+
+{% if (app.user) %}
+    <script>var uidTest = '{{ app.user.id }}';</script>
+{% else %}
+    <script>var uidTest = '0';</script>
+{% endif %}
+	
+<script>var uidTest2 = '{{ 0|get_uid }}';</script>
+
+<script type="text/javascript" src="/js/L.js?{{assetsVersion}}" async></script>
+<script type="text/javascript">
+	var token = '{{ csrf_token }}';
+	var uid   = '{{ uid }}';
+	window.SITE_NAME   = '{{ siteName }}';
+</script>
+
+{% endblock %}
+

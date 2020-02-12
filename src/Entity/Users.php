@@ -48,7 +48,7 @@ class Users extends BaseUser
 	/**
      * @var array of Main
      * @ORM\OneToMany(targetEntity="Main", mappedBy="userObject")
-     */
+    */
     protected $advertsByUsername;
 
     /**

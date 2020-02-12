@@ -49,9 +49,7 @@
 	.buttons  {
 		width:76%;
 	}
-	.aformwrap {
-		width:94%;
-	}
+	
 }
 
 @media (max-width:350px) {
@@ -62,11 +60,7 @@
 		width:50%;
 	}
 }
-@media (max-width:360px) {
-	.aformwrap {
-		width:83%;
-	}
-}
+
 @media (max-width:240px) {
 	#logo-in img {
 		max-width:235px;
@@ -76,22 +70,17 @@
 		margin-left: 11px;
 	}
 	.aformwrap {
-		width:57%!important;
 		min-height:270px;
 	}
-	.aformwrap.upformwrap {
-		width:92%!important;
-	}
+	
 	.aformwrap input[type="button"].payvariant,.aformwrap input[type="button"].paysum {
 		font-size:12px!important;
 		padding-left:56px!important;
 		
 	}
-	.aformwrap .aphone input[type=text]{
-		width:74%!important;
-	}
+	
 	.aformwrap  .apwd input[type=password] {
-		width:931;
+		width:931px;
 	}
 	
 	.payformwr {
@@ -105,6 +94,11 @@
 	}
 	.upb {
 		left:76%;
+	}
+	.popupouter {
+		position: relative!important;
+		margin: 0 auto!important;
+		width:230px;
 	}
 }
 @media (max-width:320px) {
@@ -141,10 +135,7 @@
 	#mainsfrormadd {
 		margin:0px!important;
 	}
-	.aformwrap {
-		width:72%;
-		min-height:270px;
-	}
+	
 	
 	.payformmsg.tj {
 		text-align:left;
@@ -173,8 +164,15 @@
 	.cpcodewr input[type=text] {
 		min-width:166px;
 	}
-}
 
+}
+@media (min-width:320px) {
+	.popupouter {
+		position: relative;
+		margin: 0 auto;
+		width:310px;
+	}
+}
 @media (max-width:375px) {
 	#mainsfrormadd, .form {
 		max-width:unset!important;
@@ -191,16 +189,12 @@
 	#mainsfrormadd {
 		margin:0px!important;
 	}
-	.aformwrap {
-		/*width:314px!important0;*/
-		/*width:100%;*/
-		min-height:270px;
-	}
+	
 	.payformmsg.tj {
 		text-align:left;
 	}
 	.aformwrap input[type="button"].payvariant, .aformwrap input[type="button"].paysum{
-		font-size:18px!important0;
+		font-size:18px!important;
 		padding-left:56px;
 		
 	}
@@ -224,27 +218,56 @@
 		min-width:166px;
 	}
 }
+
+@media (min-width:344px){
+	.aphone input[type=text], .aphone input[type=password], .aphone input[type=number] {
+		width: 77%;
+	}
+}
+
 /** для формы логина выше этого считаем что у нас десктоп */
 @media (min-width:391px) {
 	.aformwrap {
 		width:390px;
 	}
-	.aformwrap .aphone input[type=text], .aphone input[type=password] {
-		width:369px;
+	.aformwrap .aphone input[type=text], .aphone input[type=password], .aphone input[type=number] {
+		width:72%;
 	}
 }
 /** на прочих разрешениях тянем на всю ширину экрана */
 @media (min-width:240px) {
-	.aformwrap .aphone input[type=text]{
-		width:70%;
+	
+	/*.aformwrap  .apwd input[type=password] {
+		width:88%;
+		height: 34px;
 	}
-	.aformwrap  .apwd input[type=password] {
-		width:80%;
+	 .aformwrap .aphone input[type=number] {
+		width:96%;
+	 }
+	 .aformwrap .aphone input[type=text]{
+		width:78%;
+	}*/
+	
+	.aphone input[type=text], .aphone input[type=password], .aphone input[type=number] {
+		width: 67%;
 	}
+	.apwd input[type=password] {
+		width: 82%;
+	}
+	
+	
 }
 /** выше этого считаем что у нас десктоп*/
 @media (min-width:641px) {
-	.aformwrap input[type="button"].payvariant,.aformwrap input[type="button"].paysum {
+	#search input[type=submit] {
+		min-height: inherit;
+		font-size: inherit;
+	}
+
+	.aformwrap input[type="button"].payvariant,
+		.aformwrap input[type="submit"].payvariant,
+		.aformwrap input[type="button"].paysum,
+		.aformwrap input[type="submit"].paysum {
 		font-size:26px;
 	}
 
@@ -267,11 +290,7 @@
 	#mainsfrormadd, .form {
 		width:100%;
 	}
-	.aphone input[type=text], .aphone input[type=password] {
-		height:32px;
-		width:330px;
-		font-size:24pt;
-	}
+	
 }
 
 /** выше этого значения большинство объявлений выравниваются слева от фото */
@@ -353,6 +372,9 @@ html {height:100%}
 .adtitle input[type=text]{
 	width:79%;
 }
+.adtitle, .add_text, .price, .image {
+	margin-top:14px;
+}
 
 #content {
 	clear:both;
@@ -408,7 +430,7 @@ body {
 	vertical-align:middle;
 }
 .pageh100 body, .pageh100 body div#app, .pageh100  {
-	height:100%;
+	min-height:100%;
 }
 
 #logo-in {
@@ -559,9 +581,9 @@ li {
 	/*width:100%;*/
 	margin:0 auto;
 }
-.popupouter {
+/*.popupouter {
 	position:relative; margin:0 auto; width:407px;
-}
+}*/
 .upformwrap {
 	position:relative !important;
 }
@@ -570,7 +592,7 @@ li {
 }
 .aformwrap {
 	margin:0 auto;
-	height:170px;
+	min-height:170px;
 	border: 1px solid gray;
 	border-radius:8px;
 	padding:10px;
@@ -630,7 +652,7 @@ li {
 	display:inline !important;
 	height:auto !important;
 }
-.aphone input[type=text], .aphone input[type=password] {
+.aphone input[type=text], .aphone input[type=password], .apwd input[type=password], .aphone input[type=number] {
 	display:inline-block;
 	margin-top:3px;
 	vertical-align: top;
@@ -672,17 +694,27 @@ li {
 	color:#000981;
 }
 
-.authorname input[type=text]{
-	width:99%
+.authorname input[type=text], 
+	#mainsfrormadd input[type=password],
+	#mainsfrormadd input[type=text],
+	#mainsfrormadd input[type=number],
+	#mainsfrormadd input[type=email] {
+	width:99%;
+}
+input[type=number]#advert_form_phone {
+	max-width: 99%;
 }
 .red {color:red;}
 .pwdmail label{
 	width:46px;
 	display:inline-block;
 }
+.pwdmail {
+	min-height: 40px;
+}
 #grb {
 	border: #e0e0e0 solid 1px;
-	padding: 0px 8px;
+	padding: 12px 8px;
 }
 .socbut {
 	width:380px;
@@ -748,10 +780,11 @@ li {
 	margin: 0 auto; 
 }
 #paglist li{
-	display:inline;
+	display:inline-block;
 	border-radius:4px;
 	border-color:#1B3D7F;
 	background-color:#1B3D7F;
+	margin: 2px;
 }
 #paglist li.active {
 	display:inline;
@@ -820,8 +853,8 @@ li {
 	width:75px;
 }
 .please {margin:5px 0 0 8px; color:#3279B2; padding:4px;}
-.please_in {margin: 0 auto; width:70%; text-align:center}
-.please_in span{vertical-align:top; display:block-inline}
+.please_in {margin: 0 auto; width:70%; text-align:center;}
+.please_in span{vertical-align:top; display:inline-block;}
 
 .upb {
 	position:fixed;
@@ -882,11 +915,11 @@ li {
 	margin-bottom:4px;
 	min-height:42px;
 }
-.aformwrap input[type="button"].payvariant{
+.aformwrap input[type="button"].payvariant, .aformwrap input[type="submit"].payvariant {
 	text-align:left;
 	padding-left:69px;
 }
-.aformwrap input[type="button"].paysum{
+.aformwrap input[type="button"].paysum, .aformwrap input[type="submit"].paysum{
 	text-align:left;
 	padding-left:56px;
 }
@@ -901,7 +934,7 @@ li {
 	cursor:pointer;
 }
 .payformwr {
-	height:212px;
+	min-height:212px;
 	margin-bottom:12px;
 }
 .payformmsg {
@@ -1044,3 +1077,35 @@ input[type=number] {
 	font-size: 24pt;
 	max-width:138px;
 }
+#phonepayform {
+	max-width: none;
+}
+#hPaysumGr div, #hPaymethodGr div {
+	margin-bottom: 10px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+.listnone li{
+	list-style-type: none;
+}
+
+.op0 {
+	opacity: 0;
+}
+.sqr1px {
+	width: 1px;
+	height: 1px;
+}
+.vspacerBtnMore {
+	height: 30px;
+}
+input[type=text],input[type=password], input[type=number], input[type=email], input[type=submit], input[type=button] {
+	min-height: 34px;
+	font-size: 24px;
+}
+

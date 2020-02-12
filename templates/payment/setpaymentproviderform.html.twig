@@ -1,0 +1,32 @@
+{% extends "base.html.twig" %}
+
+{% trans_default_domain 'Payform' %}
+{% set title = 'Payment'|trans %}
+{% block content %}
+    {% set nIspage100Percents = 1 %}
+
+    <div class="aformwrap upformwrap inrelative payformwr">
+        <div id="hPaymethodGr">
+            {{ form_start(paymethodform, { 'action' : path('payprovider') }) }}
+                <p class="b please tj payformmsg">{{ 'Pay %sum% rubles. Select a Payment Method'|trans( {'%sum%' : sum}) }}</p>
+                <div>
+                    <img src="/images/p/y.png" class="pblabel">
+                    <input type="submit" class="payvariant" id="yad" name="yad" value="{{ 'YaMoney'|trans }}">
+                </div>
+                <div>
+                    <img src="/images/p/c.png" class="pblabel">
+                    <input type="submit" class="payvariant" id="card" name="card" value="{{ 'Card'|trans }}">
+                </div>
+                {# вариант с робокассой, тут потом #}
+                <div>
+                    <img src="/images/p/m.png" class="pblabel">
+                    <input type="submit" class="payvariant" id="mob" name="mob" value="{{ 'Mobile phone'|trans }}">
+                </div>
+            {{ form_end(paymethodform) }}
+        </div>
+
+        <div id="hRoboplace" class="hide">
+            <p class="b please tj payformmsg">После нажатия на кнопку вы будете перенаправлены на страницу сервиса Робокасса <br>Выбрав там вашего мобильного оператора вы сможете провести оплату.</p>
+    </div>
+
+{% endblock content %}

@@ -60,10 +60,10 @@ class AdvertControllerTest extends WebTestCase
 			'advert_form[title]' => 'TestTitle',
 			'advert_form[phone]' => $sPhone,
 			'advert_form[addtext]' => 'Test data',
+			'advert_form[agreement]' => '1',
 			'advert_form[price]' => 250 //это необязательное поле и оно должно быть равно 1 если не заполнено
 		];
-        /*var_dump($aFormData);
-        die;/**/
+
         $oForm = $submitButton->form($aFormData);
         $crawler = $client->submit($oForm);
 		
@@ -71,9 +71,10 @@ class AdvertControllerTest extends WebTestCase
 		
 		$oRepository = $this->_oEm->getRepository('App:Main');
 		$oAdvert = $oRepository->findOneBy(['phone' => $sPhone], ['id' => 'DESC']);
+
 		$this->assertTrue($oAdvert !== null);
 		$this->assertTrue($oAdvert->getRegion() == 1);
-		$this->assertTrue($oAdvert->getCity() == null);
+		$this->assertTrue($oAdvert->getCity() == $this->_oContainer->getParameter('app.city_zero_id') );
 		$this->assertTrue($oAdvert->getPeople() == 1);
 		$this->assertTrue($oAdvert->getFar() == 1);
 		$this->assertTrue($oAdvert->getNear() == 0);
@@ -129,6 +130,7 @@ class AdvertControllerTest extends WebTestCase
 			'advert_form[city]' => 0,
 			'advert_form[people]' => 1,
 			'advert_form[far]' => 1,
+			'advert_form[agreement]' => '1',
 			'advert_form[title]' => 'TestTitle',
 			'advert_form[phone]' => $sPhone,
 			'advert_form[addtext]' => 'Test data',
@@ -156,6 +158,7 @@ class AdvertControllerTest extends WebTestCase
 
 		$this->assertTrue( $oAdvert[0]->getUserId() == $oUser[0]->getId() );
 		$this->assertTrue( $oUser[0]->getIsAnonymous() === true );
+		$this->assertTrue( $oUser[0]->getPhone() === $sPhone );
 
 		//Подать объявление новым пользователем с email и паролем
 		$crawler = $client->request('GET', '/podat_obyavlenie');
@@ -201,6 +204,7 @@ class AdvertControllerTest extends WebTestCase
 
 		$this->assertTrue( $oAdvert[0]->getUserId() == $oUser[0]->getId() );
 		$this->assertTrue( $oUser[0]->getIsAnonymous() === false );
+		$this->assertTrue( $oUser[0]->getPhone() === $sPhone );
 
 		$this->_deleteAllTestAdverts();
 		$this->_deleteTestUser();
@@ -229,7 +233,7 @@ class AdvertControllerTest extends WebTestCase
 		$oAdvert = $oRepository->findOneBy(['phone' => $sPhone], ['id' => 'DESC']);//->orderBy();
 		$this->assertTrue($oAdvert !== null);
 		$this->assertTrue($oAdvert->getRegion() == 1);
-		$this->assertTrue($oAdvert->getCity() == null);
+		$this->assertTrue($oAdvert->getCity() == $this->_oContainer->getParameter('app.city_zero_id') );
 		$this->assertTrue($oAdvert->getPeople() == 1);
 		$this->assertTrue($oAdvert->getFar() == 1);
 		$this->assertTrue($oAdvert->getNear() == 0);
@@ -300,7 +304,7 @@ class AdvertControllerTest extends WebTestCase
 		$oAdvert = ($adverts[0] ?? null);
 		$this->assertTrue($oAdvert !== null);
 		$this->assertTrue($oAdvert->getRegion() == 1);
-		$this->assertTrue($oAdvert->getCity() == null);
+		$this->assertTrue($oAdvert->getCity() == $this->_oContainer->getParameter('app.city_zero_id'));
 		$this->assertTrue($oAdvert->getPeople() == 1);
 		$this->assertTrue($oAdvert->getFar() == 1);
 		$this->assertTrue($oAdvert->getNear() == 0);
@@ -339,7 +343,7 @@ class AdvertControllerTest extends WebTestCase
 		$oAdvert = ($adverts[0] ?? null);
 		$this->assertTrue($oAdvert !== null);
 		$this->assertTrue($oAdvert->getRegion() == 1);
-		$this->assertTrue($oAdvert->getCity() == null);
+		$this->assertTrue($oAdvert->getCity() == $this->_oContainer->getParameter('app.city_zero_id') );
 		$this->assertTrue($oAdvert->getPeople() == 1);
 		$this->assertTrue($oAdvert->getFar() == 1);
 		$this->assertTrue($oAdvert->getNear() == 0);

@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
+{% set nIspage100Percents = 1 %}
+{% set title = 'Your adverts'|trans %}
 
-{# block title %}My title{% endblock #}
 
 {% block content %}
 {% if (nCountAdverts) %}
@@ -16,11 +17,11 @@
 
 {% block js %}
 
-{% if (app.user) %}}
+{% if (app.user) %}
     <script>var uidTest = '{{ app.user.id }}';</script>
 {% else %}
     <script>var uidTest = '0';</script>
-{% endif %}}
+{% endif %}
 	
 <script>var uidTest2 = '{{ 0|get_uid }}';</script>
 

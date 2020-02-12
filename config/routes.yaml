@@ -37,3 +37,6 @@ advinmegapolis:
     path: /{sRegion}/{sTitle}/{nAdvId}
     defaults: { _controller: 'App\Controller\AdvertController::advinmegapolis' }
     
+#yandex_http_notice:
+#    path: /rupaysystems/httpnotices/yandexform
+#    controller: App\Controller\YamoneyNoticeRecieverController::yandexChecksum

@@ -25,7 +25,7 @@ class PayTransaction
     /**
      * @var int|null
      *
-     * @ORM\Column(name="user_id", type="integer", nullable=true, options={"comment"="Идентификатор пользователя"})
+     * @ORM\Column(name="user_id", type="integer", nullable=true, options={"comment"="Идентификатор пользователя phd_users.id"})
      */
     private $userId;
 
@@ -46,21 +46,35 @@ class PayTransaction
     /**
      * @var string
      *
-     * @ORM\Column(name="real_sum", type="decimal", precision=10, scale=2, nullable=false, options={"comment"="Сумма в рублях которую пользователь реально потратил"})
+     * @ORM\Column(name="real_sum", type="decimal", precision=10, scale=2, nullable=false, options={"comment"="Сумма в рублях которую пользователь реально потратил", "default"="0.00"})
      */
-    private $realSum;
+    private $realSum = 0;
 
     /**
      * @var string|null
      *
-     * @ORM\Column(name="method", type="string", length=4, nullable=true, options={"comment"="ps - платеж с Якошелька, ms - платеж с мобильного номера, bs - платеж с помощью карты"})
+     * @ORM\Column(name="method", type="string", length=4, nullable=true, options={"comment"="ps - платеж с Якошелька, ms - платеж с мобильного номера (qiwi), bs - платеж с помощью карты"})
      */
     private $method = '';
+
+	/**
+	 * @var string|null
+	 *
+	 * @ORM\Column(name="phone", type="string", length=11, nullable=true, options={"comment"="номер телефона при ms"})
+	 */
+	private $phone = '';
+
+	/**
+	 * @var int|null
+	 * @ORM\Column(name="qiwi_bill_id", type="integer", nullable=true, options={"comment"="billId - идентификатор, полученный в ответе сервера qiwi при создании счёта"})
+	*/
+	private $qiwiBillId = 0;
+
 
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="created", type="datetime", nullable=true, options={"comment"="Время операции"})
+     * @ORM\Column(name="created", type="datetime", nullable=true, options={"comment"="Время операции", "default"="CURRENT_TIMESTAMP"})
      */
     private $created;
 
@@ -81,9 +95,17 @@ class PayTransaction
     /**
      * @var int|null
      *
-     * @ORM\Column(name="rk_http_notice_id", type="integer", nullable=true, options={"comment"="Если платеж подтвержден нотайсом от робокассы, содержит id записи в rk_http_notice"})
+     * @ORM\Column(name="qiwi_http_notice_id", type="integer", nullable=true, options={"comment"="Если платеж подтвержден нотайсом от qiwi, содержит id записи в qiwi_http_notice"})
      */
-    private $rkHttpNoticeId = '0';
+    private $qiwiHttpNoticeId = '0';
+
+
+	/**
+	 * @var \DateTime|null
+	 *
+	 * @ORM\Column(name="notify_datetime", type="datetime", nullable=true, options={"comment"="Время, когда поступил нотайс от платежной системы", "default"="CURRENT_TIMESTAMP"})
+	 */
+	private $notifyDatetime;
 
     public function getId(): ?int
     {
@@ -150,6 +172,18 @@ class PayTransaction
         return $this;
     }
 
+	public function getPhone(): ?string
+	{
+		return $this->phone;
+	}
+
+	public function setPhone(?string $sPhone): self
+	{
+		$this->phone = $sPhone;
+
+		return $this;
+	}
+
     public function getCreated(): ?\DateTimeInterface
     {
         return $this->created;
@@ -161,6 +195,17 @@ class PayTransaction
 
         return $this;
     }
+
+	public function getNotifyDatetime(): ?\DateTimeInterface
+	{
+		return $this->notifyDatetime;
+	}
+
+	public function setNotifyDatetime(?\DateTimeInterface $o): self
+	{
+		$this->notifyDatetime = $o;
+		return $this;
+	}
 
     public function getIsConfirmed(): ?bool
     {
@@ -186,17 +231,28 @@ class PayTransaction
         return $this;
     }
 
-    public function getRkHttpNoticeId(): ?int
+    public function getQiwiHttpNoticeId(): ?int
     {
-        return $this->rkHttpNoticeId;
+        return $this->qiwiHttpNoticeId;
     }
 
-    public function setRkHttpNoticeId(?int $rkHttpNoticeId): self
+    public function setQiwiHttpNoticeId(?int $id): self
     {
-        $this->rkHttpNoticeId = $rkHttpNoticeId;
+        $this->qiwiHttpNoticeId = $id;
 
         return $this;
     }
 
+    public function setQiwiBillId(?int $nBillId): self
+	{
+		$this->qiwiBillId = $nBillId;
+
+		return $this;
+	}
+
+	public function getQiwiBillId(): ?int
+	{
+		return $this->qiwiBillId;
+	}
 
 }

@@ -25,6 +25,12 @@ parameters:
   
   # Site domain
   app.domain: '%env(resolve:HOST)%'
+
+  # Email с которого приходят письма
+  app.site_sender_email: '%env(resolve:ADMIN_EMAIL)%'
+
+  # Email на который приходят письма
+  app.site_recipient_email: '%env(resolve:OBSERVER_EMAIL)%'
   
   # Ключи для re-captcha
   app.google_recaptcha_site_key: '%env(resolve:GOOGLE_RECAPTCHA_SITEKEY)%'
@@ -33,6 +39,7 @@ parameters:
   # Ключи для отправки sms
   app.smspilotkey: '%env(resolve:SMSPILOTKEY)%'
   app.smspilot_sendername: '%env(resolve:SMSPILOT_SENDERNAME)%'
+  app.politicDoc: /images/Politika_zashity_i_obrabotki_personalnyh_dannyh_2019-08-14.doc
   # Интервал между возможностью отпарвки сообщений
   app.sms_interval: 63
   # Надо ли вообще отправлять sms
@@ -45,13 +52,38 @@ parameters:
   
   #Каталог с загружаемыми файлами
   app.uploadfiledir: 'images'
-  
+
+  # Реквизиты платежных систем
+
+  # Яндекс деньги
+
+  # Время жизни кэша передаваемое в enableResultCache (получать $oGazelMeService->ttl() )
+  app.resuilt_cache_ttl: 3600
+
+  # Время жизни кэша для класса HttpRequest
+  app.http_request_cache_ttl: 0
+
+  app.yacache: "%env(resolve:YANDEX_CACHE)%"
+  app.yasecretkey: "%env(resolve:YANDEX_SECRET_KEY)%"
+
+  #Код операции, которая записывается в operations по умолчанию при успешной оплате
+  rupayservices.operation_code_id: 2
+
+  # Массив дробных чисел. Допустимые к вводу суммы. Если не пуст, при создании транзакции выполняется валидация
+  rupayservices.a_fixed_sum: [60.00, 200.00, 700.00]
+
+  # Система тестирования
   test:
       phone: '80001112233'
       email: 'ftest_user@host.do'
       password: '123456aA'
       wrong_password: '1234567Aa'
 
+
+
+  memcached.servers:
+    - memcached://localhost:11211
+  memcached.config: {distribution: 'consistent', compression: true}
 
 services:
     # default configuration for services in *this* file
@@ -145,6 +177,16 @@ services:
         tags:
             - { name: form.type, alias: app_user_registration }
 
+    memcached.doctrine:
+      class: Memcached
+      factory: Symfony\Component\Cache\Adapter\MemcachedAdapter::createConnection
+      arguments: ['%memcached.servers%', '%memcached.config%']
+
+    doctrine.cache.memcached:
+      class: Doctrine\Common\Cache\MemcachedCache
+      calls:
+        - [ setMemcached, [ '@memcached.doctrine' ] ]
+
 
 # Это один из вариантов сделать видимым в twig шаблоне значение из конфига (app.city_zero_id) определена выше
 # Это можно перенести в config/packages/twig.yaml
@@ -154,5 +196,10 @@ twig:
     recapcthasitekey: "%app.google_recaptcha_site_key%"
     google_recaptcha_on: "%app.google_recaptcha_on%"
     redirectToConfirmPhone: "0"
-
-
+    site_name: "%app.site_name%"
+    domain: '%app.domain%'
+    politicDoc: '%app.politicDoc%'
+    maxpage: 0
+    page: 0
+    limit: 100000
+    pageData: []
