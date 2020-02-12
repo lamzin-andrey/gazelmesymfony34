@@ -1109,3 +1109,6 @@ input[type=text],input[type=password], input[type=number], input[type=email], in
 	font-size: 24px;
 }
 
+#aop, #_submit {
+	font-size:14px;
+}
