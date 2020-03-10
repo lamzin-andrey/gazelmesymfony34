@@ -38,6 +38,8 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 			new \Twig_SimpleFilter('get_uid', array($this, 'getUid')),
 			new \Twig_SimpleFilter('raise_times', array($this, 'raiseTimes')),
 			new \Twig_SimpleFilter('set_url_var', array($this, 'setUrlVar')),
+			new \Twig_SimpleFilter('format_phone', array($this, 'formatPhone')),
+			new \Twig_SimpleFilter('n2br', array($this, 'replaceNewlineToBrTag')),
 		];
     }
 	/**
@@ -294,5 +296,20 @@ class GazelmeExtension extends \Twig\Extension\AbstractExtension
 	{
 		return $this->oGazelService->setUrlVar($sVarName, $sValue);
 	}
-
+	/**
+	 * @param string $s
+	 * @return
+	*/
+	public function replaceNewlineToBrTag(string $s) : string
+	{
+		return str_replace("\n", '<br>', $s);
+	}
+	/**
+	 * @param $
+	 * @return
+	*/
+	public function formatPhone(string $s) : string
+	{
+		return $this->oGazelService->formatPhone($s);
+	}
 }

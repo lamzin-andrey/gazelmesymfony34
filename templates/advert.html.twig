@@ -25,7 +25,7 @@
 				</div>
 			</div>
 			<div class="both"></div>
-			<div class="avte pt10">{{ advert.addtext }}</div>
+			<div class="avte pt10">{{ advert.addtext|n2br|raw }}</div>
 			<phoneview id="{{ advert.id }}" ref="pv{{ advert.id }}"></phoneview>
 		</li>
 	</ul>

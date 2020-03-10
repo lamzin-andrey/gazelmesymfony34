@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{# block title %}My title{% endblock #}
+
+{% block content %}
+{% if (nCountAdverts) %}
+	<ul class="lstnone mlist" id="strip">
+		{% for item in list %}
+		{{ include('admin/adminpagelist_item.html.twig', {'item' : item}) }}
+		{% endfor %}
+	</ul>
+	<additems ref="additems"></additems>
+	<div id="socnetbuttons" class="slogan socbut" style="text-align:center">
+		<div class="ya-share2" data-services="vkontakte,facebook,odnoklassniki,moimir,gplus,twitter,linkedin,viber,whatsapp"></div>
+	</div>
+{% else %}
+<div id="mainsfrormsuccess" class="vis">
+<noindex>
+	<p>Извините, для этого населенного пункта пока ничего нет. <br/>
+	Станьте первым, предложившим здесь услуги по перевозке на Газели!
+</noindex>
+</div>
+{% endif %}
+
+{% include('list/mainpaging.html.twig') %}
+
+{% endblock %}
+
+
+
+{% block js %}
+
+{% if (app.user) %}
+    <script>var uidTest = '{{ app.user.id }}';</script>
+{% else %}
+    <script>var uidTest = '0';</script>
+{% endif %}
+
+{% if (sLocationUrl is defined) %}
+	<script>var sLocationUrl = '{{ sLocationUrl }}';</script>
+{% endif %}
+
+
+<script>var cityZeroId = parseInt('{{ city_zero_id }}');</script>
+
+	
+<script>var uidTest2 = '{{ 0|get_uid }}';</script>
+
+<script type="text/javascript" src="/js/L.js?{{assetsVersion}}" async></script>
+<script type="text/javascript">
+	var token = '{{ csrf_token }}';
+	var uid   = '{{ uid }}';
+	var cityId = '{{ nCityId }}';
+	var isCity = '{{ nIsCity }}';
+	var regionId = '{{ nRegionId }}';
+	window.SITE_NAME   = '{{ siteName }}';
+</script>
+<script type="text/javascript" src="//yastatic.net/es5-shims/0.0.2/es5-shims.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="//yastatic.net/share2/share.js" charset="utf-8"></script>
+{# if ($_SERVER['HTTP_HOST'] == 'gz.loc'): #}
+{% if isLocalhost %}
+	{#<script type="text/javascript" src="/js/test.js?a=0"></script>#}
+{% endif %}
+{% endblock %}
+
+{% block filterform %}
+<div id="mfwrap">
+	{#{ include('list/usermenu.html.twig', {'item' : item}) }#}
+	<div>&nbsp;</div>
+	<div class="block bggray text-center">
+		{% include 'widgets/locationform.html.twig' %}
+	</div>
+	<a class="block bggray text-center" href="{{ path('showfilter') }}" @click="onClickSwapFilter">Фильтр</a>
+	<typefilter ref="typefilter" formaction="{{ sLocationUrl }}" querystring="{{ sFilterQueryString }}"></typefilter>{# vue2 component #}
+</div>
+{% endblock %}

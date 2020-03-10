@@ -27,6 +27,13 @@ class CabinetController extends Controller implements IAdvertController
 	public function delete(int $nAdvertId, GazelMeService $oGazelMeService, TranslatorInterface $t)
 	{
 		$oUser = $this->getUser();
+
+		if ($oUser->hasRole('ROLE_SUPER_ADMIN')) {
+			$oGazelMeService->setAdvertAsDeleted($nAdvertId, 0, true, true);
+			$sReferer = $oGazelMeService->getReferer('/private/newadv');
+			return $this->redirect($sReferer);
+		}
+
 		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData();
 		/** @var \App\Entity\Users $oUser */
 		$oAdvert = $oGazelMeService->setAdvertAsDeleted($nAdvertId, $oUser->getId(), true);
@@ -66,6 +73,13 @@ class CabinetController extends Controller implements IAdvertController
 	public function up(int $nAdvertId, GazelMeService $oGazelMeService, TranslatorInterface $t)
 	{
 		$oUser = $this->getUser();
+
+		if ($oUser->hasRole('ROLE_SUPER_ADMIN')) {
+			$oGazelMeService->upAdvert($nAdvertId, 0, true, true);
+			$sReferer = $oGazelMeService->getReferer('/private/newadv');
+			return $this->redirect($sReferer);
+		}
+
 		$aData = $oGazelMeService->getViewDataService()->getDefaultTemplateData();
 		/** @var \App\Entity\Users $oUser */
 		$nUpcount = $oUser->getUpcount();

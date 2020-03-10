@@ -759,4 +759,20 @@ class GazelMeService
 		//Каптча может быть отключена в .env файле в этом случае считаем что валидация всегда пройдена
 		return true;
 	}
+	/**
+	 * @param string $sDefault
+	 * @return HTTP_REFERER
+	*/
+	public function getReferer(string $sDefault)
+	{
+		return $this->request()->server->get('HTTP_REFERER', $sDefault);
+	}
+	/**
+	 *
+	 * @return Request
+	*/
+	public function request() : Request
+	{
+		return $this->oContainer->get('request_stack')->getCurrentRequest();
+	}
 }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,19 +22,22 @@ class AdvertlistController extends Controller
 {
 	
 	/** @property string _sCyrCityName кирилическое имя локации */
-	private $_sCyrCityName = '';
+	protected $_sCyrCityName = '';
 	
 	/** @property string _sCyrRegionName кирилическое имя локации */
-	private $_sCyrRegionName = '';
+	protected $_sCyrRegionName = '';
 	
 	/** @property int  _nCityId идентификатор города */
-	private $_nCityId  = 0;
+	protected $_nCityId  = 0;
 	
 	/** @property int  _nRegionId идентификатор региона или крупного города */
-	private $_nRegionId  = 0;
+	protected $_nRegionId  = 0;
 
 	/** @property int  _nTotalAdverts Общее количество записей в таблице объвлений, которые удовлетворяют условиям фильтра. Устанавливается в _loadAdvList  */
-	private $_nTotalAdverts  = 0;
+	protected $_nTotalAdverts  = 0;
+
+	/** @property string _sViewName путь к шабюлону для функции render */
+	protected $_sViewName = 'list/mainlist.html.twig';
 
 
 	/**
@@ -87,7 +91,7 @@ class AdvertlistController extends Controller
 	  * @param string $sRegion = '' код региона латинскими буквами
       * @param string $sCity = ''   код города латинскими буквами
     */
-	private function _advListPage(Request $oRequest, GazelMeService $oGazelMeService, string $sRegion = '', string $sCity = ''/*, RegionsService $oRegionsService*/)
+	protected function _advListPage(Request $oRequest, GazelMeService $oGazelMeService, string $sRegion = '', string $sCity = ''/*, RegionsService $oRegionsService*/)
 	{
 		$oRegionsService = $this->get('App\Service\RegionsService');
 		//adverts data
@@ -153,7 +157,7 @@ class AdvertlistController extends Controller
 		}
 		$aPageData = $oGazelMeService->preparePaging(intval($oRequest->get('page', 1)), $this->_nTotalAdverts, $this->getParameter('app.records_per_page', 10), 10);
 		$oGazelMeService->setPageData($aData, $aPageData);
-        return $this->render('list/mainlist.html.twig', $aData);
+        return $this->render($this->_sViewName, $aData);
 	}
 	/**
 	 * 
@@ -162,7 +166,7 @@ class AdvertlistController extends Controller
 	 * @param GazelMeService $oGazelMeService
 	 * @return array
 	*/
-	private function _loadAdvList(string $sRegion = '', string $sCity = '', Request $oRequest, GazelMeService $oGazelMeService) : array
+	protected function  _loadAdvList(string $sRegion = '', string $sCity = '', Request $oRequest, GazelMeService $oGazelMeService) : array
 	{
 		$limit = $this->getParameter('app.records_per_page', 10);
 		$nOffset = 0;
@@ -172,28 +176,18 @@ class AdvertlistController extends Controller
 		$nOffset = $n * $limit;
 		$repository = $this->getDoctrine()->getRepository('App:Main');
 		$oQueryBuilder = $repository->createQueryBuilder('m');
-		$oQueryBuilder = $oQueryBuilder->select()
-			->where( $oQueryBuilder->expr()->eq('m.isDeleted', 0) )
-			->andWhere( $oQueryBuilder->expr()->eq('m.isHide', 0) )
-			->andWhere( $oQueryBuilder->expr()->eq('m.isModerate', 1) )
+
+		$oQueryBuilder = $oQueryBuilder
 			->orderBy('m.delta','DESC')
 			->setMaxResults($limit)
 			->setFirstResult($nOffset);
-		/*$oCriteria = Criteria::create();
-		$e = Criteria::expr();
-		$oCriteria->where( $e->eq('isDeleted', 0) )
-			->andWhere( $e->eq('isHide', 0) )
-			->andWhere( $e->eq('isModerate', 1) )
-			->orderBy(['delta' => Criteria::DESC])
-			->setMaxResults($limit)
-			->setFirstResult(0);*/
 
-	
+		$this->_setBasicSqlWhere($oQueryBuilder);
+
 		if ($sRegion) {
             //Тут в зависимости от http запроса может быть ещё пару раз вызван
             //$oQueryBuilder->andWhere();
 			$this->_setCityConditionAndInitCyrValues(null, $oQueryBuilder, $sRegion, $sCity);
-
 		}
 		
 		$oSession = $oRequest->getSession();
@@ -233,13 +227,15 @@ class AdvertlistController extends Controller
 			$oQueryBuilder->andWhere($oQueryBuilder->expr()->andX(   join(' OR ', $aOrWhereDistance) ) );
 			//$oCriteria->andWhere(call_user_func_array([$e, 'orX'], $aOrWhereDistance) );
 		}
+
+
 		$e = $oQueryBuilder->expr();
 		/** @var \Doctrine\ORM\QueryBuilder $oQueryBuilder*/
 		$oQueryBuilder->leftJoin('App:Users', 'u', 'WITH', $e->eq('m.userId', 'u.id'));
 		$oQueryBuilder->leftJoin('App:Cities', 'c', 'WITH', $e->eq('m.city', 'c.id'));
 		$oQueryBuilder->leftJoin('App:Regions', 'r', 'WITH', $e->eq('m.region', 'r.id'));
 
-		$oQueryBuilder->select('m.title, m.image, m.addtext, m.id, c.codename AS ccodename, m.codename, r.codename AS rcodename, m.city, m.price, c.cityName, r.regionName, u.displayName, m.box, m.term, m.people, m.far, m.near, m.piknik');
+		$oQueryBuilder->addSelect('m.title, m.image, m.addtext, m.id, c.codename AS ccodename, m.codename, r.codename AS rcodename, m.city, m.price, c.cityName, r.regionName, u.displayName, m.box, m.term, m.people, m.far, m.near, m.piknik');
 		$aCollection = $oQueryBuilder->getQuery()->enableResultCache($oGazelMeService->ttl())->getResult();
 		//var_dump($aCollection);die;
 		//$aCollection = $repository->matching($oCriteria)->toArray();
@@ -248,6 +244,18 @@ class AdvertlistController extends Controller
 		$this->_nTotalAdverts = $oGazelMeService->getCountByQb($oQueryBuilder, 'm');
 
 		return $aCollection;
+	}
+
+	/**
+	 * Устанавливает базовое условие SQL запроса
+	 * @param $
+	*/
+	protected function _setBasicSqlWhere(QueryBuilder $oQueryBuilder)
+	{
+		$oQueryBuilder->where( $oQueryBuilder->expr()->eq('m.isDeleted', 0) )
+		->andWhere( $oQueryBuilder->expr()->eq('m.isHide', 0) )
+		->andWhere( $oQueryBuilder->expr()->eq('m.isModerate', 1) );
+		$oQueryBuilder->select();
 	}
 	/**
 	 * Добавит в $aWhere фильтр по городу и/или региону

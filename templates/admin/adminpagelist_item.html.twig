@@ -1,0 +1,46 @@
+<li>
+	<img src="{{item.image}}" class="ii" title="{{item.addtext}}" />
+	<div class="shortitemtext left">
+		<header><a href='#' title="{{item.addtext}}">{{item.title}}</a></header>
+		<div class="text">
+			<div class="vprice b"><span class="name">{{ 'PriceAd'|trans }}:</span> {{ item.price|rouble }}</div>
+			<div class="name">{{ item.regionName|location_name(item.city, item.cityName) }}</div>
+			<div class="name">
+			{% if (app.user) %}
+				{{ app.user.displayName }}
+			{% endif %}
+			</div>
+			<div class="name">{{ item.box|type_transfer(item.term, item.people) }}</div>
+			<div class="phone">
+				Телефон: {{ item.username|format_phone }}
+			</div>
+		</div>
+	</div>
+	<div class="cabcontrols">
+		{# admin/automoderation/{{item.id  - должны
+				UPDATE main SET is_moderate = 1, automoderate = 0 WHERE id = $
+		  - и вернуться сюда же
+		 #}
+		{% if (item.isModerate) %}
+			<a href="{{ path('admin_automoderation', {'id' : item.id} ) }}" class="hideshow">{{ 'Скрыть'|trans }}</a>
+		{% else %}
+			<a href="/admin/automoderation/{{item.id}}" class="hideshow">{{ 'Публиковать'|trans }}</a>
+		{% endif %}
+
+		{# тут по идее все условия отключаем, проверяем если админ - поднимаем #}
+		<a href="/cabinet/up/{{item.id}}/">Поднять</a>
+
+		{# тут по идее все условия отключаем, проверяем если админ - удаляем #}
+		<a href="/cabinet/delete/{{item.id}}" @click="onClickDeleteAdv" class="delitem">{{ 'Удалить'|trans }}</a>
+
+		{% if (item.isModerate == 0) %}
+			<span class="cabitem darkred pt10">{{ 'Не проверено модератором'|trans }}</span>
+		{% endif%}
+	</div>
+	<div class="both"></div>
+	<div class="pt10">
+		<div class="avte">
+			{{ item.addtext|n2br|raw }}
+		</div>
+	</div>
+</li>
